@@ -5,7 +5,7 @@ const Navibar = () => {
     return (
         <>
             <AppBar>
-                <Typography> Test Title </Typography>
+                <Typography> Team 08 </Typography>
             </AppBar>
         </>
     )
