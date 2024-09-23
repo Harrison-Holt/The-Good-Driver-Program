@@ -1,6 +1,5 @@
 
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Navibar from '../../components/Navibar';
 
 const About: React.FC = () => {
