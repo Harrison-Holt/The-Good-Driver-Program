@@ -22,7 +22,7 @@ steps:
       
       # Sync AWS CodeCommit repository
       cd repo-mirror
-      git push --mirror https://${AWS_REPO_URL}:$(urlencode ${AWS_GIT_PASSWORD})@${AWS_GIT_USERNAME}
+      git push --mirror https://${AWS_GIT_USERNAME}:$(urlencode ${AWS_GIT_PASSWORD})@${AWS_REPO_URL}
       
   displayName: 'Sync repository with AWS CodeCommit'
   env:
