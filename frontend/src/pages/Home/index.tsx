@@ -15,15 +15,6 @@ const About: React.FC = () => {
         </p>
       </div>
 
-      {/* Main Content */}
-      <div className="container mt-5">
-        <h2 className="mb-4">How It Works</h2>
-        <p>
-          This web application incentivizes better driving performance among truck drivers by awarding points for good behavior 
-          and potentially deducting points for bad behavior. Sponsors (companies working with truck drivers) can award points 
-          that drivers can redeem for products through a third-party service.
-        </p>
-
         {/* Project Information Section */}
         <div className="about-page mt-5">
           <h2>Project Information</h2>
@@ -56,17 +47,6 @@ const About: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Additional Info Section */}
-        <div className="mt-5">
-          <h3>Why Incentivize Truck Drivers?</h3>
-          <p>
-            Truck drivers play a critical role in the logistics industry, and promoting safe driving practices not only benefits the drivers 
-            themselves but also enhances road safety for everyone. By rewarding drivers, companies can foster a culture of excellence, 
-            reduce accidents, and improve efficiency in the supply chain.
-          </p>
-        </div>
-      </div>
     </>
   );
 };
