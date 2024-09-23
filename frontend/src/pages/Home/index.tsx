@@ -17,7 +17,7 @@ const About: React.FC = () => {
 
         {/* Project Information Section */}
         <div className="about-page mt-5">
-          <h2>Project Information</h2>
+          <h2 className="text-center">Project Information</h2>
           <div className="card shadow-sm p-4 mb-5 bg-white rounded">
             <div className="row mb-3">
               <div className="col-md-6">
