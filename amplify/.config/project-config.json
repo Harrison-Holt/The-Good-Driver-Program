@@ -1,0 +1,17 @@
+{
+  "projectName": "Team08amplify",
+  "version": "3.1",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react",
+    "config": {
+      "SourceDir": "frontend/src",
+      "DistributionDir": "fronten/dist",
+      "BuildCommand": "npm run build",
+      "StartCommand": "npm run dev"
+    }
+  },
+  "providers": [
+    "awscloudformation"
+  ]
+}
