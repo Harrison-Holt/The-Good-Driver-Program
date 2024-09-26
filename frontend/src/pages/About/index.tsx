@@ -1,9 +1,11 @@
 
 import React from 'react';
+import Navibar from '../../components/Navibar';
 
 const About: React.FC = () => {
   return (
     <>
+      <Navibar />
       {/* Hero Section */}
       <div className="bg-light p-5 text-center">
         <h1 className="display-4">About Our Trucking Incentive System</h1>
