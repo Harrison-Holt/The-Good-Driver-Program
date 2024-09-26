@@ -3,16 +3,23 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { createBrowserRouter } from "react-router-dom";
 import Home from './pages/Home';
+import About from './pages/About';
+import Navibar from './components/Navibar';
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <Home/>
     },
+    {
+        path: "/about",
+        element: <About/>
+    }
 ]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <Navibar />
     <RouterProvider router={ router } />
   </StrictMode>,
 )
