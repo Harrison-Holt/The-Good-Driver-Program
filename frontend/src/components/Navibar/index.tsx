@@ -1,23 +1,15 @@
-import { AppBar, Typography, Button, Toolbar, IconButton, Box } from "@mui/material"
-import MenuIcon from '@mui/icons-material/Menu';
+import { AppBar, Typography, Button, Toolbar, Box } from "@mui/material"
 import { useNavigate} from "react-router-dom";
+import Sidebar from "../Sidebar";
 
-const Navibar = () => {
+const Navibar: React.FC = () => {
     const nav = useNavigate();
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        sx={{ mr: 2 }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
+                    <Sidebar/>
                     <Typography
                         variant="h6"
                         component="div"
