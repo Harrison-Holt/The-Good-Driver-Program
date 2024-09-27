@@ -18,8 +18,9 @@ const Navibar: React.FC = () => {
                     </Typography>
                     <Button
                         variant="contained"
-                        onClick={() => {nav("/about")}}>
-                        About
+                        onClick={/*Navigate to login page*/()=>{}}
+                    >
+                        Login
                     </Button>
                 </Toolbar>
             </AppBar>

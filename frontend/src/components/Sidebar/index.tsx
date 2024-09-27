@@ -1,4 +1,4 @@
-import { Drawer, Button, IconButton} from "@mui/material"
+import { Drawer, Button, IconButton, Box, List, ListItem, ListItemButton, Typography} from "@mui/material"
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate} from "react-router-dom";
 import { useState } from "react";
@@ -6,6 +6,27 @@ import { useState } from "react";
 const Sidebar: React.FC = () => {
     const [open, setOpen] = useState(false);
     const nav = useNavigate();
+
+    const sidebarNavList = (
+        <Box sx={{ width: 250 }} role="presentation" onClick={() => {setOpen(false)}}>
+            <List>
+                <ListItem>
+                    <ListItemButton
+                        onClick={() => {nav("/")}}
+                    >
+                        Home
+                    </ListItemButton>
+                </ListItem>
+                <ListItem>
+                    <ListItemButton
+                        onClick={() => {nav("/about")}}
+                    >
+                        About
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    )
 
     return (
         <>
@@ -23,12 +44,7 @@ const Sidebar: React.FC = () => {
                 open={open}
                 onClose={() => {setOpen(false)}}
             >
-                {/* TODO: Replace with a list of pages which the user can navigate to */}
-                <Button
-                    onClick={() => {nav("/")}}
-                >
-                    Home
-                </Button>
+                {sidebarNavList}
             </Drawer>
         </>
     )
