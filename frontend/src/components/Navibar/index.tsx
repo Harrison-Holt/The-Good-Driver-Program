@@ -1,9 +1,8 @@
-import { AppBar, Typography, Button, Toolbar, Box } from "@mui/material"
-import { useNavigate} from "react-router-dom";
+import { AppBar, Typography, Toolbar, Box } from "@mui/material"
 import Sidebar from "../Sidebar";
+import LoginButton from "../LoginButton";
 
 const Navibar: React.FC = () => {
-    const nav = useNavigate();
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -16,12 +15,7 @@ const Navibar: React.FC = () => {
                         sx={{flexGrow: 1}}>
                         Team 08
                     </Typography>
-                    <Button
-                        variant="contained"
-                        onClick={/*Navigate to login page*/()=>{nav("/")}}
-                    >
-                        Login
-                    </Button>
+                    <LoginButton />
                 </Toolbar>
             </AppBar>
         </Box>
