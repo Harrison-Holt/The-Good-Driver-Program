@@ -2,6 +2,7 @@
 import { Stack, Typography, Box, Divider } from '@mui/material';
 import Navibar from '../../components/Navibar';
 import React from 'react';
+import SearchBar from '../../components/SearchBar';
 
 const Home: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const Home: React.FC = () => {
           <Divider orientation='vertical' variant='middle' flexItem/>
           <Stack spacing={2}>
             <Typography>Content Display area</Typography>
+            <SearchBar/>
           </Stack>
         </Stack>
       </Box>
