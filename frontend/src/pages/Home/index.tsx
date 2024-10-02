@@ -1,26 +1,47 @@
 
-import { Stack, Typography, Box, Divider } from '@mui/material';
+import { Stack, Typography, Box, Divider, List, ListItem, ListItemButton } from '@mui/material';
 import Navibar from '../../components/Navibar';
-import React from 'react';
-import SearchBar from '../../components/SearchBar';
+import React, { useState } from 'react';
+import DashboardInfo from '../../components/DashboardInfo';
 
 const Home: React.FC = () => {
+  const [selectedDisplay, setselectedDisplay] = useState("search");
+
+  const dashboardList = (
+    <Box>
+      <List>
+        <ListItem>
+          <ListItemButton>
+            Home
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton>
+            Notifications
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton>
+            Search
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton>
+            Applications
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Box>
+  )
+
   return (
     <>
       <Box>
         <Navibar />
         <Stack direction={"row"} spacing={5}>
-          <Stack spacing={2}>
-            <Typography variant='h5'>List of Dashboard items</Typography>
-            <Typography variant='h5'>Points</Typography>
-            <Typography variant='h5'>Profile</Typography>
-            <Typography variant='h5'>Applications</Typography>
-          </Stack>
+          {dashboardList}
           <Divider orientation='vertical' variant='middle' flexItem/>
-          <Stack spacing={2}>
-            <Typography>Content Display area</Typography>
-            <SearchBar/>
-          </Stack>
+          <DashboardInfo/>
         </Stack>
       </Box>
     </>
