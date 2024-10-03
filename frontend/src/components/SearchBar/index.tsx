@@ -7,7 +7,7 @@ const SearchBar: React.FC = () => {
                 id="search-bar"
                 freeSolo
                 disableClearable
-                options={["placeholder", "replace with real options"]}
+                options={["placeholder", "replace with real options", 'item']}
                 renderInput={(params) => (
                     <TextField
                         {...params}

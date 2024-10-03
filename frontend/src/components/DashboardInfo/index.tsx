@@ -28,7 +28,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
     } else if (currentDisplay === "notifications") {
         dashJsx = (
             <>
-                <Typography variant='h6'>Applications</Typography>
+                <Typography variant='h6'>Notifications</Typography>
             </>
         );
     } else if (currentDisplay === "applications") {
