@@ -1,13 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
-import counterSlice from './counterSlice'
-/**
- * A template for the store, most of this code will stay, although the slice currently
- * included in the reducer will likely not.
- */
+import userSlice from './userSlice'
 
 export const store = configureStore({
   reducer: {
-    counter: counterSlice
+    currentUser: userSlice
   },
 })
 
