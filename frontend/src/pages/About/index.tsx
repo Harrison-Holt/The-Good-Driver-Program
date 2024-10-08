@@ -21,7 +21,7 @@ const About: React.FC = () => {
         let data = await response.json();
 
         // Parse the `body` which contains the actual JSON data
-        data = JSON.parse(result.body);
+        data = JSON.parse(data.body);
 
         console.log('API Response:', data); // Log the response to inspect it
         setAboutData(data);
