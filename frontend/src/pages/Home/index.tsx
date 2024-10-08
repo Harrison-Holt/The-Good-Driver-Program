@@ -30,6 +30,11 @@ const Home: React.FC = () => {
             Applications
           </ListItemButton>
         </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => {setselectedDisplay("applications")}}>
+            Profile
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   )
