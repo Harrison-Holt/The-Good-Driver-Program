@@ -19,6 +19,10 @@ const About: React.FC = () => {
       try {
         const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/about');
         const data = await response.json();
+
+        // Parse the `body` which contains the actual JSON data
+        const data = JSON.parse(result.body);
+
         console.log('API Response:', data); // Log the response to inspect it
         setAboutData(data);
         setLoading(false);
