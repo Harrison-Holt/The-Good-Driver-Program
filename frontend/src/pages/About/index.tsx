@@ -21,10 +21,10 @@ const About: React.FC = () => {
         let data = await response.json();
 
         // Parse the `body` which contains the actual JSON data
-        data = JSON.parse(data.body[0]);
+        data = JSON.parse(data.body);
 
         console.log('API Response:', data); // Log the response to inspect it
-        setAboutData(data);
+        setAboutData(data[0]);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
