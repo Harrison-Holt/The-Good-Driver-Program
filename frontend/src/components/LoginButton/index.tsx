@@ -1,10 +1,10 @@
 import { Button } from "@mui/material"
-import { Link, useNavigate} from "react-router-dom";
+//import { Link, useNavigate} from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
 import { selectLogin } from "../../store/userSlice";
 
 const LoginButton: React.FC = () => {
-    const nav = useNavigate();
+    //const nav = useNavigate();
     const loginStatus = useAppSelector(selectLogin)
     let buttonMessage = "Login"
 
