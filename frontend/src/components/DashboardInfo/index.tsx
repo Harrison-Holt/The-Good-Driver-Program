@@ -1,12 +1,15 @@
+import React from 'react';
 import SearchBar from '../../components/SearchBar';
+import Catalog from '../Catalog/Catalog'; 
 import { Box, Typography } from '@mui/material';
 
 interface Props {
     currentDisplay: string;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
 }
 
-const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
-    var dashJsx = (
+const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
+    let dashJsx = (
         <>
             <Typography variant='h6'>Home</Typography>
         </>
@@ -16,7 +19,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
         dashJsx = (
             <>
                 <Typography variant='h6'>Search</Typography>
-                <SearchBar/>
+                <SearchBar setSearchTerm={setSearchTerm} /> {/* Pass setSearchTerm */}
             </>
         );
     } else if (currentDisplay === "home") {
@@ -37,13 +40,21 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
                 <Typography variant='h6'>Applications</Typography>
             </>
         );
+    } else if (currentDisplay === "catalog") {  // Add catalog display
+        dashJsx = (
+            <>
+                <Typography variant='h6'>Catalog</Typography>
+                <Catalog />  {/* Render the Catalog component */}
+            </>
+        );
     }
 
     return (
-        <Box sx={{width: '80%'}}>
+        <Box sx={{ width: '80%' }}>
             {dashJsx}
         </Box>
-    )
-}
+    );
+};
 
 export default DashboardInfo;
+
