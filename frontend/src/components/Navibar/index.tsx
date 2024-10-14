@@ -1,4 +1,4 @@
-import { AppBar, Typography, Toolbar, Box } from "@mui/material"
+import { AppBar, Typography, Toolbar, Box, Button } from "@mui/material"
 import Sidebar from "../Sidebar";
 import LoginButton from "../LoginButton";
 
@@ -15,6 +15,9 @@ const Navibar: React.FC = () => {
                         sx={{flexGrow: 1}}>
                         Team 08
                     </Typography>
+                    <Button variant="contained">
+                        Profile
+                    </Button>
                     <LoginButton />
                 </Toolbar>
             </AppBar>
