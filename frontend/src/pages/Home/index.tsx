@@ -58,7 +58,7 @@ const Home: React.FC = () => {
         <Stack direction={"row"} spacing={5}>
           {dashboardList}
           <Divider orientation='vertical' variant='middle' flexItem />
-          {/* Explicitly cast the props to ensure TypeScript understands the type */}
+          {/* Explicitly cast the props to ensure TypeScript understands the types */}
           <DashboardInfo currentDisplay={selectedDisplay} catalogItems={catalogItems as EbayItem[]} />
         </Stack>
 
