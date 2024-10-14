@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar/index';
 
