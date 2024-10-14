@@ -10,7 +10,7 @@ interface UserState {
 
 // Define the initial state using that type
 const initialState: UserState = {
-  loggedIn: false,
+  loggedIn: true,
   userType: "driver"
 }
 
