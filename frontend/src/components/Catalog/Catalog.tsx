@@ -19,12 +19,13 @@ interface EbayItem {
 
 // Define the categories with corresponding eBay category IDs
 const categories = [
-  { id: '6030', name: 'Fashion' },
-  { id: '293', name: 'Electronics' },
-  { id: '267', name: 'Home & Garden' },
-  { id: '171485', name: 'Health & Beauty' },
-  { id: '888', name: 'Sports & Outdoors' },
-];
+    { id: '11450', name: 'Clothing, Shoes & Accessories' },
+    { id: '58058', name: 'Cell Phones & Accessories' },
+    { id: '11700 ', name: 'Home & Garden' },
+    { id: '888', name: 'Sporting Goods' },
+    { id: '26395', name: 'Health & Beauty' },
+  ];
+  
 
 const Catalog = () => {
   // State for catalog items
