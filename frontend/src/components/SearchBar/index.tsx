@@ -1,6 +1,7 @@
 import { Autocomplete, TextField } from "@mui/material"
 
 const SearchBar: React.FC = () => {
+    //TODO: Add props for label and options
     return(
         <>
             <Autocomplete

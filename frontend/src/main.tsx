@@ -7,6 +7,7 @@ import About from './pages/About';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import Profile from './pages/Profile';
+import Applications from './pages/Applications';
 
 const router = createBrowserRouter([
     {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
     {
         path: "/profile",
         element: <Profile/>
+    },
+    {
+        path: "/applications",
+        element: <Applications/>
     }
 ]);
 
