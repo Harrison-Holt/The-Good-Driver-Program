@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
+import { Box, Typography, CircularProgress, Grid, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import './catalog.css';
 
 // Define the type for an Ebay item
@@ -27,19 +28,10 @@ const categories = [
 ];
 
 const Catalog = () => {
-  // State for catalog items
   const [items, setItems] = useState<EbayItem[]>([]);
-
-  // State for selected category
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-
-  // State for search term
   const [searchTerm, setSearchTerm] = useState('');
-
-  // State for loading status
   const [loading, setLoading] = useState(false);
-
-  // State for error messages
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,43 +61,60 @@ const Catalog = () => {
     };
 
     fetchItems();
-  }, [selectedCategory, searchTerm]); // Fetch when the category or search term changes
+  }, [selectedCategory, searchTerm]);
 
   return (
-    <div className="catalog-container">
+    <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
 
       {/* Category Selection */}
-      <div className="category-bar">
-        <label htmlFor="category" className="category-label">Select Category: </label>
-        <select
-          id="category"
-          className="category-select"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Box sx={{ margin: '20px 0' }}>
+        <FormControl fullWidth>
+          <InputLabel>Select Category</InputLabel>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
-      {/* Loading and Error Messages */}
-      {loading && <p className="loading-message">Loading...</p>}
-      {error && <p className="error-message">Error: {error}</p>}
+      {/* Loading and Error States */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && (
+        <Typography color="error" align="center">
+          Error: {error}
+        </Typography>
+      )}
 
       {/* Catalog Grid */}
-      <div className="catalog-grid">
+      <Grid container spacing={4}>
         {items.map((item) => (
-          <CatalogItem key={item.itemId} item={item} />
+          <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
+            <CatalogItem item={item} />
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+
+      {/* No results found message */}
+      {!loading && items.length === 0 && !error && (
+        <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
+          No items found. Try searching with a different term or category.
+        </Typography>
+      )}
+    </Box>
   );
 };
 
 export default Catalog;
-
