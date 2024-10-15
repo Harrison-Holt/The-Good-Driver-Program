@@ -19,17 +19,17 @@ interface EbayItem {
 
 // Define the categories with corresponding eBay category IDs
 const categories = [
-    { id: '11450', name: 'Clothing, Shoes & Accessories' },
-    { id: '58058', name: 'Cell Phones & Accessories' },
-    { id: '267', name: 'Books' },
-    { id: '888', name: 'Sporting Goods' },
-    { id: '26395', name: 'Health & Beauty' },
+  { id: '11450', name: 'Clothing, Shoes & Accessories' },
+  { id: '58058', name: 'Cell Phones & Accessories' },
+  { id: '267', name: 'Books' },
+  { id: '888', name: 'Sporting Goods' },
+  { id: '26395', name: 'Health & Beauty' },
 ];
 
 const Catalog = () => {
   // State for catalog items
   const [items, setItems] = useState<EbayItem[]>([]);
-  
+
   // State for selected category
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
 
@@ -46,16 +46,15 @@ const Catalog = () => {
     const fetchItems = async () => {
       setLoading(true);
       setError(null);
-  
+
       try {
-        // Call your API Gateway with the selected category and search term
         const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-        }); 
-        
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
@@ -68,14 +67,14 @@ const Catalog = () => {
         setLoading(false);
       }
     };
-  
+
     fetchItems();
   }, [selectedCategory, searchTerm]); // Fetch when the category or search term changes
 
   return (
-    <div>
+    <div className="catalog-container">
       {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} />
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
 
       {/* Category Selection */}
       <div className="category-bar">
@@ -94,9 +93,11 @@ const Catalog = () => {
         </select>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      
+      {/* Loading and Error Messages */}
+      {loading && <p className="loading-message">Loading...</p>}
+      {error && <p className="error-message">Error: {error}</p>}
+
+      {/* Catalog Grid */}
       <div className="catalog-grid">
         {items.map((item) => (
           <CatalogItem key={item.itemId} item={item} />
@@ -107,3 +108,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
