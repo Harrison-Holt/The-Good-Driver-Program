@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface CatalogItemProps {
     item: {
       itemId: string;
@@ -15,18 +13,17 @@ interface CatalogItemProps {
     };
   }
   
-const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-  return (
-    <div className="catalog-item">
-      <img src={item.image.imageUrl} alt={item.title} />
-      <h2>{item.title}</h2>
-      <p>{item.price.value} {item.price.currency}</p>
-      <a href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
-        View on eBay
-      </a>
-    </div>
-  );
-};
-
-export default CatalogItem;
+  const CatalogItem = ({ item }: CatalogItemProps) => {
+    return (
+      <div className="catalog-item">
+        <img src={item.image.imageUrl} alt={item.title} />
+        <h3>{item.title}</h3>
+        <p>{item.price.currency} {item.price.value}</p>
+        <a href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">View Item</a>
+      </div>
+    );
+  };
+  
+  export default CatalogItem;
+  
 

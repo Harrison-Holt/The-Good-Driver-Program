@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import CatalogItem from './CatalogItem';
-import SearchBar from '../SearchBar/index';
+import SearchBar from '../SearchBar';
 
 // Define the type for an Ebay item
 interface EbayItem {
@@ -35,7 +35,7 @@ const Catalog = () => {
       setError(null);
   
       try {
-        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev`);  
+        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev`);
 
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -55,19 +55,20 @@ const Catalog = () => {
       }
     };
   
-    if (searchTerm) {
-      fetchItems();
-    }
+    // Only fetch items if there is a search term or some condition you set
+    fetchItems();
   }, [searchTerm]);
 
   return (
     <div>
+      {/* Search bar allows the user to update the search term */}
       <SearchBar setSearchTerm={setSearchTerm} />
-      
+
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
       
       <div className="catalog-grid">
+        {/* Display catalog items */}
         {items.map((item) => (
           <CatalogItem key={item.itemId} item={item} />
         ))}
