@@ -17,10 +17,22 @@ interface EbayItem {
   itemWebUrl: string;
 }
 
+// Define the categories with corresponding eBay category IDs
+const categories = [
+  { id: '6030', name: 'Fashion' },
+  { id: '293', name: 'Electronics' },
+  { id: '267', name: 'Home & Garden' },
+  { id: '171485', name: 'Health & Beauty' },
+  { id: '888', name: 'Sports & Outdoors' },
+];
+
 const Catalog = () => {
   // State for catalog items
   const [items, setItems] = useState<EbayItem[]>([]);
   
+  // State for selected category
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+
   // State for search term
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -36,10 +48,10 @@ const Catalog = () => {
       setError(null);
   
       try {
-        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog`, {
+        // Call your API Gateway with the selected category and search term
+        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`, {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer v^1.1#i^1#f^0#p^1#r^0#I^3#t^...`,  
               'Content-Type': 'application/json',
             },
         }); 
@@ -49,26 +61,37 @@ const Catalog = () => {
         }
 
         const data = await response.json();
-        console.log('API Response:', data);
         setItems(data.itemSummaries || []);
       } catch (error) {
-        if (error instanceof Error) {
-          console.error('Error fetching items', error);
-          setError(error.message);
-        } else {
-          setError('An unknown error occurred');
-        }
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
     };
   
     fetchItems();
-  }, [searchTerm]);
+  }, [selectedCategory, searchTerm]); // Fetch when the category or search term changes
 
   return (
     <div>
+      {/* Search Bar */}
       <SearchBar setSearchTerm={setSearchTerm} />
+
+      {/* Category Selection */}
+      <div className="category-bar">
+        <label htmlFor="category">Select Category: </label>
+        <select
+          id="category"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
