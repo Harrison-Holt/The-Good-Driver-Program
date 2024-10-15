@@ -17,7 +17,7 @@ interface EbayItem {
   itemWebUrl: string;
 }
 
-// Define the categories with corresponding eBay category IDs
+// Define the categories with corresponding eBay category ID
 const categories = [
   { id: '11450', name: 'Clothing, Shoes & Accessories' },
   { id: '58058', name: 'Cell Phones & Accessories' },
