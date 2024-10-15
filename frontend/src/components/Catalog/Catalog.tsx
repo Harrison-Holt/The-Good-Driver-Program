@@ -24,8 +24,7 @@ const categories = [
     { id: '267', name: 'Books' },
     { id: '888', name: 'Sporting Goods' },
     { id: '26395', name: 'Health & Beauty' },
-  ];
-  
+];
 
 const Catalog = () => {
   // State for catalog items
@@ -80,9 +79,10 @@ const Catalog = () => {
 
       {/* Category Selection */}
       <div className="category-bar">
-        <label htmlFor="category">Select Category: </label>
+        <label htmlFor="category" className="category-label">Select Category: </label>
         <select
           id="category"
+          className="category-select"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
@@ -107,4 +107,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
