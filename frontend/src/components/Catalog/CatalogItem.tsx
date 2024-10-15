@@ -1,4 +1,5 @@
 import React from 'react';
+import './catalog.css';
 
 // Define the type for an Ebay item
 interface EbayItem {

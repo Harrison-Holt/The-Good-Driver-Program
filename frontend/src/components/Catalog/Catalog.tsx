@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
+import './catalog.css';
 
 // Define the type for an Ebay item
 interface EbayItem {
