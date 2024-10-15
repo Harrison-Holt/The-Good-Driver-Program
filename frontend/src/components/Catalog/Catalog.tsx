@@ -21,7 +21,7 @@ interface EbayItem {
 const categories = [
     { id: '11450', name: 'Clothing, Shoes & Accessories' },
     { id: '58058', name: 'Cell Phones & Accessories' },
-    { id: '11700 ', name: 'Home & Garden' },
+    { id: '267 ', name: 'Books' },
     { id: '888', name: 'Sporting Goods' },
     { id: '26395', name: 'Health & Beauty' },
   ];
