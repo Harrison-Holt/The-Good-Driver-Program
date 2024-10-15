@@ -48,6 +48,7 @@ const Catalog = () => {
         }
 
         const data = await response.json();
+        console.log('API Response:', data);
         setItems(data.itemSummaries || []);
       } catch (error) {
         if (error instanceof Error) {
