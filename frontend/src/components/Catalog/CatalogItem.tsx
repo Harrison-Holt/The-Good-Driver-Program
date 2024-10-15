@@ -1,5 +1,5 @@
 import React from 'react';
-import './catalog.css';
+import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
 
 // Define the type for an Ebay item
 interface EbayItem {
@@ -15,25 +15,37 @@ interface EbayItem {
   itemWebUrl: string;
 }
 
-interface CatalogItemProps {
+interface Props {
   item: EbayItem;
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
+const CatalogItem: React.FC<Props> = ({ item }) => {
   return (
-    <div className="catalog-item">
-      <img src={item.image.imageUrl} alt={item.title} className="catalog-item-image" />
-      <h3 className="catalog-item-title">{item.title}</h3>
-      <p className="catalog-item-price">
-        {item.price.currency} {item.price.value}
-      </p>
-      <a href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
-        <button className="purchase-button">Purchase</button>
-      </a>
-    </div>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <CardMedia
+        component="img"
+        alt={item.title}
+        height="140"
+        image={item.image.imageUrl || 'https://via.placeholder.com/150'}
+      />
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          {item.title}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {item.price.value} {item.price.currency}
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
+          Buy Now
+        </Button>
+      </CardActions>
+    </Card>
   );
 };
 
 export default CatalogItem;
+
 
 

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Select, MenuItem, CircularProgress, Grid } from '@mui/material';
+import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid';  // Correct import for Grid
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-// Define the type for an Ebay item
 interface EbayItem {
   itemId: string;
   title: string;
@@ -17,7 +17,6 @@ interface EbayItem {
   itemWebUrl: string;
 }
 
-// Define the categories with corresponding eBay category ID
 const categories = [
   { id: '11450', name: 'Clothing, Shoes & Accessories' },
   { id: '58058', name: 'Cell Phones & Accessories' },
@@ -68,7 +67,7 @@ const Catalog = () => {
   return (
     <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map((cat) => cat.name)} />
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
 
       {/* Category Selection */}
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
@@ -106,9 +105,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {items.map((item) => (
           <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-            <Box sx={{ height: '100%' }}>
-              <CatalogItem item={item} />
-            </Box>
+            <CatalogItem item={item} />
           </Grid>
         ))}
       </Grid>
