@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 import { Box, Typography, CircularProgress, Grid, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
-import './catalog.css';
 
-// Define the type for an Ebay item
 interface EbayItem {
   itemId: string;
   title: string;
@@ -18,7 +16,6 @@ interface EbayItem {
   itemWebUrl: string;
 }
 
-// Define the categories with corresponding eBay category IDs
 const categories = [
   { id: '11450', name: 'Clothing, Shoes & Accessories' },
   { id: '58058', name: 'Cell Phones & Accessories' },
@@ -65,10 +62,8 @@ const Catalog = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
-      {/* Search Bar */}
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
 
-      {/* Category Selection */}
       <Box sx={{ margin: '20px 0' }}>
         <FormControl fullWidth>
           <InputLabel>Select Category</InputLabel>
@@ -85,7 +80,6 @@ const Catalog = () => {
         </FormControl>
       </Box>
 
-      {/* Loading and Error States */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
           <CircularProgress />
@@ -98,16 +92,16 @@ const Catalog = () => {
         </Typography>
       )}
 
-      {/* Catalog Grid */}
       <Grid container spacing={4}>
         {items.map((item) => (
           <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} />
+            <Box sx={{ height: '100%' }}>
+              <CatalogItem item={item} />
+            </Box>
           </Grid>
         ))}
       </Grid>
 
-      {/* No results found message */}
       {!loading && items.length === 0 && !error && (
         <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
           No items found. Try searching with a different term or category.
