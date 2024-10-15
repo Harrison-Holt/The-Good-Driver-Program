@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Box, Typography, Select, MenuItem, CircularProgress, Grid } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import './catalog.css';
 
 // Define the type for an Ebay item
 interface EbayItem {
@@ -27,19 +27,10 @@ const categories = [
 ];
 
 const Catalog = () => {
-  // State for catalog items
   const [items, setItems] = useState<EbayItem[]>([]);
-
-  // State for selected category
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-
-  // State for search term
   const [searchTerm, setSearchTerm] = useState('');
-
-  // State for loading status
   const [loading, setLoading] = useState(false);
-
-  // State for error messages
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,12 +39,15 @@ const Catalog = () => {
       setError(null);
 
       try {
-        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -69,43 +63,65 @@ const Catalog = () => {
     };
 
     fetchItems();
-  }, [selectedCategory, searchTerm]); // Fetch when the category or search term changes
+  }, [selectedCategory, searchTerm]);
 
   return (
-    <div className="catalog-container">
+    <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map((cat) => cat.name)} />
 
       {/* Category Selection */}
-      <div className="category-bar">
-        <label htmlFor="category" className="category-label">Select Category: </label>
-        <select
-          id="category"
-          className="category-select"
+      <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
+        <Typography variant="h6" gutterBottom>
+          Select Category:
+        </Typography>
+        <Select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
+          fullWidth
+          variant="outlined"
         >
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
+            <MenuItem key={category.id} value={category.id}>
               {category.name}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </div>
+        </Select>
+      </Box>
 
       {/* Loading and Error Messages */}
-      {loading && <p className="loading-message">Loading...</p>}
-      {error && <p className="error-message">Error: {error}</p>}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && (
+        <Typography color="error" align="center">
+          Error: {error}
+        </Typography>
+      )}
 
       {/* Catalog Grid */}
-      <div className="catalog-grid">
+      <Grid container spacing={4}>
         {items.map((item) => (
-          <CatalogItem key={item.itemId} item={item} />
+          <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
+            <Box sx={{ height: '100%' }}>
+              <CatalogItem item={item} />
+            </Box>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+
+      {!loading && items.length === 0 && !error && (
+        <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
+          No items found. Try searching with a different term or category.
+        </Typography>
+      )}
+    </Box>
   );
 };
 
 export default Catalog;
+
 
