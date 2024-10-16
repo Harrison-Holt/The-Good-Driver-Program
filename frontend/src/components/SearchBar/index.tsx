@@ -1,6 +1,11 @@
 import { Autocomplete, TextField } from "@mui/material"
 
-const SearchBar: React.FC = () => {
+interface props {
+    options: any
+    label: string
+}
+
+const SearchBar: React.FC<props> = ({options, label}) => {
     //TODO: Add props for label and options
     return(
         <>
@@ -8,11 +13,11 @@ const SearchBar: React.FC = () => {
                 id="search-bar"
                 freeSolo
                 disableClearable
-                options={["placeholder", "replace with real options", 'item']}
+                options={options}
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="Search input"
+                        label={label}
                         slotProps={{
                         input: {
                             ...params.InputProps,
