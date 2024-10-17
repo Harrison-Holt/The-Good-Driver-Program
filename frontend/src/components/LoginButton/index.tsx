@@ -5,7 +5,9 @@ import { selectLogin } from "../../store/userSlice";
 
 const LoginButton: React.FC = () => {
     //const nav = useNavigate();
+    console.log("A");
     const loginStatus = useAppSelector(selectLogin)
+    console.log("B");
     let buttonMessage = "Login"
 
     if (loginStatus) {
