@@ -1,34 +1,33 @@
-import { Autocomplete, TextField } from "@mui/material"
+import React from 'react';
+import { Autocomplete, TextField } from "@mui/material";
 
-interface props {
-    options: any
-    label: string
+interface SearchBarProps {
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  options: string[]; // Add a prop for the options
 }
 
-const SearchBar: React.FC<props> = ({options, label}) => {
-    //TODO: Add props for label and options
-    return(
-        <>
-            <Autocomplete
-                id="search-bar"
-                freeSolo
-                disableClearable
-                options={options}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label={label}
-                        slotProps={{
-                        input: {
-                            ...params.InputProps,
-                            type: 'search',
-                        },
-                        }}
-                    />
-                )}
-            />
-        </>
-    )
-}
+const SearchBar: React.FC<SearchBarProps> = ({ setSearchTerm, options }) => {
+  return (
+    <Autocomplete
+      id="search-bar"
+      freeSolo
+      disableClearable
+      options={options} // Use dynamic options passed as props
+      onInputChange={(_, value) => setSearchTerm(value)} 
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Search Catalog"
+          InputProps={{
+            ...params.InputProps,
+            type: 'search',
+          }}
+        />
+      )}
+    />
+  );
+};
 
 export default SearchBar;
+
+
