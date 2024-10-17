@@ -7,7 +7,7 @@ const LoginButton: React.FC = () => {
     //const nav = useNavigate();
     console.log("A");
     const loginStatus = useAppSelector(selectLogin)
-    console.log("B");
+    console.log(useAppSelector(selectLogin));
     let buttonMessage = "Login"
 
     if (loginStatus) {
