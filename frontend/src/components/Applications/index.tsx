@@ -7,7 +7,8 @@ import axios from "axios"
 const Applications: React.FC = () => {
 
     const [sponsorList, setSponsorList] = useState([]);
-    const [selectedSponsor, setSelectedSponsor] = useState("")
+    const [selectedSponsor, setSelectedSponsor] = useState("");
+    const [providedReason, setProvidedReason] = useState("");
     const [submitForm, setSubmitForm] = useState(false);
 
     useEffect(() => {
@@ -33,7 +34,7 @@ const Applications: React.FC = () => {
     useEffect(() => {
         if ( submitForm ) {
             axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
-                sponsorOrg: "test",
+                sponsorOrg: {selectedSponsor},
                 appBody: "testing",
                 applyingUserType: "driver"
             }).then(function (response) {
@@ -61,12 +62,16 @@ const Applications: React.FC = () => {
                         label={"Application Body"}
                         multiline
                         minRows={5}
+                        value={providedReason}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            setProvidedReason(event.target.value);
+                        }}
                     />
                     <Stack direction={"row"} spacing={2}>
                         <Button onClick={() => {setSubmitForm(true)}}>
                             Submit
                         </Button>
-                        <Button>
+                        <Button onClick={() => {setProvidedReason("")}}>
                             Clear
                         </Button>
                     </Stack>
