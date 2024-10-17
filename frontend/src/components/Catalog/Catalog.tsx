@@ -67,7 +67,7 @@ const Catalog = () => {
   return (
     <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      <SearchBar setSearchTerm={setSearchTerm} label={"Search Catalog"} options={categories.map(cat => cat.name)} />
 
       {/* Category Selection */}
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>

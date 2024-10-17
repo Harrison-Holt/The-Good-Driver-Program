@@ -1,4 +1,6 @@
 import { Stack, Box, Divider, List, ListItem, ListItemButton } from '@mui/material';
+import { useState } from 'react'
+import DashboardInfo from '../../components/DashboardInfo';
 import Navibar from '../../components/Navibar';
 
 const Home: React.FC = () => {

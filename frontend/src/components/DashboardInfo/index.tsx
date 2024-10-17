@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBar from '../../components/SearchBar';
 import Catalog from '../Catalog/Catalog';
+import Applications from '../Applications';
 import { Box, Typography } from '@mui/material';
 
 interface Props {
@@ -16,7 +17,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
             dashJsx = (
                 <>
                     <Typography variant='h6'>Search</Typography>
-                    <SearchBar setSearchTerm={setSearchTerm} options={[]} /> {/* Ensure the 'options' prop is passed */}
+                    <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
                 </>
             );
             break;
@@ -41,6 +42,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
             dashJsx = (
                 <>
                     <Typography variant='h6'>Applications</Typography>
+                    <Applications/>
                 </>
             );
             break;

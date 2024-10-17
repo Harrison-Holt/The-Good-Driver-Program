@@ -1,6 +1,5 @@
 import { Box, Button, Stack, TextField, Typography } from "@mui/material"
-import Navibar from "../../components/Navibar"
-import SearchBar from "../../components/SearchBar"
+import SearchBar from "../SearchBar"
 import { useEffect, useState } from "react"
 import axios from "axios"
 
@@ -8,6 +7,7 @@ import axios from "axios"
 const Applications: React.FC = () => {
 
     const [sponsorList, setSponsorList] = useState([]);
+    const [selectedSponsor, setSelectedSponsor] = useState("")
     const [submitForm, setSubmitForm] = useState(false);
 
     useEffect(() => {
@@ -49,13 +49,12 @@ const Applications: React.FC = () => {
 
     return (
         <>
-            <Navibar/>
             <Box sx={{maxWidth: '95%', maxHeight:'95%', marginLeft: 'auto', marginRight: 'auto', marginTop:'10px'}}>
                 <Stack spacing={2}>
                     <Stack direction={"row"} spacing={2}>
                         <Typography>Sponsor List:</Typography>
                         <Box sx={{width: '100%'}}>
-                            <SearchBar options={sponsorList} label={"Sponsors"}/>
+                            <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label={"Sponsors"}/>
                         </Box>
                     </Stack>
                     <TextField
