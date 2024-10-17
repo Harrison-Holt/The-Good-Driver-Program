@@ -19,7 +19,7 @@ const LoginButton: React.FC = () => {
             <Button
                 variant="contained"
                 onClick={/*Navigate to login page*/()=>{
-                    window.location.href="https://team08-domain.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2FTeam08-Callback"
+                    window.location.href="https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fdev.d3ggpwrnl4m4is.amplifyapp.com%2F"
                 }}
             >
                 {buttonMessage}
