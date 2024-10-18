@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';  // Correct import for Grid
+import Grid from '@mui/material/Grid';  
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 

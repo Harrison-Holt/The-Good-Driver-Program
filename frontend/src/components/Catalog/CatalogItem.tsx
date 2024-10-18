@@ -1,12 +1,11 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, Typography, Button, CardActions } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-// Define the type for an Ebay item
 interface EbayItem {
   itemId: string;
   title: string;
-  image: {
+  image?: {
     imageUrl: string;
   };
   price: {
@@ -21,20 +20,15 @@ interface Props {
 }
 
 const CatalogItem: React.FC<Props> = ({ item }) => {
-  const navigate = useNavigate();
-
-  const handleViewDetails = () => {
-    navigate(`/product/${item.itemId}`);  // Navigate to the product details page
-  };
-
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <CardMedia
-        component="img"
-        alt={item.title}
-        height="140"
-        image={item.image.imageUrl || 'https://via.placeholder.com/150'}
-      />
+      {item.image?.imageUrl && (
+        <img
+          src={item.image.imageUrl}
+          alt={item.title}
+          style={{ width: '100%', height: '140px', objectFit: 'cover' }}
+        />
+      )}
       <CardContent>
         <Typography variant="h6" gutterBottom>
           {item.title}
@@ -44,11 +38,9 @@ const CatalogItem: React.FC<Props> = ({ item }) => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" color="primary" onClick={handleViewDetails}>
+        {/* Link to the product page */}
+        <Button size="small" color="primary" component={Link} to={`/product/${item.itemId}`}>
           View Details
-        </Button>
-        <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
-          Buy Now
         </Button>
       </CardActions>
     </Card>
@@ -56,6 +48,7 @@ const CatalogItem: React.FC<Props> = ({ item }) => {
 };
 
 export default CatalogItem;
+
 
 
 
