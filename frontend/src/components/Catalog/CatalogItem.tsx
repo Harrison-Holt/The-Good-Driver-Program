@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 // Define the type for an Ebay item
 interface EbayItem {
@@ -20,6 +21,12 @@ interface Props {
 }
 
 const CatalogItem: React.FC<Props> = ({ item }) => {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/product/${item.itemId}`);  // Navigate to the product details page
+  };
+
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <CardMedia
@@ -37,6 +44,9 @@ const CatalogItem: React.FC<Props> = ({ item }) => {
         </Typography>
       </CardContent>
       <CardActions>
+        <Button size="small" color="primary" onClick={handleViewDetails}>
+          View Details
+        </Button>
         <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
           Buy Now
         </Button>
