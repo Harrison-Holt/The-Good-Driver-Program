@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress, Button } from '@mui/material';  // Import Button here
 
-// Define the type for an Ebay item
-interface EbayItem {
+interface ProductDetailsProps {
   itemId: string;
   title: string;
   image: {
@@ -14,58 +13,53 @@ interface EbayItem {
     currency: string;
   };
   description: string;
+  itemWebUrl: string;  // Add the purchase link
 }
 
-const ProductDetails = () => {
-  const { itemId } = useParams<{ itemId: string }>(); 
-  const [item, setItem] = useState<EbayItem | null>(null); 
+const ProductDetails: React.FC = () => {
+  const { itemId } = useParams<{ itemId: string }>(); // Get itemId from the URL
+  const [product, setProduct] = useState<ProductDetailsProps | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchItemDetails = async () => {
+    const fetchProductDetails = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/item/${itemId}`);
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-        const data: EbayItem = await response.json(); // Ensure the fetched data matches the EbayItem type
-        setItem(data);  // Set the item details
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        console.error('Error fetching product details:', err); 
+        setError('Failed to fetch product details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchItemDetails();
+    fetchProductDetails();
   }, [itemId]);
 
-  if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}><CircularProgress /></Box>;
-  }
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
 
-  if (error) {
-    return <Typography color="error">Error: {error}</Typography>;
-  }
-
-  return (
-    <Box sx={{ padding: '20px' }}>
-      {item ? (
-        <>
-          <img src={item.image.imageUrl} alt={item.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
-          <Typography variant="h4" sx={{ marginTop: '20px' }}>{item.title}</Typography>
-          <Typography variant="h6" sx={{ marginTop: '10px' }}>${item.price.value} {item.price.currency}</Typography>
-          <Typography variant="body1" sx={{ marginTop: '20px' }}>{item.description}</Typography>
-        </>
-      ) : (
-        <Typography variant="h6">Item not found</Typography>
-      )}
+  return product ? (
+    <Box>
+      <Typography variant="h4" gutterBottom>{product.title}</Typography>
+      <img src={product.image.imageUrl} alt={product.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
+      <Typography variant="h6" gutterBottom>
+        Price: {product.price.value} {product.price.currency}
+      </Typography>
+      <Typography variant="body1" gutterBottom>{product.description}</Typography>
+      <a href={product.itemWebUrl} target="_blank" rel="noopener noreferrer">
+        <Button variant="contained" color="primary">Buy Now</Button>  {/* Button is used here */}
+      </a>
     </Box>
+  ) : (
+    <Typography variant="h6">Product not found</Typography>
   );
 };
 
 export default ProductDetails;
-
