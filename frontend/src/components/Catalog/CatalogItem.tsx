@@ -35,11 +35,11 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
             <>
               {/* Log image_url here */}
               <img
-                src={image_url}
-                alt={title}
-                height="140"
-                style={{ objectFit: 'cover' }}
-              />
+  src={image_url}
+  alt={title}
+  style={{ width: '100%', height: 'auto' }} // Full width and auto height for testing
+/>
+
             </>
           ) : (
             <Typography>No Image Available</Typography>
