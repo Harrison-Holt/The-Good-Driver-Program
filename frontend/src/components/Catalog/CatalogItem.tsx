@@ -1,70 +1,46 @@
 import React from 'react';
-import { Card, CardContent, Typography, Link } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
 
-interface CatalogItemProps {
-  item: {
-    itemId: string;
-    title: string;
-    image_url?: string; // Directly reference image_url
-    price?: string | { value: string; currency: string }; // Handle both string and object
-    item_group_href?: string; // Use item_group_href if it represents the item URL
+// Define the type for an Ebay item
+interface EbayItem {
+  itemId: string;
+  title: string;
+  image: {
+    imageUrl: string;
   };
+  price: {
+    value: string;
+    currency: string;
+  };
+  itemWebUrl: string;
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-  const { title, image_url, price, item_group_href } = item;
+interface Props {
+  item: EbayItem;
+}
 
-  // Log the image_url for debugging
-  console.log("Image URL:", image_url);
-  console.log("Item Object:", item);
-
-
-  const renderPrice = () => {
-    if (typeof price === 'string') {
-      return `Price: ${price}`;
-    }
-    if (typeof price === 'object' && price?.value && price?.currency) {
-      return `Price: ${price.value} ${price.currency}`;
-    }
-    return 'Price Not Available';
-  };
-
+const CatalogItem: React.FC<Props> = ({ item }) => {
   return (
-    <Card>
-      {item_group_href ? (
-        <Link href={item_group_href} target="_blank" rel="noopener">
-          {image_url ? (
-            <>
-              {/* Log image_url here */}
-              <img
-  src={item.image_url}
-  alt={item.title}
-  style={{ width: '100%', height: 'auto' }} // Full width and auto height for testing
-/>
-
-            </>
-          ) : (
-            <Typography>No Image Available</Typography>
-          )}
-        </Link>
-      ) : (
-        <Typography>No URL Available</Typography>
-      )}
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <CardMedia
+        component="img"
+        alt={item.title}
+        height="140"
+        image={item.image.imageUrl || 'https://via.placeholder.com/150'}
+      />
       <CardContent>
-        <Typography gutterBottom variant="h6" component="div">
-          {item_group_href ? (
-            <Link href={item_group_href} target="_blank" rel="noopener">
-              {title}
-            </Link>
-          ) : (
-            <Typography>{title}</Typography>
-          )}
+        <Typography variant="h6" gutterBottom>
+          {item.title}
         </Typography>
-
         <Typography variant="body2" color="text.secondary">
-          {renderPrice()}
+          {item.price.value} {item.price.currency}
         </Typography>
       </CardContent>
+      <CardActions>
+        <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
+          Buy Now
+        </Button>
+      </CardActions>
     </Card>
   );
 };
