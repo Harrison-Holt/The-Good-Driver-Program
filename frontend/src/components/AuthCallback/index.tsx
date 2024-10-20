@@ -16,9 +16,9 @@ const AuthCallback: React.FC = () => {
           // Exchange the authorization code for tokens
           const response = await axios.post('https://team08-domain.auth.us-east-1.amazoncognito.com/oauth2/token', new URLSearchParams({
             grant_type: 'authorization_code',
-            client_id: 'ff8qau87sidn42svsuj51v4l4',  // Replace with your actual Client ID
-            code: code,  // Authorization code from the URL
-            redirect_uri: 'https://dev.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // Same redirect URI
+            client_id: 'ff8qau87sidn42svsuj51v4l4',
+            code: code, 
+            redirect_uri: 'https://master.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // Same redirect URI
           }), {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -29,6 +29,11 @@ const AuthCallback: React.FC = () => {
           console.log('Access Token:', access_token);
           console.log('ID Token:', id_token);
           console.log('Refresh Token:', refresh_token);
+
+          // Clear any old tokens
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('idToken');
+          localStorage.removeItem('refreshToken');
 
           // Here, you can store the tokens in local storage or manage them in the state
           localStorage.setItem('accessToken', access_token);

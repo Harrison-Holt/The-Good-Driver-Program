@@ -7,6 +7,16 @@ const Home: React.FC = () => {
   const [selectedDisplay, setselectedDisplay] = useState("home");
   const [searchTerm, setSearchTerm] = useState(""); // Keep both searchTerm and setSearchTerm
 
+    // Add the logout function
+    const handleLogout = () => {
+      const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
+      const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
+      const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
+  
+      // Redirect the user to the Cognito logout URL
+      window.location.href = logoutUrl;
+    };
+
   const dashboardList = (
     <Box>
       <List>
@@ -33,6 +43,11 @@ const Home: React.FC = () => {
         <ListItem>
           <ListItemButton onClick={() => { setselectedDisplay("catalog") }}>
             Catalog
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={handleLogout}>
+            Logout
           </ListItemButton>
         </ListItem>
       </List>
