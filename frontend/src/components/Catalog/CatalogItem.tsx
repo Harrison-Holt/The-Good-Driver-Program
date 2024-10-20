@@ -6,8 +6,8 @@ interface CatalogItemProps {
     itemId: string;
     title: string;
     image?: { imageUrl?: string };
-    price?: { value: string; currency: string };
-    itemWebUrl: string;
+    price?: { value: string; currency: string } | string; // Can be an object or string
+    itemWebUrl?: string;
   };
 }
 
@@ -16,27 +16,43 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
 
   return (
     <Card>
-      <Link href={itemWebUrl} target="_blank" rel="noopener">
-        {image?.imageUrl ? (
-          <CardMedia
-            component="img"
-            height="140"
-            image={image.imageUrl}
-            alt={title}
-          />
-        ) : (
-          <Typography>No Image Available</Typography>
-        )}
-      </Link>
+      {/* Conditionally display the URL and image */}
+      {itemWebUrl ? (
+        <Link href={itemWebUrl} target="_blank" rel="noopener">
+          {image?.imageUrl ? (
+            <CardMedia
+              component="img"
+              height="140"
+              image={image.imageUrl}
+              alt={title}
+            />
+          ) : (
+            <Typography>No Image Available</Typography>
+          )}
+        </Link>
+      ) : (
+        <Typography>No URL Available</Typography>
+      )}
+
       <CardContent>
         <Typography gutterBottom variant="h6" component="div">
-          <Link href={itemWebUrl} target="_blank" rel="noopener">
-            {title}
-          </Link>
+          {itemWebUrl ? (
+            <Link href={itemWebUrl} target="_blank" rel="noopener">
+              {title}
+            </Link>
+          ) : (
+            <Typography>{title}</Typography>
+          )}
         </Typography>
-        {price && price.value && price.currency ? (
+
+        {/* Handle both object and string for price */}
+        {typeof price === 'object' && price?.value && price?.currency ? (
           <Typography variant="body2" color="text.secondary">
             Price: {price.value} {price.currency}
+          </Typography>
+        ) : typeof price === 'string' ? (
+          <Typography variant="body2" color="text.secondary">
+            Price: {price}
           </Typography>
         ) : (
           <Typography variant="body2" color="text.secondary">
@@ -49,8 +65,3 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
 };
 
 export default CatalogItem;
-
-
-
-
-
