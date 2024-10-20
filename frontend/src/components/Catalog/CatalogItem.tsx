@@ -14,6 +14,9 @@ interface CatalogItemProps {
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
   const { title, image_url, price, item_group_href } = item;
 
+  // Log the image_url for debugging
+  console.log("Image URL:", image_url);
+
   const renderPrice = () => {
     if (typeof price === 'string') {
       return `Price: ${price}`;
@@ -28,12 +31,19 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
     <Card>
       {item_group_href ? (
         <Link href={item_group_href} target="_blank" rel="noopener">
-      {image_url ? (
-  <img src={image_url} alt={title} height="140" style={{ objectFit: 'cover' }} />
-) : (
-  <Typography>No Image Available</Typography>
-)}
-
+          {image_url ? (
+            <>
+              {/* Log image_url here */}
+              <img
+                src={image_url}
+                alt={title}
+                height="140"
+                style={{ objectFit: 'cover' }}
+              />
+            </>
+          ) : (
+            <Typography>No Image Available</Typography>
+          )}
         </Link>
       ) : (
         <Typography>No URL Available</Typography>
