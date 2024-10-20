@@ -1,55 +1,63 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Card, CardMedia, CardContent, Typography, Button, CardActions } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import Link from '@mui/material/Link';
 
-interface EbayItem {
-  itemId: string;
-  title: string;
-  image: {
-    imageUrl: string;
-  };
-  price: {
-    value: string;
-    currency: string;
+interface CatalogItemProps {
+  item: {
+    itemId: string;
+    title: string;
+    image?: { imageUrl?: string };
+    price?: { value: string; currency: string };
+    itemWebUrl: string;
   };
 }
 
-interface Props {
-  item: EbayItem;
-}
+const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
+  const { title, image, price, itemWebUrl, itemId } = item;
 
-const CatalogItem: React.FC<Props> = ({ item }) => {
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <Link to={`/product/${item.itemId}`}>
-        <CardMedia
-          component="img"
-          alt={item.title}
-          height="140"
-          image={item.image.imageUrl} 
-        />
-      </Link>
+      {/* Internal Routing Link for product details */}
+      <RouterLink to={`/product/${itemId}`}>
+        {image?.imageUrl ? (
+          <CardMedia
+            component="img"
+            height="140"
+            image={image.imageUrl}
+            alt={title}
+          />
+        ) : (
+          <Typography>No Image Available</Typography>
+        )}
+      </RouterLink>
+
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {item.title}
+        <Typography gutterBottom variant="h6" component="div">
+          {/* External Link to the item's URL */}
+          <Link href={itemWebUrl} target="_blank" rel="noopener">
+            {title}
+          </Link>
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {item.price.value} {item.price.currency}
-        </Typography>
+        {price && (
+          <Typography variant="body2" color="text.secondary">
+            Price: {price.value} {price.currency}
+          </Typography>
+        )}
       </CardContent>
+
       <CardActions>
-        <Link to={`/product/${item.itemId}`}>
+        <RouterLink to={`/product/${itemId}`}>
           <Button size="small" color="primary">
             View Details
           </Button>
-        </Link>
+        </RouterLink>
       </CardActions>
     </Card>
   );
 };
 
 export default CatalogItem;
-
 
 
 
