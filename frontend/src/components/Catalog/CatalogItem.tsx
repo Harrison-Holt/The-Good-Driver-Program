@@ -6,13 +6,23 @@ interface CatalogItemProps {
     itemId: string;
     title: string;
     image_url?: string; // Directly reference image_url
-    price?: string;
+    price?: string | { value: string; currency: string }; // Handle both string and object
     item_group_href?: string; // Use item_group_href if it represents the item URL
   };
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
   const { title, image_url, price, item_group_href } = item;
+
+  const renderPrice = () => {
+    if (typeof price === 'string') {
+      return `Price: ${price}`;
+    }
+    if (typeof price === 'object' && price?.value && price?.currency) {
+      return `Price: ${price.value} ${price.currency}`;
+    }
+    return 'Price Not Available';
+  };
 
   return (
     <Card>
@@ -44,15 +54,9 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
           )}
         </Typography>
 
-        {price ? (
-          <Typography variant="body2" color="text.secondary">
-            Price: {price}
-          </Typography>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            Price Not Available
-          </Typography>
-        )}
+        <Typography variant="body2" color="text.secondary">
+          {renderPrice()}
+        </Typography>
       </CardContent>
     </Card>
   );
