@@ -1,28 +1,37 @@
 import { Stack, Box, Divider, List, ListItem, ListItemButton } from '@mui/material';
 import Navibar from '../../components/Navibar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardInfo from '../../components/DashboardInfo';
+import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
 
 const Home: React.FC = () => {
   const [selectedDisplay, setselectedDisplay] = useState("home");
   const [searchTerm, setSearchTerm] = useState(""); // Keep both searchTerm and setSearchTerm
+  const [username, setUsername] = useState<string | null>(null);  // State for username
 
-    // Add the logout function
-    const handleLogout = () => {
-      const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
-      const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
-      const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
-    
-      // Clear any stored tokens to simulate logout in the app
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('idToken');
-      localStorage.removeItem('refreshToken');
-    
-      // Redirect the user to the Cognito logout URL
-      window.location.href = logoutUrl;
-    };
-    
-    
+  // Add the logout function
+  const handleLogout = () => {
+    const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
+    const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
+    const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
+
+    // Clear any stored tokens to simulate logout in the app
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('idToken');
+    localStorage.removeItem('refreshToken');
+
+    // Redirect the user to the Cognito logout URL
+    window.location.href = logoutUrl;
+  };
+
+  useEffect(() => {
+    // Retrieve the idToken from local storage
+    const idToken = localStorage.getItem('idToken');
+    if (idToken) {
+      const username = getUsernameFromToken(idToken);  // Decode the username
+      setUsername(username);  // Update the state with the decoded username
+    }
+  }, []);
 
   const dashboardList = (
     <Box>
@@ -71,6 +80,8 @@ const Home: React.FC = () => {
           <DashboardInfo currentDisplay={selectedDisplay} setSearchTerm={setSearchTerm} />
           {/* Optionally use searchTerm in Home */}
           <Box>{searchTerm && <p>Search Term: {searchTerm}</p>}</Box> {/* Display searchTerm */}
+          {/* Display the username */}
+          <Box>{username && <p>Welcome, {username}!</p>}</Box>  {/* Show the username */}
         </Stack>
       </Box>
     </>
@@ -78,6 +89,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
-
