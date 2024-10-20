@@ -1,7 +1,5 @@
 import React from 'react';
-import { Card, CardMedia, CardContent, Typography, Button, CardActions } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import Link from '@mui/material/Link';
+import { Card, CardMedia, CardContent, Typography, Link } from '@mui/material';
 
 interface CatalogItemProps {
   item: {
@@ -14,12 +12,11 @@ interface CatalogItemProps {
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-  const { title, image, price, itemWebUrl, itemId } = item;
+  const { title, image, price, itemWebUrl } = item;
 
   return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      {/* Internal Routing Link for product details */}
-      <RouterLink to={`/product/${itemId}`}>
+    <Card>
+      <Link href={itemWebUrl} target="_blank" rel="noopener">
         {image?.imageUrl ? (
           <CardMedia
             component="img"
@@ -30,34 +27,29 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
         ) : (
           <Typography>No Image Available</Typography>
         )}
-      </RouterLink>
-
+      </Link>
       <CardContent>
         <Typography gutterBottom variant="h6" component="div">
-          {/* External Link to the item's URL */}
           <Link href={itemWebUrl} target="_blank" rel="noopener">
             {title}
           </Link>
         </Typography>
-        {price && (
+        {price && price.value && price.currency ? (
           <Typography variant="body2" color="text.secondary">
             Price: {price.value} {price.currency}
           </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Price Not Available
+          </Typography>
         )}
       </CardContent>
-
-      <CardActions>
-        <RouterLink to={`/product/${itemId}`}>
-          <Button size="small" color="primary">
-            View Details
-          </Button>
-        </RouterLink>
-      </CardActions>
     </Card>
   );
 };
 
 export default CatalogItem;
+
 
 
 
