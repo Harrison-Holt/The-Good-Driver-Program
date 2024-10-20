@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardMedia, CardContent, Typography, Link } from '@mui/material';
+import { Card, CardContent, Typography, Link } from '@mui/material';
 
 interface CatalogItemProps {
   item: {
@@ -28,17 +28,12 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
     <Card>
       {item_group_href ? (
         <Link href={item_group_href} target="_blank" rel="noopener">
-          {image_url ? (
-            <CardMedia
-              component="img"
-              height="140"
-              image={image_url} // Use image_url directly from the API
-              alt={title}
-              style={{ objectFit: 'cover' }}
-            />
-          ) : (
-            <Typography>No Image Available</Typography>
-          )}
+      {image_url ? (
+  <img src={image_url} alt={title} height="140" style={{ objectFit: 'cover' }} />
+) : (
+  <Typography>No Image Available</Typography>
+)}
+
         </Link>
       ) : (
         <Typography>No URL Available</Typography>
