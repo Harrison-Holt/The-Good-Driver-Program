@@ -16,6 +16,8 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
 
   // Log the image_url for debugging
   console.log("Image URL:", image_url);
+  console.log("Item Object:", item);
+
 
   const renderPrice = () => {
     if (typeof price === 'string') {
