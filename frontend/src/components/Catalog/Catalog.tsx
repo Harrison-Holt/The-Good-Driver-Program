@@ -3,19 +3,13 @@ import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/materi
 import Grid from '@mui/material/Grid';  
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
+import { SelectChangeEvent } from '@mui/material';
 
 interface EbayItem {
   itemId: string;
   title: string;
-  image: {
-    imageUrl: string;
-  };
-  price: 
-    | {
-        value: string;
-        currency: string;
-      }
-    | string;  // Allow price to be either an object or string
+  image_url: string;
+  price: string;
   itemWebUrl: string;
 }
 
@@ -29,7 +23,7 @@ const categories = [
 
 const Catalog = () => {
   const [items, setItems] = useState<EbayItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to first category
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +34,7 @@ const Catalog = () => {
       setError(null);
 
       try {
+        console.log(`Fetching items for category: ${selectedCategory}`); // Log selected category
         const response = await fetch(
           `https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`,
           {
@@ -55,8 +50,8 @@ const Catalog = () => {
         }
 
         const data = await response.json();
-        console.log(data);
-        setItems(data.items || []);  // Update based on API structure
+        console.log(data); // Log the fetched data for debugging
+        setItems(data.items || []);  // Set items from API response
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
@@ -65,8 +60,15 @@ const Catalog = () => {
     };
 
     fetchItems();
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, searchTerm]); // Trigger useEffect when category or search term changes
 
+  const handleCategoryChange = (event: SelectChangeEvent<string>) => {
+    const newCategory = event.target.value; // Already typed as string
+    console.log(`Category changed to: ${newCategory}`);
+    setSelectedCategory(newCategory); // Update selected category
+  };
+  
+  
   return (
     <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
@@ -78,17 +80,18 @@ const Catalog = () => {
           Select Category:
         </Typography>
         <Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          fullWidth
-          variant="outlined"
-        >
-          {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
-          ))}
-        </Select>
+  value={selectedCategory}
+  onChange={handleCategoryChange}  // Use the updated handler
+  fullWidth
+  variant="outlined"
+>
+  {categories.map((category) => (
+    <MenuItem key={category.id} value={category.id}>
+      {category.name}
+    </MenuItem>
+  ))}
+</Select>
+
       </Box>
 
       {/* Loading and Error Messages */}
@@ -123,6 +126,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
-
 
