@@ -3,8 +3,8 @@ import { jwtDecode } from 'jwt-decode';
 
 // Define the structure of the decoded token
 interface DecodedToken {
-  email?: string;
   username?: string;
+  email?: string;
   sub?: string; // User ID
 }
 
