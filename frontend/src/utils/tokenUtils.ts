@@ -10,8 +10,14 @@ interface DecodedToken {
 
 export function getUsernameFromToken(token: string): string | null {
   try {
-    const decodedToken: DecodedToken = jwtDecode(token);
-    console.log('Decoded Token:', decodedToken);
+    const decoded: any = jwtDecode(token);
+
+    const decodedToken: DecodedToken = {
+        username: decoded['cognito:username'],  // Rename 'cognito:username' to 'username'
+        email: decoded.email,
+        sub: decoded.sub,
+    }
+
     // Return username if it exists, otherwise return email or null
     console.log('Username:', decodedToken.username || 'N/A');
     console.log('Email:', decodedToken.email || 'N/A');
