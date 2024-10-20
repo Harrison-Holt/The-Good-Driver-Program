@@ -5,24 +5,24 @@ interface CatalogItemProps {
   item: {
     itemId: string;
     title: string;
-    image_url?: string; 
-    price?: { value: string; currency: string } | string;
-    itemWebUrl?: string;
+    image_url?: string; // Directly reference image_url
+    price?: string;
+    item_group_href?: string; // Use item_group_href if it represents the item URL
   };
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-  const { title, image_url, price, itemWebUrl } = item;
+  const { title, image_url, price, item_group_href } = item;
 
   return (
     <Card>
-      {itemWebUrl ? (
-        <Link href={itemWebUrl} target="_blank" rel="noopener">
+      {item_group_href ? (
+        <Link href={item_group_href} target="_blank" rel="noopener">
           {image_url ? (
             <CardMedia
               component="img"
               height="140"
-              image={image_url} // Use image_url here
+              image={image_url} // Use image_url directly from the API
               alt={title}
               style={{ objectFit: 'cover' }}
             />
@@ -35,8 +35,8 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
       )}
       <CardContent>
         <Typography gutterBottom variant="h6" component="div">
-          {itemWebUrl ? (
-            <Link href={itemWebUrl} target="_blank" rel="noopener">
+          {item_group_href ? (
+            <Link href={item_group_href} target="_blank" rel="noopener">
               {title}
             </Link>
           ) : (
@@ -44,11 +44,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
           )}
         </Typography>
 
-        {typeof price === 'object' && price?.value && price?.currency ? (
-          <Typography variant="body2" color="text.secondary">
-            Price: {price.value} {price.currency}
-          </Typography>
-        ) : typeof price === 'string' ? (
+        {price ? (
           <Typography variant="body2" color="text.secondary">
             Price: {price}
           </Typography>
