@@ -12,10 +12,17 @@ const Home: React.FC = () => {
       const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
       const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
       const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
-  
+    
+      // Clear any stored tokens to simulate logout in the app
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('idToken');
+      localStorage.removeItem('refreshToken');
+    
       // Redirect the user to the Cognito logout URL
       window.location.href = logoutUrl;
     };
+    
+    
 
   const dashboardList = (
     <Box>

@@ -1,7 +1,6 @@
-// src/components/AuthCallback.tsx
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';  // You can use fetch or axios to make the token request
+import axios from 'axios';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ const AuthCallback: React.FC = () => {
           const response = await axios.post('https://team08-domain.auth.us-east-1.amazoncognito.com/oauth2/token', new URLSearchParams({
             grant_type: 'authorization_code',
             client_id: 'ff8qau87sidn42svsuj51v4l4',
-            code: code, 
+            code: code,
             redirect_uri: 'https://master.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // Same redirect URI
           }), {
             headers: {
@@ -26,16 +25,13 @@ const AuthCallback: React.FC = () => {
           });
 
           const { access_token, id_token, refresh_token } = response.data;
-          console.log('Access Token:', access_token);
-          console.log('ID Token:', id_token);
-          console.log('Refresh Token:', refresh_token);
 
           // Clear any old tokens
           localStorage.removeItem('accessToken');
           localStorage.removeItem('idToken');
           localStorage.removeItem('refreshToken');
 
-          // Here, you can store the tokens in local storage or manage them in the state
+          // Store the new tokens
           localStorage.setItem('accessToken', access_token);
           localStorage.setItem('idToken', id_token);
           localStorage.setItem('refreshToken', refresh_token);
