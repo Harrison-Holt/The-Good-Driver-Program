@@ -10,10 +10,12 @@ interface EbayItem {
   image: {
     imageUrl: string;
   };
-  price: {
-    value: string;
-    currency: string;
-  };
+  price: 
+    | {
+        value: string;
+        currency: string;
+      }
+    | string;  // Allow price to be either an object or string
   itemWebUrl: string;
 }
 
@@ -53,7 +55,7 @@ const Catalog = () => {
         }
 
         const data = await response.json();
-        console.log(data); 
+        console.log(data);
         setItems(data.items || []);  // Update based on API structure
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
