@@ -67,8 +67,7 @@ const Catalog = () => {
     console.log(`Category changed to: ${newCategory}`);
     setSelectedCategory(newCategory); // Update selected category
   };
-  
-  
+
   return (
     <Box sx={{ padding: '20px' }}>
       {/* Search Bar */}
@@ -80,18 +79,17 @@ const Catalog = () => {
           Select Category:
         </Typography>
         <Select
-  value={selectedCategory}
-  onChange={handleCategoryChange}  // Use the updated handler
-  fullWidth
-  variant="outlined"
->
-  {categories.map((category) => (
-    <MenuItem key={category.id} value={category.id}>
-      {category.name}
-    </MenuItem>
-  ))}
-</Select>
-
+          value={selectedCategory}
+          onChange={handleCategoryChange}  // Update category on change
+          fullWidth
+          variant="outlined"
+        >
+          {categories.map((category) => (
+            <MenuItem key={category.id} value={category.id}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </Select>
       </Box>
 
       {/* Loading and Error Messages */}
