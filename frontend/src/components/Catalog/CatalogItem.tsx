@@ -5,29 +5,26 @@ interface CatalogItemProps {
   item: {
     itemId: string;
     title: string;
-    image?: { imageUrl?: string };
+    image_url?: string; 
     price?: { value: string; currency: string } | string;
     itemWebUrl?: string;
   };
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-  const { title, image, price, itemWebUrl } = item;
-
-  // Check the image URL to verify it's correct
-  console.log("Image URL:", image?.imageUrl);
+  const { title, image_url, price, itemWebUrl } = item;
 
   return (
     <Card>
       {itemWebUrl ? (
         <Link href={itemWebUrl} target="_blank" rel="noopener">
-          {image?.imageUrl ? (
+          {image_url ? (
             <CardMedia
               component="img"
               height="140"
-              image={image.imageUrl}
+              image={image_url} // Use image_url here
               alt={title}
-              style={{ objectFit: 'cover' }} // Ensuring the image fits correctly
+              style={{ objectFit: 'cover' }}
             />
           ) : (
             <Typography>No Image Available</Typography>
