@@ -54,7 +54,7 @@ const Catalog = () => {
 
         const data = await response.json();
         console.log(data); 
-        setItems(data.itemSummaries || []);
+        setItems(data.items || []);  // Update based on API structure
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
@@ -121,5 +121,6 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
 
 
