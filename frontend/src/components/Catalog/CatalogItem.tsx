@@ -37,8 +37,8 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
             <>
               {/* Log image_url here */}
               <img
-  src={image_url}
-  alt={title}
+  src={item.image_url}
+  alt={item.title}
   style={{ width: '100%', height: 'auto' }} // Full width and auto height for testing
 />
 
