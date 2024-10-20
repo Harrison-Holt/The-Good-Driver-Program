@@ -30,6 +30,7 @@ const ProductDetails: React.FC = () => {
       try {
         const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/item/${itemId}`);
         const data = await response.json();
+        console.log(data); 
         setProduct(data);
       } catch (err) {
         console.error('Error fetching product details:', err); 
