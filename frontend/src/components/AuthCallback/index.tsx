@@ -18,7 +18,7 @@ const AuthCallback: React.FC = () => {
             grant_type: 'authorization_code',
             client_id: 'ff8qau87sidn42svsuj51v4l4',  // Replace with your actual Client ID
             code: code,  // Authorization code from the URL
-            redirect_uri: 'https://master.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // Same redirect URI
+            redirect_uri: 'https://dev.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // Same redirect URI
           }), {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
