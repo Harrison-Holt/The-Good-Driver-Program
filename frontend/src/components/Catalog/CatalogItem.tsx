@@ -6,7 +6,7 @@ interface CatalogItemProps {
     itemId: string;
     title: string;
     image?: { imageUrl?: string };
-    price?: { value: string; currency: string } | string; // Can be an object or string
+    price?: { value: string; currency: string } | string;
     itemWebUrl?: string;
   };
 }
@@ -14,9 +14,11 @@ interface CatalogItemProps {
 const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
   const { title, image, price, itemWebUrl } = item;
 
+  // Check the image URL to verify it's correct
+  console.log("Image URL:", image?.imageUrl);
+
   return (
     <Card>
-      {/* Conditionally display the URL and image */}
       {itemWebUrl ? (
         <Link href={itemWebUrl} target="_blank" rel="noopener">
           {image?.imageUrl ? (
@@ -25,6 +27,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
               height="140"
               image={image.imageUrl}
               alt={title}
+              style={{ objectFit: 'cover' }} // Ensuring the image fits correctly
             />
           ) : (
             <Typography>No Image Available</Typography>
@@ -33,7 +36,6 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
       ) : (
         <Typography>No URL Available</Typography>
       )}
-
       <CardContent>
         <Typography gutterBottom variant="h6" component="div">
           {itemWebUrl ? (
@@ -45,7 +47,6 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
           )}
         </Typography>
 
-        {/* Handle both object and string for price */}
         {typeof price === 'object' && price?.value && price?.currency ? (
           <Typography variant="body2" color="text.secondary">
             Price: {price.value} {price.currency}
