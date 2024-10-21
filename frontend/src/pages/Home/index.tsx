@@ -36,7 +36,7 @@ const Home: React.FC = () => {
 
       // Fetch user data from backend API using username
       if (username) {
-        axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/{username}`)  // Replace with your actual API Gateway URL
+        axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`)  // Replace with your actual API Gateway URL
           .then(response => {
             setUserData(response.data);  // Store user data in state
           })
@@ -104,6 +104,7 @@ const Home: React.FC = () => {
               <p>User Data:</p>
               <p>Username: {userData.username}</p>  {/* Adjust this to match your data structure */}
               <p>Email: {userData.email}</p>  {/* Adjust this to match your data structure */}
+              <p>Role: {userData.role}</p>  {/* Adjust this to match your data structure */}
               {/* Add more fields as necessary */}
             </Box>
           )}
