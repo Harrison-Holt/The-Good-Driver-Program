@@ -1,46 +1,42 @@
-import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
 
-// Define the type for an Ebay item
-interface EbayItem {
-  itemId: string;
-  title: string;
-  image: {
-    imageUrl: string;
+interface CatalogItemProps {
+  item: {
+    itemId: string;
+    title: string;
+    image: {
+      imageUrl: string;
+    };
+    price: {
+      value: string;
+      currency: string;
+    };
+    itemWebUrl: string;
   };
-  price: {
-    value: string;
-    currency: string;
-  };
-  itemWebUrl: string;
+  onViewDetails: (itemId: string) => void; // Function type for the view details handler
 }
 
-interface Props {
-  item: EbayItem;
-}
-
-const CatalogItem: React.FC<Props> = ({ item }) => {
+const CatalogItem = ({ item, onViewDetails }: CatalogItemProps) => {
   return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <Card>
       <CardMedia
         component="img"
+        image={item.image.imageUrl}
         alt={item.title}
-        height="140"
-        image={item.image.imageUrl || 'https://via.placeholder.com/150'}
+        title={item.title}
+        sx={{ height: 140 }}
       />
       <CardContent>
         <Typography variant="h6" gutterBottom>
           {item.title}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2">
           {item.price.value} {item.price.currency}
         </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
-          Buy Now
+        <Button variant="contained" onClick={() => onViewDetails(item.itemId)} sx={{ marginTop: '10px' }}>
+          View Details
         </Button>
-      </CardActions>
+      </CardContent>
     </Card>
   );
 };

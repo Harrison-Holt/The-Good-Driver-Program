@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';  // Correct import for Grid
+import Grid from '@mui/material/Grid';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
@@ -31,6 +32,7 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -63,6 +65,10 @@ const Catalog = () => {
 
     fetchItems();
   }, [selectedCategory, searchTerm]);
+
+  const handleViewDetails = (itemId: string) => {
+    navigate(`/item/${itemId}`); // Navigate to the item details page
+  };
 
   return (
     <Box sx={{ padding: '20px' }}>
@@ -105,7 +111,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {items.map((item) => (
           <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} />
+            <CatalogItem item={item} onViewDetails={handleViewDetails} /> {/* Pass the view details handler */}
           </Grid>
         ))}
       </Grid>
