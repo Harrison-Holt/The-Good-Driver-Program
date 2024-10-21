@@ -69,16 +69,18 @@ const Catalog = () => {
 
     const handleViewDetails = async (itemId: string) => {
       console.log("Navigating to item with ID:", itemId); 
+      const encodedItemId = encodeURIComponent(itemId); // Encode the itemId
+
       // Construct the URL correctly for fetching item details
-      const response = await fetch(
-          `https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/item_details?itemId=${itemId}`,
-          {
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-          }
-      );
+      const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/item_details?itemId=${encodedItemId}`,
+      {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }
+);
+
   
       // Check for successful response
       if (!response.ok) {
