@@ -18,6 +18,7 @@ interface ItunesItem {
   collectionPrice?: number;  // Price for collections
   currency?: string;
 }
+
 interface ItunesApiResponse {
     resultCount: number;
     results: ItunesItem[];
@@ -47,8 +48,9 @@ const Catalog = () => {
             setError(null);
             
             try {
+                // iTunes API uses `term` for search and `media` for category
                 const response = await fetch(
-                    `${API_BASE_URL}?category=${selectedCategory}&keyword=${searchTerm || 'music'}`,
+                    `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`,
                     {
                         method: 'GET',
                         headers: {
@@ -64,10 +66,11 @@ const Catalog = () => {
                 const data: ItunesApiResponse = await response.json();
 
                 if (data.resultCount > 0) {
-                  const filteredItems = data.results; 
+                    // Filter out items that are free (no price) and only include paid items
+                    const filteredItems = data.results.filter(item => {
+                        return (item.trackPrice && item.trackPrice > 0) || (item.collectionPrice && item.collectionPrice > 0);
+                    });
 
-
-                    
                     setItems(filteredItems);
                 } else {
                     setItems([]); // No items found
@@ -124,7 +127,7 @@ const Catalog = () => {
 
             <Grid container spacing={4}>
                 {items.map((item) => (
-                    <Grid item key={item.trackId} xs={12} sm={6} md={4} lg={3}>
+                    <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
                         <CatalogItem item={item} onViewDetails={handleViewDetails} />
                     </Grid>
                 ))}
