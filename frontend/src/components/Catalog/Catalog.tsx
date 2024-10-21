@@ -1,9 +1,7 @@
-// src/components/Catalog/Catalog.tsx
-
 import { useEffect, useState } from 'react';
 import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { useNavigate } from 'react-router-dom'; // Ensure this import is here
+import { useNavigate } from 'react-router-dom'; 
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
@@ -27,13 +25,15 @@ const categories = [
     { id: '26395', name: 'Health & Beauty' },
 ];
 
+const API_BASE_URL = 'https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog';
+
 const Catalog = () => {
     const [items, setItems] = useState<EbayItem[]>([]);
     const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate(); // Initialize the navigate function
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -42,7 +42,7 @@ const Catalog = () => {
 
             try {
                 const response = await fetch(
-                    `https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`,
+                    `${API_BASE_URL}?category=${selectedCategory}&q=${searchTerm}`,
                     {
                         method: 'GET',
                         headers: {
@@ -52,13 +52,13 @@ const Catalog = () => {
                 );
 
                 if (!response.ok) {
-                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                    throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
                 setItems(data.itemSummaries || []);
-            } catch (error) {
-                setError(error instanceof Error ? error.message : 'An unknown error occurred');
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An unknown error occurred');
             } finally {
                 setLoading(false);
             }
@@ -66,36 +66,12 @@ const Catalog = () => {
 
         fetchItems();
     }, [selectedCategory, searchTerm]);
-
-    const handleViewDetails = async (itemId: string) => {
-      console.log("Navigating to item with ID:", itemId); 
-      const encodedItemId = encodeURIComponent(itemId); // Encode the itemId
-
-      // Construct the URL correctly for fetching item details
-      const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/item_details?itemId=${encodedItemId}`,
-      {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }
-);
-
-  
-      // Check for successful response
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      // Process the response if needed (you can log it here)
-      const data = await response.json();
-      console.log("Fetched item details:", data); // Log the fetched data for debugging
-  
-      // Navigate to the item details page with the ID
-      navigate(`/product/${itemId}`);
-  };
-  
-  
+    
+    const handleViewDetails = (itemId: string) => {
+        console.log("Navigating to item with ID:", itemId);
+        const encodedItemId = encodeURIComponent(itemId);
+        navigate(`/product/${encodedItemId}`); // Navigate with encoded itemId
+    };
 
     return (
         <Box sx={{ padding: '20px' }}>
@@ -133,7 +109,7 @@ const Catalog = () => {
             <Grid container spacing={4}>
                 {items.map((item) => (
                     <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-                        <CatalogItem item={item} onViewDetails={handleViewDetails} /> {/* Pass the handler */}
+                        <CatalogItem item={item} onViewDetails={handleViewDetails} />
                     </Grid>
                 ))}
             </Grid>
@@ -148,4 +124,5 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
 

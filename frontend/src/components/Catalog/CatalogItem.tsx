@@ -1,3 +1,5 @@
+// src/components/Catalog/CatalogItem.tsx
+
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
@@ -13,18 +15,18 @@ interface CatalogItemProps {
             currency: string;
         };
     };
-    onViewDetails: (itemId: string) => void; // Ensure this is included
+    onViewDetails: (itemId: string) => void; // Define the function type
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
     return (
-        <Box>
-            <img src={item.image.imageUrl} alt={item.title} style={{ maxWidth: '100%', height: 'auto' }} />
+        <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
+            <img src={item.image.imageUrl} alt={item.title} style={{ width: '100%' }} />
             <Typography variant="h6">{item.title}</Typography>
             <Typography variant="body1">
                 Price: {item.price.value} {item.price.currency}
             </Typography>
-            <Button variant="contained" onClick={() => onViewDetails(item.itemId)}>
+            <Button variant="contained" color="primary" onClick={() => onViewDetails(item.itemId)}>
                 View Details
             </Button>
         </Box>
@@ -32,3 +34,4 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
 };
 
 export default CatalogItem;
+
