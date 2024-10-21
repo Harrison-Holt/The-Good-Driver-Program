@@ -67,10 +67,32 @@ const Catalog = () => {
         fetchItems();
     }, [selectedCategory, searchTerm]);
 
-    const handleViewDetails = (itemId: string) => {
+    const handleViewDetails = async (itemId: string) => {
       console.log("Navigating to item with ID:", itemId); 
+      // Construct the URL correctly for fetching item details
+      const response = await fetch(
+          `https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/item_details?itemId=${itemId}`,
+          {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+          }
+      );
+  
+      // Check for successful response
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      // Process the response if needed (you can log it here)
+      const data = await response.json();
+      console.log("Fetched item details:", data); // Log the fetched data for debugging
+  
+      // Navigate to the item details page with the ID
       navigate(`/product/${itemId}`);
   };
+  
   
 
     return (
