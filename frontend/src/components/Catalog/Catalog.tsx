@@ -5,52 +5,37 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-interface EbayItem {
-    itemId: string;
-    title: string;
-    galleryURL: string;
-    viewItemURL: string;
-    price: {
-        value: string;
-        currency: string;
-    };
-}
-
-interface ApiItem {
-    itemId: string[];
-    title: string[];
-    galleryURL: string[];
-    viewItemURL: string[];
-    sellingStatus: {
-        currentPrice: {
-            __value__: string;
-            '@currencyId': string;
-        }[];
-    }[];
+interface iTunesItem {
+    trackId: string;
+    trackName: string;
+    artworkUrl100: string;
+    trackViewUrl: string;
+    collectionPrice: number;
+    currency: string;
 }
 
 const categories = [
-    { id: '11450', name: 'Clothing, Shoes & Accessories' },
-    { id: '58058', name: 'Cell Phones & Accessories' },
-    { id: '267', name: 'Books' },
-    { id: '888', name: 'Sporting Goods' },
-    { id: '26395', name: 'Health & Beauty' },
+    { id: 'music', name: 'Music' },
+    { id: 'podcast', name: 'Podcasts' },
+    { id: 'tvShow', name: 'TV Shows' },
+    { id: 'movie', name: 'Movies' },
+    { id: 'software', name: 'Software' },
 ];
 
-const API_BASE_URL = 'https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog';
+const API_BASE_URL = 'https://itunes.apple.com/search';
 
 const Catalog = () => {
-    const [items, setItems] = useState<EbayItem[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+    const [items, setItems] = useState<iTunesItem[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate(); 
 
     useEffect(() => {
-        const fetchItems = async (categoryId: string) => {
+        const fetchItems = async (category: string) => {
             const response = await fetch(
-                `${API_BASE_URL}?category=${categoryId}&q=${searchTerm}&paginationInput.entriesPerPage=44`,
+                `${API_BASE_URL}?term=${encodeURIComponent(searchTerm)}&media=${category}&limit=50`,
                 {
                     method: 'GET',
                     headers: {
@@ -64,38 +49,15 @@ const Catalog = () => {
             }
 
             const data = await response.json();
-            const itemSummaries = data.findItemsByKeywordsResponse[0].searchResult[0].item || [];
-            return itemSummaries as ApiItem[]; // Cast the item summaries to ApiItem[]
+            return data.results as iTunesItem[];
         };
 
         const fetchAllItems = async () => {
             setLoading(true);
             setError(null);
-            let allItems: EbayItem[] = [];
-
             try {
-                for (const category of categories) {
-                    const itemsFromCategory = await fetchItems(category.id);
-                    
-                    const formattedItems = itemsFromCategory.map((item: ApiItem) => ({
-                        itemId: item.itemId[0],
-                        title: item.title[0],
-                        galleryURL: item.galleryURL[0],
-                        viewItemURL: item.viewItemURL[0],
-                        price: {
-                            value: item.sellingStatus[0].currentPrice[0].__value__,
-                            currency: item.sellingStatus[0].currentPrice[0]['@currencyId'],
-                        },
-                    }));
-
-                    allItems = [...allItems, ...formattedItems];
-
-                    if (allItems.length >= 44) {
-                        break;
-                    }
-                }
-
-                setItems(allItems.slice(0, 44));
+                const itemsFromCategory = await fetchItems(selectedCategory);
+                setItems(itemsFromCategory.slice(0, 44));
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
             } finally {
@@ -106,9 +68,9 @@ const Catalog = () => {
         fetchAllItems();
     }, [selectedCategory, searchTerm]);
 
-    const handleViewDetails = (itemId: string) => {
-        console.log("Navigating to item with ID:", itemId);
-        const encodedItemId = encodeURIComponent(itemId);
+    const handleViewDetails = (trackId: string) => {
+        console.log("Navigating to item with ID:", trackId);
+        const encodedItemId = encodeURIComponent(trackId);
         navigate(`/product/${encodedItemId}`);
     };
 
@@ -147,8 +109,18 @@ const Catalog = () => {
 
             <Grid container spacing={4}>
                 {items.map((item) => (
-                    <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-                        <CatalogItem item={item} onViewDetails={handleViewDetails} />
+                    <Grid item key={item.trackId} xs={12} sm={6} md={4} lg={3}>
+                        <CatalogItem 
+                            item={{
+                                id: item.trackId,
+                                title: item.trackName,
+                                image: item.artworkUrl100,
+                                link: item.trackViewUrl,
+                                price: item.collectionPrice,
+                                currency: item.currency,
+                            }}
+                            onViewDetails={handleViewDetails} 
+                        />
                     </Grid>
                 ))}
             </Grid>
