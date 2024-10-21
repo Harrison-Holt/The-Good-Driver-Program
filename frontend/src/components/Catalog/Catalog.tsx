@@ -68,7 +68,8 @@ const Catalog = () => {
                 }
 
                 const data = await response.json();
-
+                console.log('API Response:', data); // Log the full API response
+                
                 // Adjust the mapping of the eBay item data according to the response structure
                 const itemSummaries = data.findItemsByKeywordsResponse[0].searchResult[0].item || [];
                 const formattedItems = itemSummaries.map((item: ApiItem) => ({
