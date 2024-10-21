@@ -6,7 +6,6 @@ import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
-import ItemDetails from './components/Catalog/ItemDetails';
 
 const router = createBrowserRouter([
   {
@@ -20,10 +19,6 @@ const router = createBrowserRouter([
   {
     path: "/catalog",
     element: <Catalog />,
-  },
-  {
-    path: "/product/:itemId", 
-    element: <ItemDetails />,
   },
 ]);
 

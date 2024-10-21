@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { useNavigate } from 'react-router-dom'; 
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
 interface ItunesItem {
-  trackId?: string;  // For tracks
-  collectionId?: string;  // For collections
-  trackName?: string;  // Track name for tracks
-  collectionName?: string;  // Collection name for albums
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  // URL for tracks
-  collectionViewUrl?: string;  // URL for collections
-  trackPrice?: number;  // Price for tracks
-  collectionPrice?: number;  // Price for collections
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
   currency?: string;
 }
 
@@ -36,11 +35,13 @@ const API_BASE_URL = 'https://itunes.apple.com/search';
 
 const Catalog = () => {
     const [items, setItems] = useState<ItunesItem[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
-    const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
+    const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate(); 
+
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -48,7 +49,6 @@ const Catalog = () => {
             setError(null);
             
             try {
-                // iTunes API uses `term` for search and `media` for category
                 const response = await fetch(
                     `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`,
                     {
@@ -66,14 +66,13 @@ const Catalog = () => {
                 const data: ItunesApiResponse = await response.json();
 
                 if (data.resultCount > 0) {
-                    // Filter out items that are free (no price) and only include paid items
                     const filteredItems = data.results.filter(item => {
                         return (item.trackPrice && item.trackPrice > 0) || (item.collectionPrice && item.collectionPrice > 0);
                     });
 
                     setItems(filteredItems);
                 } else {
-                    setItems([]); // No items found
+                    setItems([]);
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -82,14 +81,17 @@ const Catalog = () => {
             }
         };
 
-        // Perform fetch when the component loads or when search term/category changes
         fetchItems();
     }, [selectedCategory, searchTerm]);
 
-    const handleViewDetails = (trackId: string) => {
-        console.log("Navigating to item with ID:", trackId);
-        const encodedItemId = encodeURIComponent(trackId);
-        navigate(`/product/${encodedItemId}`);
+    const handleViewDetails = (item: ItunesItem) => {
+        setSelectedItem(item);
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setSelectedItem(null);
     };
 
     return (
@@ -137,6 +139,28 @@ const Catalog = () => {
                 <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
                     No items found. Try searching with a different term or category.
                 </Typography>
+            )}
+
+            {/* Modal for Item Details */}
+            {selectedItem && (
+                <Dialog open={openModal} onClose={handleCloseModal}>
+                    <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+                    <DialogContent>
+                        <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName || selectedItem.collectionName} style={{ width: '100px', marginBottom: '10px' }} />
+                        <Typography>Artist: {selectedItem.artistName}</Typography>
+                        <Typography>Price: {selectedItem.collectionPrice || selectedItem.trackPrice} {selectedItem.currency}</Typography>
+                        <Typography>
+                            <a href={selectedItem.trackViewUrl || selectedItem.collectionViewUrl} target="_blank" rel="noopener noreferrer">
+                                View on iTunes
+                            </a>
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseModal} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             )}
         </Box>
     );
