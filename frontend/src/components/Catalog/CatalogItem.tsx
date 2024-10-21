@@ -1,30 +1,37 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
-// Define the iTunesItem interface if it's not imported from elsewhere
-interface iTunesItem {
-    id: string; // Track or item ID
-    title: string; // Title of the item
-    image: string; // Field for the item's image URL
-    price: number; // Price of the item
-    currency: string; // Currency for the item price
-    link: string; // URL for the item's detailed page
+interface ItunesItem {
+    trackId?: string;
+    collectionId?: string;
+    trackName?: string;
+    collectionName?: string;
+    artistName: string;
+    artworkUrl100: string;
+    trackViewUrl?: string;
+    collectionViewUrl?: string;
+    collectionPrice?: number;
+    currency?: string;
 }
 
 interface CatalogItemProps {
-    item: iTunesItem; // Use the defined iTunesItem type
-    onViewDetails: (itemId: string) => void; // Define the function type
+    item: ItunesItem; 
+    onViewDetails: (id: string) => void; 
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
+    const itemId = item.trackId || item.collectionId;
+    const itemName = item.trackName || item.collectionName || 'Unknown Title';
+
     return (
         <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
-            <img src={item.image} alt={item.title} style={{ width: '100%' }} />
-            <Typography variant="h6">{item.title}</Typography>
-            <Typography variant="body1">
-                Price: {item.price} {item.currency}
+            <img src={item.artworkUrl100} alt={itemName} style={{ width: '100%' }} />
+            <Typography variant="h6">{itemName}</Typography>
+            <Typography variant="body1">Artist: {item.artistName}</Typography>
+            <Typography variant="body2">
+                Price: {item.collectionPrice ? `${item.collectionPrice} ${item.currency}` : 'N/A'}
             </Typography>
-            <Button variant="contained" color="primary" onClick={() => onViewDetails(item.id)}>
+            <Button variant="contained" color="primary" onClick={() => onViewDetails(itemId ?? '')}>
                 View Details
             </Button>
         </Box>

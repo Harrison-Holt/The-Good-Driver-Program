@@ -5,59 +5,81 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-interface iTunesItem {
-    trackId: string;
-    trackName: string;
-    artworkUrl100: string;
-    trackViewUrl: string;
-    collectionPrice: number;
-    currency: string;
+interface ItunesItem {
+  trackId?: string;  // For tracks
+  collectionId?: string;  // For collections
+  trackName?: string;  // Track name for tracks
+  collectionName?: string;  // Collection name for albums
+  artistName: string;
+  artworkUrl100: string;
+  trackViewUrl?: string;  // URL for tracks
+  collectionViewUrl?: string;  // URL for collections
+  trackPrice?: number;  // Price for tracks
+  collectionPrice?: number;  // Price for collections
+  currency?: string;
+}interface ItunesApiResponse {
+    resultCount: number;
+    results: ItunesItem[];
 }
 
 const categories = [
     { id: 'music', name: 'Music' },
-    { id: 'podcast', name: 'Podcasts' },
-    { id: 'tvShow', name: 'TV Shows' },
-    { id: 'movie', name: 'Movies' },
+    { id: 'podcast', name: 'Podcast' },
+    { id: 'tvShow', name: 'TV Show' },
+    { id: 'movie', name: 'Movie' },
     { id: 'software', name: 'Software' },
 ];
 
-const API_BASE_URL = 'https://itunes.apple.com/search';
+const API_BASE_URL = 'https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev'; 
 
 const Catalog = () => {
-    const [items, setItems] = useState<iTunesItem[]>([]);
+    const [items, setItems] = useState<ItunesItem[]>([]);
     const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate(); 
 
     useEffect(() => {
-        const fetchItems = async (category: string) => {
-            const response = await fetch(
-                `${API_BASE_URL}?term=${encodeURIComponent(searchTerm)}&media=${category}&limit=50`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.results as iTunesItem[];
-        };
-
-        const fetchAllItems = async () => {
+        const fetchItems = async () => {
             setLoading(true);
             setError(null);
+            
             try {
-                const itemsFromCategory = await fetchItems(selectedCategory);
-                setItems(itemsFromCategory.slice(0, 44));
+                const response = await fetch(
+                    `${API_BASE_URL}?category=${selectedCategory}&keyword=${searchTerm || 'music'}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
+                }
+
+                const data: ItunesApiResponse = await response.json();
+
+                if (data.resultCount > 0) {
+                  const filteredItems = data.results
+                    .filter(item => item.collectionPrice && item.collectionPrice > 0) // Only include paid items
+                    .map(item => ({
+                        trackId: item.trackId || item.collectionId, // Use trackId for tracks or collectionId for collections
+                        trackName: item.trackName || item.collectionName || item.artistName, // Use trackName for tracks or collectionName for collections
+                        artistName: item.artistName,
+                        artworkUrl100: item.artworkUrl100,
+                        trackViewUrl: item.trackViewUrl || item.collectionViewUrl, // Use trackViewUrl for tracks or collectionViewUrl for collections
+                        collectionPrice: item.collectionPrice,
+                        currency: item.currency || 'USD',
+                    }));
+
+                    
+                    setItems(filteredItems);
+                } else {
+                    setItems([]); // No items found
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
             } finally {
@@ -65,7 +87,8 @@ const Catalog = () => {
             }
         };
 
-        fetchAllItems();
+        // Perform fetch when the component loads or when search term/category changes
+        fetchItems();
     }, [selectedCategory, searchTerm]);
 
     const handleViewDetails = (trackId: string) => {
@@ -110,17 +133,7 @@ const Catalog = () => {
             <Grid container spacing={4}>
                 {items.map((item) => (
                     <Grid item key={item.trackId} xs={12} sm={6} md={4} lg={3}>
-                        <CatalogItem 
-                            item={{
-                                id: item.trackId,
-                                title: item.trackName,
-                                image: item.artworkUrl100,
-                                link: item.trackViewUrl,
-                                price: item.collectionPrice,
-                                currency: item.currency,
-                            }}
-                            onViewDetails={handleViewDetails} 
-                        />
+                        <CatalogItem item={item} onViewDetails={handleViewDetails} />
                     </Grid>
                 ))}
             </Grid>
