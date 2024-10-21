@@ -64,17 +64,8 @@ const Catalog = () => {
                 const data: ItunesApiResponse = await response.json();
 
                 if (data.resultCount > 0) {
-                  const filteredItems = data.results
-                    .filter(item => item.collectionPrice && item.collectionPrice > 0) // Only include paid items
-                    .map(item => ({
-                        trackId: item.trackId || item.collectionId, // Use trackId for tracks or collectionId for collections
-                        trackName: item.trackName || item.collectionName || item.artistName, // Use trackName for tracks or collectionName for collections
-                        artistName: item.artistName,
-                        artworkUrl100: item.artworkUrl100,
-                        trackViewUrl: item.trackViewUrl || item.collectionViewUrl, // Use trackViewUrl for tracks or collectionViewUrl for collections
-                        collectionPrice: item.collectionPrice,
-                        currency: item.currency || 'USD',
-                    }));
+                  const filteredItems = data.results; 
+
 
                     
                     setItems(filteredItems);
