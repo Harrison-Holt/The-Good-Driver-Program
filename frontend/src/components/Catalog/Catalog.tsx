@@ -1,6 +1,6 @@
 // src/components/Catalog/Catalog.tsx
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router-dom'; // Ensure this import is here
