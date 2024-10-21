@@ -55,6 +55,7 @@ const Catalog = () => {
         }
 
         const data = await response.json();
+        console.log(data); 
         setItems(data.itemSummaries || []);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
