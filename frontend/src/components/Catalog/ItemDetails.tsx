@@ -1,8 +1,9 @@
+// src/components/Catalog/ProductDetails.tsx
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 
-// Define an interface for the item structure
 interface Item {
   title: string;
   image: {
@@ -16,7 +17,7 @@ interface Item {
 }
 
 const ItemDetails = () => {
-  const { itemId } = useParams<{ itemId: string }>(); // Get itemId from URL parameters
+  const { itemId } = useParams<{ itemId: string }>(); // Ensure this matches the route
   const navigate = useNavigate();
   
   const [item, setItem] = useState<Item | null>(null);
@@ -50,7 +51,6 @@ const ItemDetails = () => {
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
 
-  // Check if item is not null before rendering
   if (!item) {
     return <Typography color="error">Item not found.</Typography>;
   }

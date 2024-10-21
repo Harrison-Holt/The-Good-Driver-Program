@@ -1,7 +1,5 @@
-// src/components/Catalog/CatalogItem.tsx
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
 interface CatalogItemProps {
     item: {
@@ -15,15 +13,10 @@ interface CatalogItemProps {
             currency: string;
         };
     };
+    onViewDetails: (itemId: string) => void; // Ensure this is included
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
-    const navigate = useNavigate();
-
-    const handleViewDetails = () => {
-        navigate(`/product/${item.itemId}`); // Navigate to the item details page
-    };
-
+const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
     return (
         <Box>
             <img src={item.image.imageUrl} alt={item.title} style={{ maxWidth: '100%', height: 'auto' }} />
@@ -31,7 +24,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
             <Typography variant="body1">
                 Price: {item.price.value} {item.price.currency}
             </Typography>
-            <Button variant="contained" onClick={handleViewDetails}>
+            <Button variant="contained" onClick={() => onViewDetails(item.itemId)}>
                 View Details
             </Button>
         </Box>
