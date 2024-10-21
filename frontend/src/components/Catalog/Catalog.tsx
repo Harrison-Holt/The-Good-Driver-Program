@@ -17,7 +17,8 @@ interface ItunesItem {
   trackPrice?: number;  // Price for tracks
   collectionPrice?: number;  // Price for collections
   currency?: string;
-}interface ItunesApiResponse {
+}
+interface ItunesApiResponse {
     resultCount: number;
     results: ItunesItem[];
 }
@@ -30,7 +31,7 @@ const categories = [
     { id: 'software', name: 'Software' },
 ];
 
-const API_BASE_URL = 'https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev'; 
+const API_BASE_URL = 'https://itunes.apple.com/search';
 
 const Catalog = () => {
     const [items, setItems] = useState<ItunesItem[]>([]);
