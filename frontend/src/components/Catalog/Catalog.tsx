@@ -8,13 +8,25 @@ import SearchBar from '../SearchBar';
 interface EbayItem {
     itemId: string;
     title: string;
-    image: {
-        imageUrl: string;
-    };
+    galleryURL: string;
+    viewItemURL: string;
     price: {
         value: string;
         currency: string;
     };
+}
+
+interface ApiItem {
+    itemId: string[];
+    title: string[];
+    galleryURL: string[];
+    viewItemURL: string[];
+    sellingStatus: {
+        currentPrice: {
+            __value__: string;
+            '@currencyId': string;
+        }[];
+    }[];
 }
 
 const categories = [
@@ -56,7 +68,21 @@ const Catalog = () => {
                 }
 
                 const data = await response.json();
-                setItems(data.itemSummaries || []);
+
+                // Adjust the mapping of the eBay item data according to the response structure
+                const itemSummaries = data.findItemsByKeywordsResponse[0].searchResult[0].item || [];
+                const formattedItems = itemSummaries.map((item: ApiItem) => ({
+                    itemId: item.itemId[0],
+                    title: item.title[0],
+                    galleryURL: item.galleryURL[0],
+                    viewItemURL: item.viewItemURL[0],
+                    price: {
+                        value: item.sellingStatus[0].currentPrice[0].__value__,
+                        currency: item.sellingStatus[0].currentPrice[0]['@currencyId'],
+                    },
+                }));
+
+                setItems(formattedItems);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
             } finally {
@@ -124,5 +150,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
-
