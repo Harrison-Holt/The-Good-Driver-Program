@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'; // Use navigate for post-action 
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
+// Define ItunesItem with additional details for pricing and cart management
 interface ItunesItem {
   trackId?: string;  // For tracks
   collectionId?: string;  // For collections
@@ -89,17 +90,18 @@ const Catalog = () => {
   }, [selectedCategory, searchTerm]);
 
   // Handle Buy Now action
-  const handleBuyNow = () => {
-    setAlertMessage('Purchase successful! Thank you for buying.');
-    navigate('/confirmation'); // Navigate to a confirmation page after purchase
+  const handleBuyNow = (item: ItunesItem) => {
+    setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
+    navigate('/confirmation', { state: { item } }); // Pass item to confirmation page
   };
 
-  // Handle Add to Cart action
-  const handleAddToCart = () => {
-    setAlertMessage('Item added to cart!');
-    navigate('/cart'); // Navigate to cart after adding an item
+  const handleAddToCart = (item: ItunesItem) => {
+    const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const updatedCart = [...currentCart, item];
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
-
+  
   // Handle opening modal
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
@@ -186,10 +188,10 @@ const Catalog = () => {
             </List>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" color="primary" onClick={handleBuyNow}>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
-            <Button variant="outlined" color="secondary" onClick={handleAddToCart}>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
               Add to Cart
             </Button>
             <Button onClick={() => setShowModal(false)}>
@@ -203,3 +205,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
