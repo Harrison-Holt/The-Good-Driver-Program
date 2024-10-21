@@ -54,15 +54,15 @@ const Catalog = () => {
       setError(null);
       
       try {
-        const response = await fetch(
-          `${API_BASE_URL}?category=${selectedCategory}&keyword=${searchTerm || 'music'}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
+        console.log('Fetching from URL:', url); // Debugging URL
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
