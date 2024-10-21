@@ -1,44 +1,41 @@
-import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
+// src/components/Catalog/CatalogItem.tsx
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface CatalogItemProps {
-  item: {
-    itemId: string;
-    title: string;
-    image: {
-      imageUrl: string;
+    item: {
+        itemId: string;
+        title: string;
+        image: {
+            imageUrl: string;
+        };
+        price: {
+            value: string;
+            currency: string;
+        };
     };
-    price: {
-      value: string;
-      currency: string;
-    };
-    itemWebUrl: string;
-  };
-  onViewDetails: (itemId: string) => void; // Function type for the view details handler
 }
 
-const CatalogItem = ({ item, onViewDetails }: CatalogItemProps) => {
-  return (
-    <Card>
-      <CardMedia
-        component="img"
-        image={item.image.imageUrl}
-        alt={item.title}
-        title={item.title}
-        sx={{ height: 140 }}
-      />
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {item.title}
-        </Typography>
-        <Typography variant="body2">
-          {item.price.value} {item.price.currency}
-        </Typography>
-        <Button variant="contained" onClick={() => onViewDetails(item.itemId)} sx={{ marginTop: '10px' }}>
-          View Details
-        </Button>
-      </CardContent>
-    </Card>
-  );
+const CatalogItem: React.FC<CatalogItemProps> = ({ item }) => {
+    const navigate = useNavigate();
+
+    const handleViewDetails = () => {
+        navigate(`/product/${item.itemId}`); // Navigate to the item details page
+    };
+
+    return (
+        <Box>
+            <img src={item.image.imageUrl} alt={item.title} style={{ maxWidth: '100%', height: 'auto' }} />
+            <Typography variant="h6">{item.title}</Typography>
+            <Typography variant="body1">
+                Price: {item.price.value} {item.price.currency}
+            </Typography>
+            <Button variant="contained" onClick={handleViewDetails}>
+                View Details
+            </Button>
+        </Box>
+    );
 };
 
 export default CatalogItem;
