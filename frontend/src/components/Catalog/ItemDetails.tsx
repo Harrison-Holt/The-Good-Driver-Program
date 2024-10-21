@@ -27,7 +27,7 @@ const ItemDetails = () => {
   useEffect(() => {
     const fetchItemDetails = async () => {
       try {
-        const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/catalog/details?itemId=${itemId}`);
+        const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/item_details?itemId=${itemId}`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
