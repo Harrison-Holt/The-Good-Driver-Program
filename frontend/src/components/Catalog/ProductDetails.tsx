@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { useNavigate } from 'react-router-dom';
-import CatalogItem from './CatalogItem';
-import SearchBar from '../SearchBar';
+// src/components/ItemDetails.tsx
 
-interface EbayItem {
-  itemId: string;
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // Ensure you have react-router-dom installed
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
+
+// Define an interface for the item structure
+interface Item {
   title: string;
   image: {
     imageUrl: string;
@@ -15,47 +14,27 @@ interface EbayItem {
     value: string;
     currency: string;
   };
-  itemWebUrl: string;
+  description: string;
 }
 
-const categories = [
-  { id: '11450', name: 'Clothing, Shoes & Accessories' },
-  { id: '58058', name: 'Cell Phones & Accessories' },
-  { id: '267', name: 'Books' },
-  { id: '888', name: 'Sporting Goods' },
-  { id: '26395', name: 'Health & Beauty' },
-];
-
-const Catalog = () => {
-  const [items, setItems] = useState<EbayItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const ItemDetails = () => {
+  const { id } = useParams<{ id: string }>(); // Specify the type for useParams
   const navigate = useNavigate();
+  
+  // Use proper typing for state
+  const [item, setItem] = useState<Item | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      setLoading(true);
-      setError(null);
-
+    const fetchItemDetails = async () => {
       try {
-        const response = await fetch(
-          `https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
+        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog/details?itemId=${id}`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
-
         const data = await response.json();
-        setItems(data.itemSummaries || []);
+        setItem(data);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
@@ -63,66 +42,28 @@ const Catalog = () => {
       }
     };
 
-    fetchItems();
-  }, [selectedCategory, searchTerm]);
+    fetchItemDetails();
+  }, [id]);
 
-  const handleViewDetails = (itemId: string) => {
-    navigate(`/item/${itemId}`);
-  };
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
+
+  // Check if item is not null before rendering
+  if (!item) {
+    return <Typography color="error">Item not found.</Typography>;
+  }
 
   return (
     <Box sx={{ padding: '20px' }}>
-      {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      <Typography variant="h4">{item.title}</Typography>
+      <img src={item.image.imageUrl} alt={item.title} style={{ maxWidth: '100%', height: 'auto' }} />
+      <Typography variant="h6">Price: {item.price.value} {item.price.currency}</Typography>
+      <Typography variant="body1">{item.description}</Typography>
 
-      {/* Category Selection */}
-      <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
-        <Typography variant="h6" gutterBottom>
-          Select Category:
-        </Typography>
-        <Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          fullWidth
-          variant="outlined"
-        >
-          {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </Box>
-
-      {/* Loading and Error Messages */}
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {error && (
-        <Typography color="error" align="center">
-          Error: {error}
-        </Typography>
-      )}
-
-      {/* Catalog Grid */}
-      <Grid container spacing={4}>
-        {items.map((item) => (
-          <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} onViewDetails={handleViewDetails} /> {/* Pass the view details handler */}
-          </Grid>
-        ))}
-      </Grid>
-
-      {!loading && items.length === 0 && !error && (
-        <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
-          No items found. Try searching with a different term or category.
-        </Typography>
-      )}
+      <Button variant="outlined" onClick={() => navigate(-1)} sx={{ marginTop: '20px' }}>Back to Catalog</Button>
     </Box>
   );
 };
 
-export default Catalog;
+export default ItemDetails;
+

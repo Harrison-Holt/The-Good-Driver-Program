@@ -4,9 +4,9 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
-import ProductDetails from './components/Catalog/ProductDetails'; 
 import { Provider } from 'react-redux';
 import { store } from './store/store';
+import ItemDetails from './components/Catalog/ProductDetails';
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/product/:itemId", 
-    element: <ProductDetails />,
+    element: <ItemDetails />,
   },
 ]);
 
