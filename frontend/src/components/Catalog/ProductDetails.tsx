@@ -16,7 +16,7 @@ interface Item {
 }
 
 const ItemDetails = () => {
-  const { id } = useParams<{ id: string }>(); // Specify the type for useParams
+  const { itemId } = useParams<{ itemId: string }>(); // Get itemId from URL parameters
   const navigate = useNavigate();
   
   const [item, setItem] = useState<Item | null>(null);
@@ -26,7 +26,7 @@ const ItemDetails = () => {
   useEffect(() => {
     const fetchItemDetails = async () => {
       try {
-        const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/catalog/details?itemId=${id}`);
+        const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/catalog/details?itemId=${itemId}`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
@@ -39,8 +39,13 @@ const ItemDetails = () => {
       }
     };
 
-    fetchItemDetails();
-  }, [id]);
+    if (itemId) {
+      fetchItemDetails();
+    } else {
+      setLoading(false);
+      setError('Item ID is missing.');
+    }
+  }, [itemId]);
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -63,4 +68,3 @@ const ItemDetails = () => {
 };
 
 export default ItemDetails;
-
