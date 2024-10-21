@@ -48,42 +48,54 @@ const Catalog = () => {
     const navigate = useNavigate(); 
 
     useEffect(() => {
-        const fetchItems = async () => {
+        const fetchItems = async (categoryId: string) => {
+            const response = await fetch(
+                `${API_BASE_URL}?category=${categoryId}&q=${searchTerm}&paginationInput.entriesPerPage=44`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const itemSummaries = data.findItemsByKeywordsResponse[0].searchResult[0].item || [];
+            return itemSummaries as ApiItem[]; // Cast the item summaries to ApiItem[]
+        };
+
+        const fetchAllItems = async () => {
             setLoading(true);
             setError(null);
+            let allItems: EbayItem[] = [];
 
             try {
-                const response = await fetch(
-                    `${API_BASE_URL}?category=${selectedCategory}&q=${searchTerm}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
+                for (const category of categories) {
+                    const itemsFromCategory = await fetchItems(category.id);
+                    
+                    const formattedItems = itemsFromCategory.map((item: ApiItem) => ({
+                        itemId: item.itemId[0],
+                        title: item.title[0],
+                        galleryURL: item.galleryURL[0],
+                        viewItemURL: item.viewItemURL[0],
+                        price: {
+                            value: item.sellingStatus[0].currentPrice[0].__value__,
+                            currency: item.sellingStatus[0].currentPrice[0]['@currencyId'],
                         },
-                    }
-                );
+                    }));
 
-                if (!response.ok) {
-                    throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
+                    allItems = [...allItems, ...formattedItems];
+
+                    if (allItems.length >= 44) {
+                        break;
+                    }
                 }
 
-                const data = await response.json();
-                console.log('API Response:', data); // Log the full API response
-                
-                // Adjust the mapping of the eBay item data according to the response structure
-                const itemSummaries = data.findItemsByKeywordsResponse[0].searchResult[0].item || [];
-                const formattedItems = itemSummaries.map((item: ApiItem) => ({
-                    itemId: item.itemId[0],
-                    title: item.title[0],
-                    galleryURL: item.galleryURL[0],
-                    viewItemURL: item.viewItemURL[0],
-                    price: {
-                        value: item.sellingStatus[0].currentPrice[0].__value__,
-                        currency: item.sellingStatus[0].currentPrice[0]['@currencyId'],
-                    },
-                }));
-
-                setItems(formattedItems);
+                setItems(allItems.slice(0, 44));
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
             } finally {
@@ -91,13 +103,13 @@ const Catalog = () => {
             }
         };
 
-        fetchItems();
+        fetchAllItems();
     }, [selectedCategory, searchTerm]);
-    
+
     const handleViewDetails = (itemId: string) => {
         console.log("Navigating to item with ID:", itemId);
         const encodedItemId = encodeURIComponent(itemId);
-        navigate(`/product/${encodedItemId}`); // Navigate with encoded itemId
+        navigate(`/product/${encodedItemId}`);
     };
 
     return (
