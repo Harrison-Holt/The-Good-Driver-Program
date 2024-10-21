@@ -4,9 +4,12 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
+import Cart from './components/Catalog/Cart'; // Import the Cart page
+import Confirmation from './components/Catalog/Confirmation'; // Import the Confirmation page
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 
+// Define the routes including Cart and Confirmation
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,8 +23,17 @@ const router = createBrowserRouter([
     path: "/catalog",
     element: <Catalog />,
   },
+  {
+    path: "/cart", // Route for the Cart page
+    element: <Cart />,
+  },
+  {
+    path: "/confirmation", // Route for the Confirmation page
+    element: <Confirmation />,
+  },
 ]);
 
+// Render the root component with StrictMode and the router provider
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
