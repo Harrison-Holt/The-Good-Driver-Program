@@ -3,13 +3,13 @@ import Navibar from '../../components/Navibar';
 import React, { useState, useEffect } from 'react';
 import DashboardInfo from '../../components/DashboardInfo';
 import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
-import axios from 'axios';  // Import Axios for making API calls
+import axios from 'axios';  // Import Axios
 
 const Home: React.FC = () => {
-  const [selectedDisplay, setselectedDisplay] = useState("home");
+  const [selectedDisplay, setSelectedDisplay] = useState("home");
   const [searchTerm, setSearchTerm] = useState(""); // Keep both searchTerm and setSearchTerm
   const [username, setUsername] = useState<string | null>(null);  // State for username
-  const [userData, setUserData] = useState<any>(null);  // State to hold user data fetched from backend
+  const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
 
   // Add the logout function
   const handleLogout = () => {
@@ -26,52 +26,56 @@ const Home: React.FC = () => {
     window.location.href = logoutUrl;
   };
 
-  // Fetch username from token and then call API to fetch user data
+  // Fetch user info from the API based on the username
+  const fetchUserInfo = async (username: string) => {
+    try {
+      const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
+      setUserInfo(response.data);  // Store the fetched user info in state
+      console.log('User Info:', response.data);  // Log the user info
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  };
+
   useEffect(() => {
     // Retrieve the idToken from local storage
     const idToken = localStorage.getItem('idToken');
     if (idToken) {
-      const username = getUsernameFromToken(idToken);  // Decode the username
-      setUsername(username);  // Update the state with the decoded username
+      const decodedUsername = getUsernameFromToken(idToken);  // Decode the username from the token
+      setUsername(decodedUsername);  // Update the state with the decoded username
 
-      // Fetch user data from backend API using username
-      if (username) {
-        axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`)  // Replace with your actual API Gateway URL
-          .then(response => {
-            setUserData(response.data);  // Store user data in state
-          })
-          .catch(error => {
-            console.error('Error fetching user data:', error);  // Handle any error from API
-          });
+      // Once username is available, fetch the user info from the Lambda function
+      if (decodedUsername) {
+        fetchUserInfo(decodedUsername);  // Fetch user info based on username
       }
     }
-  }, []);  // Empty dependency array to ensure this runs only once on component mount
+  }, []);
 
   const dashboardList = (
     <Box>
       <List>
         <ListItem>
-          <ListItemButton onClick={() => { setselectedDisplay("home") }}>
+          <ListItemButton onClick={() => { setSelectedDisplay("home") }}>
             Home
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setselectedDisplay("notifications") }}>
+          <ListItemButton onClick={() => { setSelectedDisplay("notifications") }}>
             Notifications
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setselectedDisplay("search") }}>
+          <ListItemButton onClick={() => { setSelectedDisplay("search") }}>
             Search
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setselectedDisplay("applications") }}>
+          <ListItemButton onClick={() => { setSelectedDisplay("applications") }}>
             Applications
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setselectedDisplay("catalog") }}>
+          <ListItemButton onClick={() => { setSelectedDisplay("catalog") }}>
             Catalog
           </ListItemButton>
         </ListItem>
@@ -94,20 +98,17 @@ const Home: React.FC = () => {
           <DashboardInfo currentDisplay={selectedDisplay} setSearchTerm={setSearchTerm} />
           {/* Optionally use searchTerm in Home */}
           <Box>{searchTerm && <p>Search Term: {searchTerm}</p>}</Box> {/* Display searchTerm */}
-
-          {/* Display the username */}
-          <Box>{username && <p>Welcome, {username}!</p>}</Box>  {/* Show the username */}
-
-          {/* Display fetched user data */}
-          {userData && (
-            <Box>
-              <p>User Data:</p>
-              <p>Username: {userData.username}</p>  {/* Adjust this to match your data structure */}
-              <p>Email: {userData.email}</p>  {/* Adjust this to match your data structure */}
-              <p>Role: {userData.role}</p>  {/* Adjust this to match your data structure */}
-              {/* Add more fields as necessary */}
-            </Box>
-          )}
+          {/* Display the username and fetched user info */}
+          <Box>
+            {username && <p>Welcome, {username}!</p>}
+            {userInfo && (
+              <div>
+                <p>Name: {userInfo.first_name} {userInfo.last_name}</p>
+                <p>Email: {userInfo.email}</p>
+                <p>Role: {userInfo.role}</p>
+              </div>
+            )}
+          </Box>  {/* Show the username and user info */}
         </Stack>
       </Box>
     </>
