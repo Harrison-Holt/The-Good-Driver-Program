@@ -1,7 +1,5 @@
-// src/components/ItemDetails.tsx
-
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Ensure you have react-router-dom installed
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 
 // Define an interface for the item structure
@@ -21,7 +19,6 @@ const ItemDetails = () => {
   const { id } = useParams<{ id: string }>(); // Specify the type for useParams
   const navigate = useNavigate();
   
-  // Use proper typing for state
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +26,7 @@ const ItemDetails = () => {
   useEffect(() => {
     const fetchItemDetails = async () => {
       try {
-        const response = await fetch(`https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog/details?itemId=${id}`);
+        const response = await fetch(`https://ph2fd5spla.execute-api.us-east-1.amazonaws.com/prod/catalog/details?itemId=${id}`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
