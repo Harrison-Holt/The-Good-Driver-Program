@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import Sidebar from "../Sidebar";
+import LoginButton from "../LoginButton";
 
 const Navibar = () => {
     const [points, setPoints] = useState(0);
@@ -25,10 +27,11 @@ const Navibar = () => {
     return (
         <AppBar position="static" color="primary">
             <Toolbar>
+                <Sidebar />
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Team 08
                 </Typography>
-                <Button color="inherit">Login</Button>
+                <LoginButton />
                 <Button color="inherit" sx={{ ml: 2 }}>Points: {points}</Button>
             </Toolbar>
         </AppBar>
