@@ -9,6 +9,7 @@ interface DecodedToken {
 }
 
 export function getUsernameFromToken(token: string): string | null {
+  console.log('Token: ',token || 'N/A');
   try {
     const decoded: any = jwtDecode(token);
 
