@@ -11,8 +11,6 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;
-  collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
@@ -21,11 +19,11 @@ interface ItunesItem {
 const Home: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]); 
   const [selectedDisplay, setSelectedDisplay] = useState("home");
-  const [searchTerm, setSearchTerm] = useState(""); // Track search term
 
+  // Load cart from localStorage (if any) on component mount
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    setCartItems(storedCartItems);
+    setCartItems(storedCartItems); // Update state with items from localStorage
   }, []);
 
   // Handle navigation to Cart
@@ -33,15 +31,8 @@ const Home: React.FC = () => {
     setSelectedDisplay("cart");
   };
 
+  // Get the total number of items in the cart
   const cartItemCount = cartItems.length;
-
-
-  useEffect(() => {
-    if (searchTerm) {
-      // Perform your search logic here
-      console.log("Searching for:", searchTerm);
-    }
-  }, [searchTerm]);
 
   const dashboardList = (
     <Box sx={{ width: '250px', backgroundColor: '#f5f5f5', padding: '10px' }}>
@@ -75,7 +66,7 @@ const Home: React.FC = () => {
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
         <Box sx={{ flex: 1, padding: '20px' }}>
-          <DashboardInfo currentDisplay={selectedDisplay} setSearchTerm={setSearchTerm} />
+          <DashboardInfo currentDisplay={selectedDisplay} cartItems={cartItems} /> {/* Pass cartItems to DashboardInfo */}
         </Box>
       </Stack>
     </Box>
@@ -83,7 +74,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
 
 
 
