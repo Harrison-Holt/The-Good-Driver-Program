@@ -1,57 +1,61 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
-import Catalog from '../Catalog/Catalog';
-import Cart from '../Catalog/Cart'; // Import Cart
+import { Drawer, IconButton, Box, List, ListItem, ListItemButton } from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-interface Props {
-  currentDisplay: string;
-}
+const Sidebar: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const nav = useNavigate();
 
-const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
-  let dashJsx;
-
-  switch (currentDisplay) {
-    case "search":
-      dashJsx = (
-        <>
-          <Typography variant="h6">Search</Typography>
-          {/* Search functionality could be added here */}
-        </>
-      );
-      break;
-
-    case "cart":
-      dashJsx = (
-        <>
-          <Typography variant="h6">Your Cart</Typography>
-          <Cart /> {/* Render the Cart component */}
-        </>
-      );
-      break;
-
-    case "catalog":
-      dashJsx = (
-        <>
-          <Typography variant="h6">Catalog</Typography>
-          <Catalog /> {/* Render the Catalog component */}
-        </>
-      );
-      break;
-
-    default:
-      dashJsx = (
-        <>
-          <Typography variant="h6">Home</Typography>
-        </>
-      );
-      break;
-  }
+  const sidebarNavList = (
+    <Box sx={{ width: 250 }} role="presentation" onClick={() => { setOpen(false); }}>
+      <List>
+        <ListItem>
+          <ListItemButton onClick={() => { nav("/"); }}>
+            Home
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => { nav("/about"); }}>
+            About
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => { nav("/catalog"); }}>
+            Catalog
+          </ListItemButton>
+        </ListItem>
+        {/* Add Cart link */}
+        <ListItem>
+          <ListItemButton onClick={() => { nav("/cart"); }}>
+            Cart
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Box>
+  );
 
   return (
-    <Box sx={{ width: '80%', padding: '20px' }}>
-      {dashJsx}
-    </Box>
+    <>
+      <IconButton
+        size="large"
+        edge="start"
+        color="inherit"
+        aria-label="menu"
+        sx={{ mr: 2 }}
+        onClick={() => { setOpen(true); }}
+      >
+        <MenuIcon />
+      </IconButton>
+      <Drawer
+        open={open}
+        onClose={() => { setOpen(false); }}
+      >
+        {sidebarNavList}
+      </Drawer>
+    </>
   );
 };
 
-export default DashboardInfo;
+export default Sidebar;
+
