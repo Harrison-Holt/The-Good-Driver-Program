@@ -26,6 +26,21 @@ const Home: React.FC = () => {
     setCartItems(storedCartItems); // Update state with items from localStorage
   }, []);
 
+  // Add a storage event listener to update cart when changes are detected in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      setCartItems(storedCartItems); // Update the cart items
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   // Handle navigation to Cart
   const handleCartClick = () => {
     setSelectedDisplay("cart");
@@ -75,5 +90,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 
 
