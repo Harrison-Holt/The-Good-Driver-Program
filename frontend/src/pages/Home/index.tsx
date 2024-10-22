@@ -2,7 +2,7 @@ import { Stack, Box, Divider, List, ListItem, ListItemButton, Typography, Badge 
 import Navibar from '../../components/Navibar';
 import React, { useState, useEffect } from 'react';
 import DashboardInfo from '../../components/DashboardInfo';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; 
 
 interface ItunesItem {
   trackId?: string;
@@ -11,6 +11,8 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
@@ -26,10 +28,12 @@ const Home: React.FC = () => {
     setCartItems(storedCartItems); // Update state with items from localStorage
   }, []);
 
+  // Handle navigation to Cart
   const handleCartClick = () => {
     setSelectedDisplay("cart");
   };
 
+  // Get the total number of items in the cart
   const cartItemCount = cartItems.length;
 
   const dashboardList = (
@@ -38,6 +42,21 @@ const Home: React.FC = () => {
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("home")}>
             Home
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("notifications")}>
+            Notifications
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("search")}>
+            Search
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("applications")}>
+            Applications
           </ListItemButton>
         </ListItem>
         <ListItem>
@@ -64,7 +83,7 @@ const Home: React.FC = () => {
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
         <Box sx={{ flex: 1, padding: '20px' }}>
-          <DashboardInfo currentDisplay={selectedDisplay} cartItems={cartItems} /> {/* Pass cartItems as a prop */}
+          <DashboardInfo currentDisplay={selectedDisplay} />
         </Box>
       </Stack>
     </Box>
@@ -72,6 +91,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
 

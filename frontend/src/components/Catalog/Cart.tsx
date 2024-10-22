@@ -1,40 +1,61 @@
-import { Box, Typography, Button, List, ListItem, ListItemText, Divider, Alert, Grid } from '@mui/material';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert } from '@mui/material';
 
 interface ItunesItem {
-  trackId?: string;
-  collectionId?: string;
-  trackName?: string;
-  collectionName?: string;
+  trackId?: string;  // For tracks
+  collectionId?: string;  // For collections
+  trackName?: string;  // Track name for tracks
+  collectionName?: string;  // Collection name for albums
   artistName: string;
   artworkUrl100: string;
-  trackPrice?: number;
-  collectionPrice?: number;
+  trackViewUrl?: string;  // URL for tracks
+  collectionViewUrl?: string;  // URL for collections
+  trackPrice?: number;  // Price for tracks
+  collectionPrice?: number;  // Price for collections
   currency?: string;
+  primaryGenreName?: string;  // Genre of the track/album
+  releaseDate?: string;  // Release date of the track/album
+  country?: string;  // Country of origin
+  copyright?: string;  // Copyright information
 }
 
-interface CartProps {
-  cartItems: ItunesItem[];  // Expect cartItems as a prop
-}
+const Cart: React.FC = () => {
+  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
-const Cart: React.FC<CartProps> = ({ cartItems }) => {
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const navigate = useNavigate();
+  // Function to update cart items and total dynamically
+  const updateCart = () => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    setCartItems(storedCartItems);
+
+    const cartTotal = storedCartItems.reduce((acc: number, item: ItunesItem) => {
+      return acc + (item.collectionPrice || item.trackPrice || 0);
+    }, 0);
+    setTotal(cartTotal);
+  };
 
   useEffect(() => {
-    // Calculate total price
-    const total = cartItems.reduce((acc, item) => acc + (item.collectionPrice || item.trackPrice || 0), 0);
-    setTotalPrice(total);
-  }, [cartItems]);
+    // Update cart on component mount
+    updateCart();
+
+    // Set up event listener to listen for changes in cart items
+    const handleStorageChange = () => {
+      updateCart();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const handleCheckout = () => {
-    localStorage.removeItem('cartItems'); // Clear cart after checkout
-    setAlertMessage('Your purchase was successful! Redirecting to confirmation...');
-    setTimeout(() => {
-      navigate('/confirmation', { state: { cartItems } }); // Pass cart items to the confirmation page
-    }, 2000);
+    setCheckoutSuccess(true);
+    localStorage.removeItem('cartItems');
+    setCartItems([]);
+    setTotal(0);
   };
 
   return (
@@ -43,52 +64,66 @@ const Cart: React.FC<CartProps> = ({ cartItems }) => {
         Your Cart
       </Typography>
 
-      {alertMessage && (
-        <Alert severity="success" onClose={() => setAlertMessage(null)} sx={{ mb: 2 }}>
-          {alertMessage}
+      {checkoutSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Checkout successful! Thank you for your purchase.
         </Alert>
       )}
 
       {cartItems.length === 0 ? (
-        <Typography variant="h6" align="center">
-          Your cart is empty.
-        </Typography>
+        <Typography>No items in the cart.</Typography>
       ) : (
         <>
-          <List>
+          <List sx={{ backgroundColor: '#f9f9f9', borderRadius: '10px', padding: '20px' }}>
             {cartItems.map((item, index) => (
-              <Box key={item.trackId || item.collectionId}>
-                <ListItem>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={3}>
-                      <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%' }} />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <ListItemText
-                        primary={item.trackName || item.collectionName}
-                        secondary={`Artist: ${item.artistName} - Price: ${item.collectionPrice || item.trackPrice} ${item.currency}`}
-                      />
-                    </Grid>
-                    <Grid item xs={3} textAlign="right">
-                      <Button variant="outlined" color="secondary">
-                        Remove
-                      </Button>
-                    </Grid>
+              <ListItem key={index} sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid #ddd' }}>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={3}>
+                    <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%', borderRadius: '4px' }} />
                   </Grid>
-                </ListItem>
-                {index < cartItems.length - 1 && <Divider />}
-              </Box>
+                  <Grid item xs={7}>
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                          {item.trackName || item.collectionName}
+                        </Typography>
+                      }
+                      secondary={
+                        <>
+                          <Typography variant="body2" color="textSecondary">
+                            <strong>Artist:</strong> {item.artistName}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            <strong>Genre:</strong> {item.primaryGenreName || 'Unknown'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            <strong>Release Date:</strong> {new Date(item.releaseDate || '').toLocaleDateString()}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography variant="h6" sx={{ textAlign: 'right' }}>
+                      {(item.collectionPrice || item.trackPrice)?.toFixed(2)} {item.currency || 'USD'}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </ListItem>
             ))}
           </List>
 
           <Divider sx={{ my: 2 }} />
-
-          {/* Display total price */}
-          <Typography variant="h6" textAlign="right" sx={{ mt: 2 }}>
-            Total: {totalPrice.toFixed(2)} {cartItems[0]?.currency || 'USD'}
+          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px' }}>
+            Total: {total.toFixed(2)} USD
           </Typography>
 
-          <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2, width: '100%' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleCheckout}
+            sx={{ mt: 2, width: '100%', padding: '12px', fontSize: '16px' }}
+          >
             Proceed to Checkout
           </Button>
         </>

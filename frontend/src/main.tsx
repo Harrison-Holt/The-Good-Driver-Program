@@ -25,7 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/cart", // Route for the Cart page
-    element: <Cart cartItems={[]} />,
+    element: <Cart />,
   },
   {
     path: "/confirmation", // Route for the Confirmation page

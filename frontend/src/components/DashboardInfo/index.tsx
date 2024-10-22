@@ -3,32 +3,28 @@ import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart'; // Import Cart
 
-interface ItunesItem {
-  trackId?: string;
-  collectionId?: string;
-  trackName?: string;
-  collectionName?: string;
-  artistName: string;
-  artworkUrl100: string;
-  trackPrice?: number;
-  collectionPrice?: number;
-  currency?: string;
-}
-
 interface Props {
   currentDisplay: string;
-  cartItems: ItunesItem[];  // Pass cartItems as a prop
 }
 
-const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
+const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
   let dashJsx;
 
   switch (currentDisplay) {
+    case "search":
+      dashJsx = (
+        <>
+          <Typography variant="h6">Search</Typography>
+          {/* Search functionality could be added here */}
+        </>
+      );
+      break;
+
     case "cart":
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart cartItems={cartItems} />  {/* Pass cartItems to Cart */}
+          <Cart /> {/* Render the Cart component */}
         </>
       );
       break;
@@ -37,7 +33,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Catalog</Typography>
-          <Catalog />  {/* Render the Catalog component */}
+          <Catalog /> {/* Render the Catalog component */}
         </>
       );
       break;
