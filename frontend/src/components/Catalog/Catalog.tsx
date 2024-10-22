@@ -214,7 +214,7 @@ const Catalog = () => {
           </DialogActions>
         </Dialog>
       )}
-    </Box>s
+    </Box>
   );
 };
 
