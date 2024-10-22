@@ -92,7 +92,7 @@ const Home: React.FC = () => {
         <Divider orientation='vertical' variant='middle' flexItem />
         <Box sx={{ flex: 1, padding: '20px' }}>
           {/* Pass the currentDisplay prop to DashboardInfo */}
-          <DashboardInfo currentDisplay={selectedDisplay} />
+          <DashboardInfo setSearchTerm={()=>{}} currentDisplay={selectedDisplay} />
         </Box>
       </Stack>
     </Box>

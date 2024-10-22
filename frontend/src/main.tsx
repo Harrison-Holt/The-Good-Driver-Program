@@ -8,6 +8,7 @@ import Cart from './components/Catalog/Cart'; // Import the Cart page
 import Confirmation from './components/Catalog/Confirmation'; // Import the Confirmation page
 import { Provider } from 'react-redux';
 import { store } from './store/store';
+import Profile from './pages/Profile';
 
 // Define the routes including Cart and Confirmation
 const router = createBrowserRouter([
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
     path: "/confirmation", // Route for the Confirmation page
     element: <Confirmation />,
   },
+  {
+      path: "/profile",
+      element: <Profile/>,
+  }
 ]);
 
 // Render the root component with StrictMode and the router provider

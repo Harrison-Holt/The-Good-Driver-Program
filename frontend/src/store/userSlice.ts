@@ -10,7 +10,7 @@ interface UserState {
 
 // Define the initial state using that type
 const initialState: UserState = {
-  loggedIn: false,
+  loggedIn: true,
   userType: "driver"
 }
 
@@ -37,5 +37,6 @@ export const {login, logout } = userSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectLogin = (state: RootState) => state.currentUser.loggedIn
+export const selectUserType = (state: RootState) => state.currentUser.userType
 
 export default userSlice.reducer
