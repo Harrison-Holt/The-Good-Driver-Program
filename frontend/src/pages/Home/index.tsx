@@ -2,7 +2,7 @@ import { Stack, Box, Divider, List, ListItem, ListItemButton, Typography, Badge 
 import Navibar from '../../components/Navibar';
 import React, { useState, useEffect } from 'react';
 import DashboardInfo from '../../components/DashboardInfo';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; 
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 interface ItunesItem {
   trackId?: string;
@@ -26,12 +26,10 @@ const Home: React.FC = () => {
     setCartItems(storedCartItems); // Update state with items from localStorage
   }, []);
 
-  // Handle navigation to Cart
   const handleCartClick = () => {
     setSelectedDisplay("cart");
   };
 
-  // Get the total number of items in the cart
   const cartItemCount = cartItems.length;
 
   const dashboardList = (
@@ -66,7 +64,7 @@ const Home: React.FC = () => {
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
         <Box sx={{ flex: 1, padding: '20px' }}>
-          <DashboardInfo currentDisplay={selectedDisplay} cartItems={cartItems} /> {/* Pass cartItems to DashboardInfo */}
+          <DashboardInfo currentDisplay={selectedDisplay} cartItems={cartItems} /> {/* Pass cartItems as a prop */}
         </Box>
       </Stack>
     </Box>

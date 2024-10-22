@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
-import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
+import Cart from '../Catalog/Cart'; // Import Cart
 
 interface ItunesItem {
   trackId?: string;
@@ -17,7 +17,7 @@ interface ItunesItem {
 
 interface Props {
   currentDisplay: string;
-  cartItems: ItunesItem[]; // Make sure cartItems is part of Props
+  cartItems: ItunesItem[];  // Pass cartItems as a prop
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
@@ -28,7 +28,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart cartItems={cartItems} /> {/* Pass cartItems as prop to Cart component */}
+          <Cart cartItems={cartItems} />  {/* Pass cartItems to Cart */}
         </>
       );
       break;
@@ -37,7 +37,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Catalog</Typography>
-          <Catalog /> {/* Render the Catalog component */}
+          <Catalog />  {/* Render the Catalog component */}
         </>
       );
       break;
@@ -51,8 +51,11 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, cartItems }) => {
       break;
   }
 
-  return <Box sx={{ width: '80%', padding: '20px' }}>{dashJsx}</Box>;
+  return (
+    <Box sx={{ width: '80%', padding: '20px' }}>
+      {dashJsx}
+    </Box>
+  );
 };
 
 export default DashboardInfo;
-

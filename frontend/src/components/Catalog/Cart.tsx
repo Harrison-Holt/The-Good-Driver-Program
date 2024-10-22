@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Box, Typography, Button, List, ListItem, ListItemText, Divider, Alert, Grid } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ItunesItem {
@@ -15,17 +15,17 @@ interface ItunesItem {
 }
 
 interface CartProps {
-  cartItems: ItunesItem[];  // Accept cartItems as a prop
+  cartItems: ItunesItem[];  // Expect cartItems as a prop
 }
 
 const Cart: React.FC<CartProps> = ({ cartItems }) => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [totalPrice, setTotalPrice] = useState(0); // State for total price
+  const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Calculate total price
-    const total = cartItems.reduce((acc: number, item: ItunesItem) => acc + (item.collectionPrice || item.trackPrice || 0), 0);
+    const total = cartItems.reduce((acc, item) => acc + (item.collectionPrice || item.trackPrice || 0), 0);
     setTotalPrice(total);
   }, [cartItems]);
 
@@ -33,14 +33,8 @@ const Cart: React.FC<CartProps> = ({ cartItems }) => {
     localStorage.removeItem('cartItems'); // Clear cart after checkout
     setAlertMessage('Your purchase was successful! Redirecting to confirmation...');
     setTimeout(() => {
-      navigate('/confirmation', { state: { cartItems } }); // Pass the cart items to the confirmation page
+      navigate('/confirmation', { state: { cartItems } }); // Pass cart items to the confirmation page
     }, 2000);
-  };
-
-  const handleRemoveFromCart = (itemId: string | undefined) => {
-    const updatedCart = cartItems.filter(item => item.trackId !== itemId && item.collectionId !== itemId);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    setTotalPrice(updatedCart.reduce((acc: number, item: ItunesItem) => acc + (item.collectionPrice || item.trackPrice || 0), 0));
   };
 
   return (
@@ -76,7 +70,7 @@ const Cart: React.FC<CartProps> = ({ cartItems }) => {
                       />
                     </Grid>
                     <Grid item xs={3} textAlign="right">
-                      <Button variant="outlined" color="secondary" onClick={() => handleRemoveFromCart(item.trackId || item.collectionId)}>
+                      <Button variant="outlined" color="secondary">
                         Remove
                       </Button>
                     </Grid>
@@ -89,6 +83,7 @@ const Cart: React.FC<CartProps> = ({ cartItems }) => {
 
           <Divider sx={{ my: 2 }} />
 
+          {/* Display total price */}
           <Typography variant="h6" textAlign="right" sx={{ mt: 2 }}>
             Total: {totalPrice.toFixed(2)} {cartItems[0]?.currency || 'USD'}
           </Typography>
