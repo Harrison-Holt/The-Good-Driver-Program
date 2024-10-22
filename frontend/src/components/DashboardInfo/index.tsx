@@ -1,24 +1,27 @@
 import React from 'react';
+import Applications from '../Applications';
+import SearchBar from '../../components/SearchBar';
 import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
 
 interface Props {
   currentDisplay: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
 }
 
-const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
+const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   let dashJsx;
 
-  switch (currentDisplay) {
-    case "search":
-      dashJsx = (
-        <>
-          <Typography variant="h6">Search</Typography>
-          {/* Search functionality could be added here */}
-        </>
-      );
-      break;
+    switch (currentDisplay) {
+        case "search":
+            dashJsx = (
+                <>
+                    <Typography variant='h6'>Search</Typography>
+                    <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
+                </>
+            );
+            break;
 
     case "cart":
       dashJsx = (
@@ -37,6 +40,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay }) => {
         </>
       );
       break;
+
+      case "applications":
+        dashJsx = (
+            <>
+                <Typography variant='h6'>Applications</Typography>
+                <Applications/>
+            </>
+        );
+        break;
 
     default:
       dashJsx = (

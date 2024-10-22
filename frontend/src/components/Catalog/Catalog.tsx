@@ -108,6 +108,7 @@ const Catalog = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
+
       <Typography variant="h5" gutterBottom>
         Set Conversion Rate
       </Typography>
@@ -124,7 +125,10 @@ const Catalog = () => {
         sx={{ marginBottom: '20px' }}
       />
 
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      {/* Search Bar */}
+      <SearchBar setSearchTerm={setSearchTerm} label={"Search Catalog"} options={categories.map(cat => cat.name)} />
+
+      {/* Category Selection */}
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>
           Select Category:
