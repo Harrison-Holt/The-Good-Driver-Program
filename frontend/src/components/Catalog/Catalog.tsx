@@ -1,24 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText
+  Button, DialogContentText, Grid, Alert, TextField, InputAdornment
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-// Define ItunesItem with additional details for pricing and cart management
 interface ItunesItem {
-  trackId?: string;  // For tracks
-  collectionId?: string;  // For collections
-  trackName?: string;  // Track name for tracks
-  collectionName?: string;  // Collection name for albums
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  // URL for tracks
-  collectionViewUrl?: string;  // URL for collections
-  trackPrice?: number;  // Price for tracks
-  collectionPrice?: number;  // Price for collections
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
   currency?: string;
 }
 
@@ -43,10 +42,11 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null); 
-  const [showModal, setShowModal] = useState(false); 
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); 
-  const navigate = useNavigate(); 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [conversionRate, setConversionRate] = useState(100); // Default: 1 dollar = 100 points
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -72,10 +72,10 @@ const Catalog = () => {
         if (data.resultCount > 0) {
           const filteredItems = data.results.filter(
             item => item.collectionPrice && item.collectionPrice > 0
-          ); 
+          );
           setItems(filteredItems);
         } else {
-          setItems([]); 
+          setItems([]);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -97,8 +97,8 @@ const Catalog = () => {
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
-    setShowModal(false); 
-    window.dispatchEvent(new Event('storage')); 
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleViewDetails = (item: ItunesItem) => {
@@ -108,6 +108,23 @@ const Catalog = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
+
+      <Typography variant="h5" gutterBottom>
+        Set Conversion Rate
+      </Typography>
+      <TextField
+        label="1 Dollar = X Points"
+        type="number"
+        value={conversionRate}
+        onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+          endAdornment: <InputAdornment position="end">Points</InputAdornment>
+        }}
+        fullWidth
+        sx={{ marginBottom: '20px' }}
+      />
+
       {/* Search Bar */}
       <SearchBar setSearchTerm={setSearchTerm} label={"Search Catalog"} options={categories.map(cat => cat.name)} />
 
@@ -151,7 +168,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {items.map((item) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} onViewDetails={handleViewDetails} />
+            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} />
           </Grid>
         ))}
       </Grid>
@@ -187,16 +204,6 @@ const Catalog = () => {
                 View iTunes Reviews
               </a>
             </Typography>
-
-            {/* User Review Placeholder */}
-            <Box sx={{ marginTop: '20px' }}>
-              <Typography variant="h6">User Reviews (Placeholder)</Typography>
-              <List>
-                <ListItem>
-                  <ListItemText primary="No user reviews yet. Be the first to leave one!" />
-                </ListItem>
-              </List>
-            </Box>
           </DialogContent>
           <DialogActions>
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
