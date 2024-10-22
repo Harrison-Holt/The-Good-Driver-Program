@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert
-} from '@mui/material'; 
-import { useNavigate } from 'react-router-dom'; // Use navigate for post-action navigation
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom'; 
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
@@ -43,20 +43,18 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null); // Alert for user feedback
-  const [showModal, setShowModal] = useState(false); // Control modal visibility
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // Selected item for modal
-  const navigate = useNavigate(); // For navigation
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); 
+  const [showModal, setShowModal] = useState(false); 
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); 
+  const navigate = useNavigate(); 
 
-  // Fetch items when category or search term changes
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
-        console.log('Fetching from URL:', url); // Debugging URL
 
         const response = await fetch(url, {
           method: 'GET',
@@ -74,10 +72,10 @@ const Catalog = () => {
         if (data.resultCount > 0) {
           const filteredItems = data.results.filter(
             item => item.collectionPrice && item.collectionPrice > 0
-          ); // Only include paid items
+          ); 
           setItems(filteredItems);
         } else {
-          setItems([]); // No items found
+          setItems([]); 
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -89,10 +87,9 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Handle Buy Now action
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
-    navigate('/confirmation', { state: { item } }); // Pass item to confirmation page
+    navigate('/confirmation', { state: { item } });
   };
 
   const handleAddToCart = (item: ItunesItem) => {
@@ -100,11 +97,10 @@ const Catalog = () => {
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
-    setShowModal(false); // Close modal after adding to cart
-    window.dispatchEvent(new Event('storage')); // Trigger event to update the cart icon count
+    setShowModal(false); 
+    window.dispatchEvent(new Event('storage')); 
   };
-  
-  // Handle opening modal
+
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
     setShowModal(true);
@@ -112,7 +108,6 @@ const Catalog = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
-      {/* Search bar */}
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>
@@ -132,28 +127,24 @@ const Catalog = () => {
         </Select>
       </Box>
 
-      {/* Loading spinner */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
           <CircularProgress />
         </Box>
       )}
 
-      {/* Error alert */}
       {error && (
         <Typography color="error" align="center">
           Error: {error}
         </Typography>
       )}
 
-      {/* Success Alert */}
       {alertMessage && (
         <Alert severity="success" onClose={() => setAlertMessage(null)}>
           {alertMessage}
         </Alert>
       )}
 
-      {/* Item Grid */}
       <Grid container spacing={4}>
         {items.map((item) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
@@ -168,7 +159,6 @@ const Catalog = () => {
         </Typography>
       )}
 
-      {/* Modal for viewing item details */}
       {selectedItem && (
         <Dialog
           open={showModal}
@@ -183,18 +173,39 @@ const Catalog = () => {
               <strong>Artist:</strong> {selectedItem.artistName} <br />
               <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
             </DialogContentText>
-            <DialogActions>
-              <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
-                Buy Now
-              </Button>
-              <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
-                Add to Cart
-              </Button>
-              <Button onClick={() => setShowModal(false)}>
-                Close
-              </Button>
-            </DialogActions>
+
+            {/* Link to iTunes Reviews */}
+            <Typography variant="body1" sx={{ marginTop: '10px' }}>
+              <a
+                href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View iTunes Reviews
+              </a>
+            </Typography>
+
+            {/* User Review Placeholder */}
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography variant="h6">User Reviews (Placeholder)</Typography>
+              <List>
+                <ListItem>
+                  <ListItemText primary="No user reviews yet. Be the first to leave one!" />
+                </ListItem>
+              </List>
+            </Box>
           </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+              Buy Now
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowModal(false)}>
+              Close
+            </Button>
+          </DialogActions>
         </Dialog>
       )}
     </Box>
