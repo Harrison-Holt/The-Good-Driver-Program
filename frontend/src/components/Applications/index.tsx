@@ -35,7 +35,7 @@ const Applications: React.FC = () => {
         if ( submitForm ) {
             axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
                 sponsorOrg: {selectedSponsor},
-                appBody: "testing",
+                appBody: {providedReason},
                 applyingUserType: "driver"
             }).then(function (response) {
                 console.log(response);
