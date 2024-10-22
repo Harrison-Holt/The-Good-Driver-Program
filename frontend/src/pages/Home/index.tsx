@@ -58,6 +58,16 @@ const Home: React.FC = () => {
           </ListItemButton>
         </ListItem>
         <ListItem>
+        <ListItemButton onClick={() => setSelectedDisplay("notifications")}>
+          Notifications
+        </ListItemButton>
+      </ListItem>
+      <ListItem>
+        <ListItemButton onClick={() => setSelectedDisplay("applications")}>
+          Applications
+        </ListItemButton>
+      </ListItem>
+        <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>
             Catalog
           </ListItemButton>
