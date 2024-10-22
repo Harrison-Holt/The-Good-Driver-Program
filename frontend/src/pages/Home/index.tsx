@@ -19,13 +19,28 @@ interface ItunesItem {
 }
 
 const Home: React.FC = () => {
-  const [cartItems, setCartItems] = useState<ItunesItem[]>([]); 
+  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
 
-  // Load cart from localStorage (if any) on component mount
-  useEffect(() => {
+  // Load cart from localStorage on component mount
+  const updateCartItems = () => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setCartItems(storedCartItems); // Update state with items from localStorage
+  };
+
+  useEffect(() => {
+    updateCartItems(); // Load cart items on mount
+
+    // Set up event listener for 'storage' events to update cart dynamically
+    const handleStorageChange = () => {
+      updateCartItems(); // Update cart when 'storage' event is detected
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange); // Cleanup listener on unmount
+    };
   }, []);
 
   // Handle navigation to Cart
@@ -91,4 +106,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+
 

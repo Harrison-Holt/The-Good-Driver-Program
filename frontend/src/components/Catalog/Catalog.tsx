@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, List, ListItem, ListItemText, Grid, Alert
+  Button, DialogContentText, Grid, Alert
 } from '@mui/material'; 
 import { useNavigate } from 'react-router-dom'; // Use navigate for post-action navigation
 import CatalogItem from './CatalogItem';
@@ -100,6 +100,8 @@ const Catalog = () => {
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
+    setShowModal(false); // Close modal after adding to cart
+    window.dispatchEvent(new Event('storage')); // Trigger event to update the cart icon count
   };
   
   // Handle opening modal
@@ -181,23 +183,18 @@ const Catalog = () => {
               <strong>Artist:</strong> {selectedItem.artistName} <br />
               <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
             </DialogContentText>
-            <List>
-              <ListItem>
-                <ListItemText primary="More details about the track/album can go here." />
-              </ListItem>
-            </List>
+            <DialogActions>
+              <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+                Buy Now
+              </Button>
+              <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+                Add to Cart
+              </Button>
+              <Button onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+            </DialogActions>
           </DialogContent>
-          <DialogActions>
-            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
-              Buy Now
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
-              Add to Cart
-            </Button>
-            <Button onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-          </DialogActions>
         </Dialog>
       )}
     </Box>
@@ -205,4 +202,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
