@@ -12,7 +12,6 @@ interface ItunesItem {
   collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
-  currency?: string;
 }
 
 interface CatalogItemProps {
@@ -27,7 +26,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
             <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
             <Typography variant="body1">Artist: {item.artistName}</Typography>
             <Typography variant="body1">
-                Price: {item.collectionPrice || item.trackPrice} {item.currency}
+                Points: {item.collectionPrice || item.trackPrice}
             </Typography>
             <Button variant="contained" color="primary" onClick={() => onViewDetails(item)}>
                 View Details
@@ -37,4 +36,3 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
 };
 
 export default CatalogItem;
-
