@@ -5,6 +5,8 @@ import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
+import { useAppDispatch } from '../../store/hooks';
+import { login, logout } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -24,6 +26,8 @@ const Home: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);  // State for username
   const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
 
+  const dispatch = useAppDispatch();
+
   // Add the logout function
   const handleLogout = () => {
     const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
@@ -34,6 +38,9 @@ const Home: React.FC = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
+
+    // Update internal app state
+    dispatch(logout());
 
     // Redirect the user to the Cognito logout URL
     window.location.href = logoutUrl;
@@ -77,6 +84,7 @@ const Home: React.FC = () => {
     if (idToken) {
       const decodedUsername = getUsernameFromToken(idToken);  // Decode the username from the token
       setUsername(decodedUsername);  // Update the state with the decoded username
+      dispatch(login(decodedUsername));
 
       // Once username is available, fetch the user info from the Lambda function
       if (decodedUsername) {
