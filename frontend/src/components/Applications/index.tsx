@@ -2,6 +2,8 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material"
 import SearchBar from "../SearchBar"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { useAppSelector } from "../../store/hooks"
+import { selectUserName, selectUserType } from "../../store/userSlice"
 
 
 const Applications: React.FC = () => {
@@ -10,6 +12,9 @@ const Applications: React.FC = () => {
     const [selectedSponsor, setSelectedSponsor] = useState("");
     const [providedReason, setProvidedReason] = useState("");
     const [submitForm, setSubmitForm] = useState(false);
+
+    const username = useAppSelector(selectUserName);
+    const usertype = useAppSelector(selectUserType);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,7 +41,8 @@ const Applications: React.FC = () => {
             axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
                 sponsorOrg: {selectedSponsor},
                 appBody: {providedReason},
-                applyingUserType: "driver"
+                userName: {username},
+                applyingUserType: {usertype}
             }).then(function (response) {
                 console.log(response);
             }).catch(function (error) {
