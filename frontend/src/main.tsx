@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
@@ -10,7 +11,9 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import Profile from './pages/Profile';
 
-// Define the routes including Cart and Confirmation
+// Define the routes including Cart and Confirmationimport About from './pages/About';
+import AuthCallback from './components/AuthCallback';  // Add the callback component
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,6 +38,10 @@ const router = createBrowserRouter([
   {
       path: "/profile",
       element: <Profile/>,
+  },
+  {
+    path: "/auth-callback",  // Handle the Cognito redirect here
+    element: <AuthCallback />
   }
 ]);
 

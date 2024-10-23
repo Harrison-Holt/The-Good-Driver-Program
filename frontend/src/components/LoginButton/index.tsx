@@ -1,37 +1,50 @@
+import React, { useEffect, useState } from 'react';
 import { Button } from "@mui/material"
-//import { Link, useNavigate} from "react-router-dom";
-import { useAppSelector } from "../../store/hooks";
-import { selectLogin } from "../../store/userSlice";
+import { getSession } from '../../utils/cognitoAuth';  // Import session checker
 
 const LoginButton: React.FC = () => {
-    //const nav = useNavigate();
-    console.log("This is a debug statement - Tradd");
-    const loginStatus = useAppSelector(selectLogin)
-    console.log(useAppSelector(selectLogin));
-    let buttonMessage = "Login"
+  const cognitoUrl = "https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fmaster.d3ggpwrnl4m4is.amplifyapp.com%2Fauth-callback";
 
-    if (loginStatus) {
-        buttonMessage = "Logout"
-    } else {
-        buttonMessage = "Login"
-    }
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    return(
-        <>
-            <Button
-                variant="contained"
-                onClick={/*Navigate to login page*/()=>{
-                    if (loginStatus) {
-                        window.location.href = "https://team08-domain.auth.us-east-1.amazoncognito.com/logout?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fdev.d3ggpwrnl4m4is.amplifyapp.com%2F"
-                    } else {
-                        window.location.href = "https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fdev.d3ggpwrnl4m4is.amplifyapp.com%2F"
-                    }
-                }}
-            >
-                {buttonMessage}
-            </Button>
-        </>
-    )
-}
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const session = await getSession();  // getSession returns CognitoUserSession
+        if (session.isValid()) {  // Use session.isValid() to check session validity
+          setIsAuthenticated(true);
+        }
+      } catch (error: unknown) {  // Handle the error as `unknown`
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  if (!isAuthenticated) {
+    const handleLogin = () => {
+      window.location.href = cognitoUrl;  // Redirect to Cognito login URL
+    };
+
+    return (
+      <Button 
+        variant="contained"
+        onClick={handleLogin}>Login
+      </Button>
+    );
+  } else {
+    const handleLogin = () => {
+      window.location.href = "/";  // Redirect to Cognito login URL
+    };
+  
+    return (
+      <Button 
+        variant="contained"
+        onClick={handleLogin}>Logout
+      </Button>
+    );
+  }
+};
 
 export default LoginButton;
