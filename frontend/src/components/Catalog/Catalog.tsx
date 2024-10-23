@@ -101,6 +101,15 @@ const Catalog = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
+  const handleAddToWishList = (item: ItunesItem) => {
+    const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
+    const updatedWList = [...currentWList, item];
+    localStorage.setItem('wishItems', JSON.stringify(updatedWList));
+    setAlertMessage(`${item.trackName || item.collectionName} added to wish list!`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
     setShowModal(true);
@@ -208,6 +217,9 @@ const Catalog = () => {
           <DialogActions>
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
+              Add to Wish List
             </Button>
             <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
               Add to Cart
