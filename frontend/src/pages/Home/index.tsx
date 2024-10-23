@@ -1,13 +1,26 @@
-import { Stack, Box, Divider, List, ListItem, ListItemButton } from '@mui/material';
-import Navibar from '../../components/Navibar';
 import React, { useState, useEffect } from 'react';
-import DashboardInfo from '../../components/DashboardInfo';
-import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
+import { Box, Stack, Divider, List, ListItem, ListItemButton, Typography, Badge } from '@mui/material';
 import axios from 'axios';  // Import Axios
+import Navibar from '../../components/Navibar';
+import DashboardInfo from '../../components/DashboardInfo';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
+
+interface ItunesItem {
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
+  artistName: string;
+  artworkUrl100: string;
+  trackPrice?: number;
+  collectionPrice?: number;
+  currency?: string;
+}
 
 const Home: React.FC = () => {
+  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
-  const [searchTerm, setSearchTerm] = useState(""); // Keep both searchTerm and setSearchTerm
   const [username, setUsername] = useState<string | null>(null);  // State for username
   const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
 
@@ -37,6 +50,27 @@ const Home: React.FC = () => {
     }
   };
 
+  // Load cart from localStorage (if any) on component mount
+  useEffect(() => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    setCartItems(storedCartItems); // Update state with items from localStorage
+  }, []);
+
+  // Add a storage event listener to update cart when changes are detected in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      setCartItems(storedCartItems); // Update the cart items
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   useEffect(() => {
     // Retrieve the idToken from local storage
     const idToken = localStorage.getItem('idToken');
@@ -51,32 +85,43 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // Handle navigation to Cart
+  const handleCartClick = () => {
+    setSelectedDisplay("cart");
+  };
+
+  // Get the total number of items in the cart
+  const cartItemCount = cartItems.length;
+
   const dashboardList = (
-    <Box>
+    <Box sx={{ width: '250px', backgroundColor: '#f5f5f5', padding: '10px' }}>
       <List>
         <ListItem>
-          <ListItemButton onClick={() => { setSelectedDisplay("home") }}>
+          <ListItemButton onClick={() => setSelectedDisplay("home")}>
             Home
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setSelectedDisplay("notifications") }}>
-            Notifications
-          </ListItemButton>
-        </ListItem>
+        <ListItemButton onClick={() => setSelectedDisplay("notifications")}>
+          Notifications
+        </ListItemButton>
+      </ListItem>
+      <ListItem>
+        <ListItemButton onClick={() => setSelectedDisplay("applications")}>
+          Applications
+        </ListItemButton>
+      </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => { setSelectedDisplay("search") }}>
-            Search
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton onClick={() => { setSelectedDisplay("applications") }}>
-            Applications
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton onClick={() => { setSelectedDisplay("catalog") }}>
+          <ListItemButton onClick={() => setSelectedDisplay("catalog")}>
             Catalog
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={handleCartClick}>
+            <Badge badgeContent={cartItemCount} color="primary">
+              <ShoppingCartIcon />
+            </Badge>
+            <Typography sx={{ ml: 1 }}>Cart</Typography>
           </ListItemButton>
         </ListItem>
         <ListItem>
@@ -89,17 +134,16 @@ const Home: React.FC = () => {
   );
 
   return (
-    <>
-      <Box>
-        <Navibar />
-        <Stack direction={"row"} spacing={5}>
-          {dashboardList}
-          <Divider orientation='vertical' variant='middle' flexItem />
-          <DashboardInfo currentDisplay={selectedDisplay} setSearchTerm={setSearchTerm} />
-          {/* Optionally use searchTerm in Home */}
-          <Box>{searchTerm && <p>Search Term: {searchTerm}</p>}</Box> {/* Display searchTerm */}
-          {/* Display the username and fetched user info */}
-          <Box>
+    <Box sx={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+      <Navibar />
+      <Stack direction={"row"} spacing={5} sx={{ padding: '20px' }}>
+        {dashboardList}
+        <Divider orientation='vertical' variant='middle' flexItem />
+        <Box sx={{ flex: 1, padding: '20px' }}>
+          {/* Pass the currentDisplay prop to DashboardInfo */}
+          <DashboardInfo setSearchTerm={()=>{}} currentDisplay={selectedDisplay} />
+        </Box>
+        <Box>
             {username && <p>Welcome, {username}!</p>}
             {userInfo && (
               <div>
@@ -108,10 +152,9 @@ const Home: React.FC = () => {
                 <p>Role: {userInfo.role}</p>
               </div>
             )}
-          </Box>  {/* Show the username and user info */}
-        </Stack>
-      </Box>
-    </>
+          </Box>
+      </Stack>
+    </Box>
   );
 };
 
