@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import { login, selectUserName, selectUserType } from "../../store/userSlice"
+import ApplicationApproval from "../ApplicationApproval"
 
 
 const Applications: React.FC = () => {
@@ -36,7 +37,6 @@ const Applications: React.FC = () => {
         };
 
         fetchData();
-        console.log(sponsorList);
     }, []);
 
     useEffect(() => {
@@ -58,34 +58,47 @@ const Applications: React.FC = () => {
 
     }, [submitForm]);
 
+    let appPage = (<></>);
+    if (usertype === "driver") {
+        appPage = (<>
+            <Stack spacing={2}>
+                <Stack direction={"row"} spacing={2}>
+                    <Typography>Sponsor List:</Typography>
+                    <Box sx={{width: '100%'}}>
+                        <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label={"Sponsors"}/>
+                    </Box>
+                </Stack>
+                <TextField
+                    label={"Application Body"}
+                    multiline
+                    minRows={5}
+                    value={providedReason}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setProvidedReason(event.target.value);
+                    }}
+                />
+                <Stack direction={"row"} spacing={2}>
+                    <Button onClick={() => {setSubmitForm(true)}}>
+                        Submit
+                    </Button>
+                    <Button onClick={() => {setProvidedReason("")}}>
+                        Clear
+                    </Button>
+                </Stack>
+            </Stack>
+        </>)
+    } else {
+        appPage = (
+            <>
+                <ApplicationApproval/>
+            </>
+        )
+    }
+
     return (
         <>
             <Box sx={{maxWidth: '95%', maxHeight:'95%', marginLeft: 'auto', marginRight: 'auto', marginTop:'10px'}}>
-                <Stack spacing={2}>
-                    <Stack direction={"row"} spacing={2}>
-                        <Typography>Sponsor List:</Typography>
-                        <Box sx={{width: '100%'}}>
-                            <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label={"Sponsors"}/>
-                        </Box>
-                    </Stack>
-                    <TextField
-                        label={"Application Body"}
-                        multiline
-                        minRows={5}
-                        value={providedReason}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setProvidedReason(event.target.value);
-                        }}
-                    />
-                    <Stack direction={"row"} spacing={2}>
-                        <Button onClick={() => {setSubmitForm(true)}}>
-                            Submit
-                        </Button>
-                        <Button onClick={() => {setProvidedReason("")}}>
-                            Clear
-                        </Button>
-                    </Stack>
-                </Stack>
+                {appPage}
             </Box>
         </>
     )

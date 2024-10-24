@@ -13,7 +13,7 @@ interface UserState {
 const initialState: UserState = {
   loggedIn: false,
   userName: null,
-  userType: "driver"
+  userType: "sponsor"
 }
 
 export const userSlice = createSlice({
