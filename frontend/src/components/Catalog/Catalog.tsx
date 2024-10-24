@@ -231,9 +231,6 @@ const Catalog = () => {
               Buy Now
             </Button>
             <FontAwesomeIcon icon={faStar} onClick={() => handleAddToWishList(selectedItem)}/>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
-              Add to Wish List
-            </Button>
             <Button variant="outlined" color="secondary" onClick={() => handleSaveForLater(selectedItem)}>
               Add to Wish List
             </Button>
