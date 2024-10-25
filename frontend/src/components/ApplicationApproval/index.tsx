@@ -1,6 +1,6 @@
-import { Divider, List, ListItem, ListItemText, Typography, Stack, ListItemButton } from "@mui/material";
-import { useAppSelector, useAppDispatch } from "../../store/hooks"
-import { selectUserName, selectUserType, login } from "../../store/userSlice"
+import { Divider, List, ListItem, ListItemText, Typography, Stack, ListItemButton, Box } from "@mui/material";
+import { useAppSelector } from "../../store/hooks"
+import { selectUserName, selectUserType } from "../../store/userSlice"
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -8,15 +8,16 @@ interface application {
     application_id: number,
     app_status: string,
     app_description: string,
-    driver_id: number
+    driver_id: number,
+    driver_username: string
 }
 
 const ApplicationApproval: React.FC = () => {
 
-    const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", driver_id: 0}]);
+    const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", driver_id: 0, driver_username: ""}]);
     const [loaded, setLoaded] = useState(false)
     const username = useAppSelector(selectUserName);
-    const usertype = useAppSelector(selectUserType);
+    //const usertype = useAppSelector(selectUserType);
 
     useEffect(() => {
         const fetchAppList = async () => {
@@ -45,7 +46,7 @@ const ApplicationApproval: React.FC = () => {
                         <ListItemText
                             primary={<Stack direction="row" spacing={1}>
                                 <Typography variant="h6">
-                                    {app.driver_id}
+                                    {app.driver_username}
                                 </Typography>
                                 <Typography>
                                     {app.app_status}
@@ -54,8 +55,10 @@ const ApplicationApproval: React.FC = () => {
                             secondary={app.app_description}
                         >
                         </ListItemText>
-                        <ListItemButton>Approve</ListItemButton>
-                        <ListItemButton>Deny</ListItemButton>
+                        <Box sx={{marginRight: '0px'}}>
+                            <ListItemButton>Approve</ListItemButton>
+                            <ListItemButton>Deny</ListItemButton>
+                        </Box>
                     </ListItem>
                     <Divider variant="inset" component="li"/>
                 </>))}
