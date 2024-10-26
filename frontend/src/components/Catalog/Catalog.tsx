@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
@@ -27,6 +27,12 @@ interface ItunesApiResponse {
   results: ItunesItem[];
 }
 
+interface Review {
+  username: string;
+  reviewText: string;
+  rating: number;
+}
+
 const categories = [
   { id: 'music', name: 'Music' },
   { id: 'podcast', name: 'Podcast' },
@@ -36,6 +42,7 @@ const categories = [
 ];
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
+const REVIEW_API_URL = 'https://5w209ckis5.execute-api.us-east-1.amazonaws.com/prod/reviews';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
@@ -43,11 +50,14 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null); 
-  const [showModal, setShowModal] = useState(false); 
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); 
-  const navigate = useNavigate(); 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [newReview, setNewReview] = useState<Review>({ username: '', reviewText: '', rating: 5 });
+  const navigate = useNavigate();
 
+  // Fetch items from iTunes API
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -72,10 +82,10 @@ const Catalog = () => {
         if (data.resultCount > 0) {
           const filteredItems = data.results.filter(
             item => item.collectionPrice && item.collectionPrice > 0
-          ); 
+          );
           setItems(filteredItems);
         } else {
-          setItems([]); 
+          setItems([]);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -87,6 +97,47 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
+  // Fetch reviews from the API when an item is selected
+  useEffect(() => {
+    if (selectedItem) {
+      const fetchReviews = async () => {
+        try {
+          const response = await fetch(`https://5w209ckis5.execute-api.us-east-1.amazonaws.com/prod?itemId=${selectedItem.trackId || selectedItem.collectionId}`);
+          if (!response.ok) throw new Error('Error fetching reviews');
+          const data = await response.json();
+          console.log(data); 
+          setReviews(data.reviews || []);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load reviews');
+        }
+      };
+      fetchReviews();
+    }
+  }, [selectedItem]);
+
+  // Submit a new review
+  const handleSubmitReview = async () => {
+    if (selectedItem) {
+      try {
+        const itemId = selectedItem.trackId || selectedItem.collectionId;
+        const response = await fetch(`${REVIEW_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId, ...newReview }),
+        });
+
+        if (!response.ok) throw new Error('Error submitting review');
+        const result = await response.json();
+        setReviews([...reviews, result.newReview]); // Append new review to the list
+        setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
+        setAlertMessage('Review submitted successfully!');
+      } catch (error) {
+        console.error('Review submission error:', error); 
+        setError('Failed to submit review');
+      }
+    }
+  };
+
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
     navigate('/confirmation', { state: { item } });
@@ -97,8 +148,8 @@ const Catalog = () => {
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
-    setShowModal(false); 
-    window.dispatchEvent(new Event('storage')); 
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleViewDetails = (item: ItunesItem) => {
@@ -185,14 +236,55 @@ const Catalog = () => {
               </a>
             </Typography>
 
-            {/* User Review Placeholder */}
+            {/* User Reviews */}
             <Box sx={{ marginTop: '20px' }}>
-              <Typography variant="h6">User Reviews (Placeholder)</Typography>
+              <Typography variant="h6">User Reviews</Typography>
               <List>
-                <ListItem>
-                  <ListItemText primary="No user reviews yet. Be the first to leave one!" />
-                </ListItem>
+                {reviews.length > 0 ? (
+                  reviews.map((review, index) => (
+                    <ListItem key={index}>
+                      <ListItemText primary={`${review.username} (${review.rating} stars)`} secondary={review.reviewText} />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItem>
+                    <ListItemText primary="No reviews yet. Be the first to leave one!" />
+                  </ListItem>
+                )}
               </List>
+            </Box>
+
+            {/* Review Submission Form */}
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography variant="h6">Leave a Review</Typography>
+              <TextField
+                fullWidth
+                label="Username"
+                value={newReview.username}
+                onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+              <TextField
+                fullWidth
+                label="Review"
+                multiline
+                rows={4}
+                value={newReview.reviewText}
+                onChange={(e) => setNewReview({ ...newReview, reviewText: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+              <TextField
+                fullWidth
+                label="Rating (1-5)"
+                type="number"
+                value={newReview.rating}
+                onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                sx={{ marginBottom: '10px' }}
+                inputProps={{ min: 1, max: 5 }}
+              />
+              <Button variant="contained" onClick={handleSubmitReview}>
+                Submit Review
+              </Button>
             </Box>
           </DialogContent>
           <DialogActions>
@@ -213,3 +305,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
