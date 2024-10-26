@@ -7,18 +7,17 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-// Define ItunesItem with additional details for pricing and cart management
 interface ItunesItem {
-  trackId?: string;  // For tracks
-  collectionId?: string;  // For collections
-  trackName?: string;  // Track name for tracks
-  collectionName?: string;  // Collection name for albums
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  // URL for tracks
-  collectionViewUrl?: string;  // URL for collections
-  trackPrice?: number;  // Price for tracks
-  collectionPrice?: number;  // Price for collections
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
   currency?: string;
 }
 
@@ -42,7 +41,7 @@ const categories = [
 ];
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
-const REVIEW_API_URL = 'https://5w209ckis5.execute-api.us-east-1.amazonaws.com/prod/reviews';
+const REVIEW_API_URL = 'https://<your-api-id>.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
@@ -53,7 +52,7 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]); // Mock empty reviews initially
   const [newReview, setNewReview] = useState<Review>({ username: '', reviewText: '', rating: 5 });
   const navigate = useNavigate();
 
@@ -97,25 +96,27 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Fetch reviews from the API when an item is selected
+  // Fetch reviews for the selected item (mocking no reviews initially)
   useEffect(() => {
     if (selectedItem) {
       const fetchReviews = async () => {
         try {
-          const response = await fetch(`https://5w209ckis5.execute-api.us-east-1.amazonaws.com/prod?itemId=${selectedItem.trackId || selectedItem.collectionId}`);
+          const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, {
+            method: 'GET',
+          });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          console.log(data); 
-          setReviews(data.reviews || []);
+          setReviews(data.reviews || []); // No reviews initially
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to load reviews');
+          console.error(err)
+          setError('Failed to load reviews');
         }
       };
       fetchReviews();
     }
   }, [selectedItem]);
 
-  // Submit a new review
+  // Submit a new review (mocked, expecting no actual backend persistence)
   const handleSubmitReview = async () => {
     if (selectedItem) {
       try {
@@ -132,7 +133,7 @@ const Catalog = () => {
         setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
-        console.error('Review submission error:', error); 
+        console.error(error)
         setError('Failed to submit review');
       }
     }
@@ -257,6 +258,7 @@ const Catalog = () => {
             {/* Review Submission Form */}
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">Leave a Review</Typography>
+              
               <TextField
                 fullWidth
                 label="Username"
@@ -264,6 +266,7 @@ const Catalog = () => {
                 onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
+              
               <TextField
                 fullWidth
                 label="Review"
@@ -273,15 +276,22 @@ const Catalog = () => {
                 onChange={(e) => setNewReview({ ...newReview, reviewText: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
-              <TextField
+              
+              {/* Rating Dropdown */}
+              <Typography component="legend">Rating (0-5)</Typography>
+              <Select
                 fullWidth
-                label="Rating (1-5)"
-                type="number"
                 value={newReview.rating}
                 onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
                 sx={{ marginBottom: '10px' }}
-                inputProps={{ min: 1, max: 5 }}
-              />
+              >
+                {[0, 1, 2, 3, 4, 5].map((value) => (
+                  <MenuItem key={value} value={value}>
+                    {value} Star{value > 1 ? 's' : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+
               <Button variant="contained" onClick={handleSubmitReview}>
                 Submit Review
               </Button>
@@ -305,4 +315,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
