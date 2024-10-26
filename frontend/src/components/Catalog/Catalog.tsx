@@ -123,6 +123,8 @@ const handleSubmitReview = async () => {
       // Ensure you get the itemId from either trackId or collectionId
       const itemId = selectedItem.trackId || selectedItem.collectionId;
 
+      console.log(itemId); 
+      
       if (!itemId) {
         setError("Item ID is missing, cannot submit review.");
         return;
