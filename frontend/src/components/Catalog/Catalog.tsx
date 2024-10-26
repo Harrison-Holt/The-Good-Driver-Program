@@ -144,7 +144,7 @@ const handleSubmitReview = async () => {
 
       if (!response.ok) throw new Error('Error submitting review');
       
-      const result = await response.json();
+      const result = await response.json(); // getting response
       setReviews([...reviews, result.newReview]); // Append new review to the list
       setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
       setAlertMessage('Review submitted successfully!');
