@@ -41,7 +41,7 @@ const categories = [
 ];
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
-const REVIEW_API_URL = 'https://<your-api-id>.execute-api.us-east-1.amazonaws.com/dev/reviews';
+const REVIEW_API_URL = 'https://5w209ckis5.execute-api.us-east-1.amazonaws.com/prod/dev';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
