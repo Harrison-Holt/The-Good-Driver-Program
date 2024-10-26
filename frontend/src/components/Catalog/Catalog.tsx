@@ -116,28 +116,44 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
-  // Submit a new review (mocked, expecting no actual backend persistence)
-  const handleSubmitReview = async () => {
-    if (selectedItem) {
-      try {
-        const itemId = selectedItem.trackId || selectedItem.collectionId;
-        const response = await fetch(`${REVIEW_API_URL}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ itemId, ...newReview }),
-        });
+// Submit a new review
+const handleSubmitReview = async () => {
+  if (selectedItem) {
+    try {
+      // Ensure you get the itemId from either trackId or collectionId
+      const itemId = selectedItem.trackId || selectedItem.collectionId;
 
-        if (!response.ok) throw new Error('Error submitting review');
-        const result = await response.json();
-        setReviews([...reviews, result.newReview]); // Append new review to the list
-        setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
-        setAlertMessage('Review submitted successfully!');
-      } catch (error) {
-        console.error(error)
-        setError('Failed to submit review');
+      if (!itemId) {
+        setError("Item ID is missing, cannot submit review.");
+        return;
       }
+
+      // Construct the body object
+      const reviewPayload = {
+        itemId: itemId,
+        userName: newReview.username, // Assuming the 'username' field is mapped to 'userName'
+        rating: newReview.rating,
+        comment: newReview.reviewText, // Assuming 'reviewText' is the user's comment
+      };
+
+      const response = await fetch(`${REVIEW_API_URL}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewPayload), // Send the correct structure
+      });
+
+      if (!response.ok) throw new Error('Error submitting review');
+      
+      const result = await response.json();
+      setReviews([...reviews, result.newReview]); // Append new review to the list
+      setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
+      setAlertMessage('Review submitted successfully!');
+    } catch (error) {
+      console.error(error);
+      setError('Failed to submit review');
     }
-  };
+  }
+};
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
@@ -154,8 +170,8 @@ const Catalog = () => {
   };
 
   const handleViewDetails = (item: ItunesItem) => {
-    setSelectedItem(item);
-    setShowModal(true);
+    setSelectedItem(item);  // This will capture the clicked item for further actions
+    setShowModal(true);     // Open the modal to show item details
   };
 
   return (
@@ -218,7 +234,9 @@ const Catalog = () => {
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogTitle>
+            {selectedItem.trackName || selectedItem.collectionName} (ID: {selectedItem.trackId || selectedItem.collectionId})
+          </DialogTitle>
           <DialogContent>
             <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
             <DialogContentText>
