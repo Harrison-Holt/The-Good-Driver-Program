@@ -128,12 +128,12 @@ const Catalog = () => {
   
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.user_name, // Assuming the 'username' field is mapped to 'userName'
+          user_name: newReview.user_name, // Use user_name as per your DB schema
           rating: newReview.rating,
-          comment: newReview.comment,
+          comment: newReview.comment, // Use comment for the review text
         };
   
-        console.log('Review Payload:', reviewPayload); // Log the payload to make sure it's correctly structured
+        console.log('Review Payload:', reviewPayload); // Log the payload
   
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
@@ -141,17 +141,16 @@ const Catalog = () => {
           body: JSON.stringify(reviewPayload),
         });
   
-        // Log the entire response object before checking if it's okay
+        // Log the response object
         console.log('Response Status:', response.status);
         console.log('Response Headers:', response.headers);
-        console.log('Response Body (raw):', await response.text());
   
         if (!response.ok) {
           throw new Error(`Error submitting review. Status: ${response.status}`);
         }
   
-        const result = await response.json();
-        console.log('Parsed Result:', result); // Log the parsed result
+        const result = await response.json(); // Read the response as JSON
+        console.log('Parsed Result:', result); // Log the result
   
         setReviews([...reviews, result.newReview]); // Append new review to the list
         setNewReview({ user_name: '', comment: '', rating: 5 }); // Clear form
@@ -162,6 +161,7 @@ const Catalog = () => {
       }
     }
   };
+  
   
 
   const handleBuyNow = (item: ItunesItem) => {
