@@ -1,6 +1,6 @@
 import { Divider, List, ListItem, ListItemText, Typography, Stack, ListItemButton, Box } from "@mui/material";
 import { useAppSelector } from "../../store/hooks"
-import { selectUserName, selectUserType } from "../../store/userSlice"
+import { selectUserName } from "../../store/userSlice"
 import { useEffect, useState } from "react";
 import axios from "axios";
 
