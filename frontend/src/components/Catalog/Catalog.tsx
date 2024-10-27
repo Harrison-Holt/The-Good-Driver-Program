@@ -132,7 +132,9 @@ const Catalog = () => {
           rating: newReview.rating,
           comment: newReview.comment,
         };
-  
+        
+        console.log('Review Payload:', JSON.stringify(reviewPayload, null, 2));
+
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
