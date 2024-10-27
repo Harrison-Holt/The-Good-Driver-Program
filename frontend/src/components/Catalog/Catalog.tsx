@@ -27,12 +27,6 @@ interface ItunesApiResponse {
 }
 
 interface Review {
-  user_name?: string;
-  reviewText?: string;
-  rating: number;
-}
-
-interface ApiReview {
   user_name: string;
   rating: number;
   comment: string;
@@ -58,8 +52,8 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<ApiReview[]>([]); // Initial empty reviews
-  const [newReview, setNewReview] = useState<Review>({ user_name: '', reviewText: '', rating: 5 });
+  const [reviews, setReviews] = useState<Review[]>([]); // Initial empty reviews
+  const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
   const navigate = useNavigate();
 
   // Fetch items from iTunes API
@@ -111,10 +105,8 @@ const Catalog = () => {
             method: 'GET',
           });
           if (!response.ok) throw new Error('Error fetching reviews');
-          const data: ApiReview[] = await response.json();
-          console.log(data); 
-
-          setReviews(data);  // Directly set the response since user_name will always be there
+          const data = await response.json();
+          setReviews(data);
         } catch (err) {
           console.error(err);
           setError('Failed to load reviews');
@@ -124,34 +116,35 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
+  // Submit a new review
   const handleSubmitReview = async () => {
     if (selectedItem) {
       try {
         const itemId = selectedItem.trackId || selectedItem.collectionId;
-  
+
         if (!itemId) {
           setError("Item ID is missing, cannot submit review.");
           return;
         }
-  
+
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.user_name,  // Ensure correct field is being used
+          user_name: newReview.user_name || 'Anonymous', // Ensure user_name has a value
           rating: newReview.rating,
-          comment: newReview.reviewText,
+          comment: newReview.comment,
         };
-  
+
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-  
+
         if (!response.ok) throw new Error('Error submitting review');
-  
+
         const result = await response.json();
-        setReviews([...reviews, result.newReview]);  // Append the new review to the current list
-        setNewReview({ user_name: '', reviewText: '', rating: 5 });  // Clear the form
+        setReviews([...reviews, result.newReview]); // Append new review
+        setNewReview({ user_name: '', comment: '', rating: 5 }); // Clear form
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         console.error(error);
@@ -219,7 +212,7 @@ const Catalog = () => {
       )}
 
       <Grid container spacing={4}>
-        {items.map((item) => (
+        {items.map((item: ItunesItem) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
             <CatalogItem item={item} onViewDetails={handleViewDetails} />
           </Grid>
@@ -267,9 +260,9 @@ const Catalog = () => {
                 {reviews.length > 0 ? (
                   reviews.map((review, index) => (
                     <ListItem key={index}>
-                      <ListItemText 
-                        primary={`${review.user_name ?? 'Anonymous'} (${review.rating} stars)`} 
-                        secondary={review.comment || 'No review text available'} 
+                      <ListItemText
+                        primary={`${review.user_name || 'Anonymous'} (${review.rating || 0} stars)`} // user_name and rating
+                        secondary={review.comment || 'No review text available'} // comment
                       />
                     </ListItem>
                   ))
@@ -298,8 +291,8 @@ const Catalog = () => {
                 label="Review"
                 multiline
                 rows={4}
-                value={newReview.reviewText}
-                onChange={(e) => setNewReview({ ...newReview, reviewText: e.target.value })}
+                value={newReview.comment}
+                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
               
