@@ -150,8 +150,10 @@ const Catalog = () => {
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
+        // Use type assertion to specify that error is an instance of Error
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error(error);
-        setError(error.message); // Set error message for display
+        setError(errorMessage); // Set error message for display
       }
     }
   };
