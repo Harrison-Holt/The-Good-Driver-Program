@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
+import StarRating from './StarRating'; // Ensure you import the StarRating component
 
 interface ItunesItem {
   trackId?: string;
@@ -87,7 +88,7 @@ const Catalog = () => {
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
           console.log('Fetched Reviews:', data); // Log fetched reviews
-          setReviews(data); // Ensure data is in the expected array format
+          setReviews(data);
         } catch (err) {
           console.error(err);
           setError('Failed to load reviews');
@@ -115,7 +116,7 @@ const Catalog = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-        
+
         if (!response.ok) {
           const errorDetails = await response.json();
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
@@ -123,7 +124,7 @@ const Catalog = () => {
 
         const result = await response.json();
         console.log(result);
-        setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]); // Append new review
+        setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]);
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
@@ -211,8 +212,8 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText
-                        primary={`${review.user_name || 'Anonymous'} (${review.rating || 0} stars)`} 
-                        secondary={review.comment || 'No review text available'} 
+                        primary={<StarRating rating={review.rating} />} // Use StarRating component here
+                        secondary={`${review.user_name || 'Anonymous'}: ${review.comment || 'No review text available'}`}
                       />
                     </ListItem>
                   ))
