@@ -52,7 +52,7 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]); // Initial empty reviews
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
   const navigate = useNavigate();
 
@@ -106,9 +106,8 @@ const Catalog = () => {
           });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          console.log('Fetched Reviews:', data);
-          setReviews(data); // Ensure that data is in the expected array format
-          console.log('Updated Reviews State:', reviews); // Log after setting the state
+          console.log('Fetched Reviews:', data); // Log fetched reviews
+          setReviews(data); // Ensure data is in the expected array format
         } catch (err) {
           console.error(err);
           setError('Failed to load reviews');
@@ -122,12 +121,12 @@ const Catalog = () => {
     if (selectedItem) {
       try {
         const itemId = selectedItem.trackId || selectedItem.collectionId;
-  
+
         if (!itemId) {
           setError("Item ID is missing, cannot submit review.");
           return;
         }
-  
+
         const reviewPayload = {
           itemId: itemId,
           user_name: newReview.user_name,
@@ -147,22 +146,19 @@ const Catalog = () => {
           const errorDetails = await response.json(); // Parse JSON to get error details
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
-        
-  
+
         const result = await response.json();
         console.log(result);
-        setReviews([...reviews, result.newReview]);
+        setReviews([...reviews, result.newReview]); // Ensure newReview is appended correctly
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
-        // Use type assertion to specify that error is an instance of Error
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error(error);
         setError(errorMessage); // Set error message for display
       }
     }
   };
-  
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
