@@ -40,7 +40,22 @@ const ApplicationApproval: React.FC = () => {
         };
 
         fetchAppList();
-    }, [])
+    }, [loaded])
+
+    const handleApplicationUpdate = async (appId: number, driverId: number, newStatus: string) => {
+        try {
+            axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`, {
+              app_id: appId,
+              driver_id: driverId,
+              status: newStatus
+            }).then((response) => {
+              console.log(response)
+              setLoaded(false);
+            });
+          } catch (error) {
+            console.error('Error updating application:', error);
+          }
+    }
 
     return(
         <>
@@ -60,10 +75,10 @@ const ApplicationApproval: React.FC = () => {
                             secondary={app.app_description}
                         >
                         </ListItemText>
-                        <Box sx={{marginRight: '0px'}}>
-                            <ListItemButton>Approve</ListItemButton>
-                            <ListItemButton>Deny</ListItemButton>
-                        </Box>
+                        {app.app_status === "pending" ? <Box sx={{marginRight: '0px'}}>
+                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted")}}>Approve</ListItemButton>
+                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied")}}>Deny</ListItemButton>
+                        </Box> : <></>}
                     </ListItem>
                     <Divider variant="inset" component="li"/>
                 </>))}
