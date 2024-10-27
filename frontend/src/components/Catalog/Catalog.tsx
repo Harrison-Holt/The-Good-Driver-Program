@@ -138,11 +138,12 @@ const Catalog = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-  
+        
         if (!response.ok) {
-          const errorMessage = await response.text(); // Get the error message from the response
-          throw new Error(`Error submitting review: ${errorMessage}`);
+          const errorDetails = await response.json(); // Parse JSON to get error details
+          throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
+        
   
         const result = await response.json();
         console.log(result);
