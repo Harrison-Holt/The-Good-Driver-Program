@@ -45,8 +45,8 @@ const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/d
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
-  const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -56,7 +56,6 @@ const Catalog = () => {
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
   const navigate = useNavigate();
 
-  // Fetch items from iTunes API
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -64,28 +63,12 @@ const Catalog = () => {
 
       try {
         const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
+        const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
-        }
-
+        if (!response.ok) throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         const data: ItunesApiResponse = await response.json();
 
-        if (data.resultCount > 0) {
-          const filteredItems = data.results.filter(
-            item => item.collectionPrice && item.collectionPrice > 0
-          );
-          setItems(filteredItems);
-        } else {
-          setItems([]);
-        }
+        setItems(data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -96,14 +79,11 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Fetch reviews for the selected item
   useEffect(() => {
     if (selectedItem) {
       const fetchReviews = async () => {
         try {
-          const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, {
-            method: 'GET',
-          });
+          const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, { method: 'GET' });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
           console.log('Fetched Reviews:', data); // Log fetched reviews
@@ -127,35 +107,29 @@ const Catalog = () => {
           return;
         }
 
-        const reviewPayload = {
-          itemId: itemId,
-          user_name: newReview.user_name,
-          rating: newReview.rating,
-          comment: newReview.comment,
-        };
-
+        const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
         console.log('Review Payload:', JSON.stringify(reviewPayload, null, 2));
 
-        const response = await fetch(`${REVIEW_API_URL}`, {
+        const response = await fetch(REVIEW_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
         
         if (!response.ok) {
-          const errorDetails = await response.json(); // Parse JSON to get error details
+          const errorDetails = await response.json();
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
 
         const result = await response.json();
         console.log(result);
-        setReviews([...reviews, result.newReview]); // Ensure newReview is appended correctly
+        setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]); // Append new review
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error(error);
-        setError(errorMessage); // Set error message for display
+        setError(errorMessage);
       }
     }
   };
@@ -183,19 +157,10 @@ const Catalog = () => {
     <Box sx={{ padding: '20px' }}>
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
-        <Typography variant="h6" gutterBottom>
-          Select Category:
-        </Typography>
-        <Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          fullWidth
-          variant="outlined"
-        >
+        <Typography variant="h6" gutterBottom>Select Category:</Typography>
+        <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
           {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
+            <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
           ))}
         </Select>
       </Box>
@@ -206,17 +171,8 @@ const Catalog = () => {
         </Box>
       )}
 
-      {error && (
-        <Typography color="error" align="center">
-          Error: {error}
-        </Typography>
-      )}
-
-      {alertMessage && (
-        <Alert severity="success" onClose={() => setAlertMessage(null)}>
-          {alertMessage}
-        </Alert>
-      )}
+      {error && <Typography color="error" align="center">Error: {error}</Typography>}
+      {alertMessage && <Alert severity="success" onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>}
 
       <Grid container spacing={4}>
         {items.map((item: ItunesItem) => (
@@ -233,15 +189,8 @@ const Catalog = () => {
       )}
 
       {selectedItem && (
-        <Dialog
-          open={showModal}
-          onClose={() => setShowModal(false)}
-          maxWidth="md"
-          fullWidth
-        >
-          <DialogTitle>
-            {selectedItem.trackName || selectedItem.collectionName} (ID: {selectedItem.trackId || selectedItem.collectionId})
-          </DialogTitle>
+        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName} (ID: {selectedItem.trackId || selectedItem.collectionId})</DialogTitle>
           <DialogContent>
             <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
             <DialogContentText>
@@ -249,18 +198,12 @@ const Catalog = () => {
               <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
             </DialogContentText>
 
-            {/* Link to iTunes Reviews */}
             <Typography variant="body1" sx={{ marginTop: '10px' }}>
-              <a
-                href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl} target="_blank" rel="noopener noreferrer">
                 View iTunes Reviews
               </a>
             </Typography>
 
-            {/* User Reviews */}
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">User Reviews</Typography>
               <List>
@@ -281,7 +224,6 @@ const Catalog = () => {
               </List>
             </Box>
 
-            {/* Review Submission Form */}
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">Leave a Review</Typography>
               
@@ -303,7 +245,6 @@ const Catalog = () => {
                 sx={{ marginBottom: '10px' }}
               />
               
-              {/* Rating Dropdown */}
               <Typography component="legend">Rating (0-5)</Typography>
               <Select
                 fullWidth
@@ -312,27 +253,17 @@ const Catalog = () => {
                 sx={{ marginBottom: '10px' }}
               >
                 {[0, 1, 2, 3, 4, 5].map((value) => (
-                  <MenuItem key={value} value={value}>
-                    {value} Star{value > 1 ? 's' : ''}
-                  </MenuItem>
+                  <MenuItem key={value} value={value}>{value} Star{value > 1 ? 's' : ''}</MenuItem>
                 ))}
               </Select>
 
-              <Button variant="contained" onClick={handleSubmitReview}>
-                Submit Review
-              </Button>
+              <Button variant="contained" onClick={handleSubmitReview}>Submit Review</Button>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
-              Buy Now
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
-              Add to Cart
-            </Button>
-            <Button onClick={() => setShowModal(false)}>
-              Close
-            </Button>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>Buy Now</Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>Add to Cart</Button>
+            <Button onClick={() => setShowModal(false)}>Close</Button>
           </DialogActions>
         </Dialog>
       )}
