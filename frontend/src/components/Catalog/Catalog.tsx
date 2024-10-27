@@ -129,7 +129,7 @@ const Catalog = () => {
 
         const reviewPayload = {
           itemId: itemId,
-          user_name: newReview.user_name || 'Anonymous', // Ensure user_name has a value
+          user_name: newReview.user_name || 'Anonymous', 
           rating: newReview.rating,
           comment: newReview.comment,
         };
@@ -143,6 +143,7 @@ const Catalog = () => {
         if (!response.ok) throw new Error('Error submitting review');
 
         const result = await response.json();
+        console.log(result); 
         setReviews([...reviews, result.newReview]); // Append new review
         setNewReview({ user_name: '', comment: '', rating: 5 }); // Clear form
         setAlertMessage('Review submitted successfully!');
