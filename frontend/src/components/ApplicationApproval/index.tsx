@@ -16,13 +16,17 @@ const ApplicationApproval: React.FC = () => {
 
     const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", driver_id: 0, driver_username: ""}]);
     const [loaded, setLoaded] = useState(false)
-    const username = useAppSelector(selectUserName);
+    const username =  "addisonhough"//useAppSelector(selectUserName); Fix this to use state once login and amplify deployment are fixed
     //const usertype = useAppSelector(selectUserType);
 
     useEffect(() => {
         const fetchAppList = async () => {
             try {
-              axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`).then((response) => {
+              axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`, {
+                params: {
+                    name: username
+                }
+              }).then((response) => {
                 let data: application[] = JSON.parse(response.data.body);
                 setApplicationList(data);
                 setLoaded(true);
