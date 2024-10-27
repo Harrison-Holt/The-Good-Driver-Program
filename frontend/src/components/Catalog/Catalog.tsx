@@ -124,35 +124,34 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
-  // Submit a new review
   const handleSubmitReview = async () => {
     if (selectedItem) {
       try {
         const itemId = selectedItem.trackId || selectedItem.collectionId;
-
+  
         if (!itemId) {
           setError("Item ID is missing, cannot submit review.");
           return;
         }
-
+  
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.user_name, // Ensure the correct user_name field is sent
+          userName: newReview.user_name,  // Ensure correct field is being used
           rating: newReview.rating,
           comment: newReview.reviewText,
         };
-
+  
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-
+  
         if (!response.ok) throw new Error('Error submitting review');
-        
+  
         const result = await response.json();
-        setReviews([...reviews, result.newReview]); // Append new review
-        setNewReview({ user_name: '', reviewText: '', rating: 5 }); // Clear form
+        setReviews([...reviews, result.newReview]);  // Append the new review to the current list
+        setNewReview({ user_name: '', reviewText: '', rating: 5 });  // Clear the form
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         console.error(error);
@@ -269,7 +268,7 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText 
-                        primary={`${review.user_name || 'Unknown'} (${review.rating} stars)`} 
+                        primary={`${review.user_name ?? 'Anonymous'} (${review.rating} stars)`} 
                         secondary={review.comment || 'No review text available'} 
                       />
                     </ListItem>
