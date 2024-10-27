@@ -52,7 +52,7 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]); // Mock empty reviews initially
+  const [reviews, setReviews] = useState<Review[]>([]); // Initial empty reviews
   const [newReview, setNewReview] = useState<Review>({ username: '', reviewText: '', rating: 5 });
   const navigate = useNavigate();
 
@@ -96,7 +96,7 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Fetch reviews for the selected item (mocking no reviews initially)
+  // Fetch reviews for the selected item
   useEffect(() => {
     if (selectedItem) {
       const fetchReviews = async () => {
@@ -106,7 +106,7 @@ const Catalog = () => {
           });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          setReviews(data.reviews || []); // No reviews initially
+          setReviews(data); // Assuming API returns an array of reviews
         } catch (err) {
           console.error(err)
           setError('Failed to load reviews');
@@ -116,46 +116,42 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
-// Submit a new review
-const handleSubmitReview = async () => {
-  if (selectedItem) {
-    try {
-      // Ensure you get the itemId from either trackId or collectionId
-      const itemId = selectedItem.trackId || selectedItem.collectionId;
+  // Submit a new review
+  const handleSubmitReview = async () => {
+    if (selectedItem) {
+      try {
+        const itemId = selectedItem.trackId || selectedItem.collectionId;
 
-      console.log(itemId); 
+        if (!itemId) {
+          setError("Item ID is missing, cannot submit review.");
+          return;
+        }
 
-      if (!itemId) {
-        setError("Item ID is missing, cannot submit review.");
-        return;
+        const reviewPayload = {
+          itemId: itemId,
+          userName: newReview.username, 
+          rating: newReview.rating,
+          comment: newReview.reviewText,
+        };
+
+        const response = await fetch(`${REVIEW_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewPayload),
+        });
+
+        if (!response.ok) throw new Error('Error submitting review');
+        
+        const result = await response.json();
+        setReviews([...reviews, result.newReview]); // Append new review
+        setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
+        setAlertMessage('Review submitted successfully!');
+      } catch (error) {
+        console.error(error);
+        setError('Failed to submit review');
       }
-
-      // Construct the body object
-      const reviewPayload = {
-        itemId: itemId,
-        userName: newReview.username, // Assuming the 'username' field is mapped to 'userName'
-        rating: newReview.rating,
-        comment: newReview.reviewText, // Assuming 'reviewText' is the user's comment
-      };
-
-      const response = await fetch(`${REVIEW_API_URL}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reviewPayload), // Send the correct structure
-      });
-
-      if (!response.ok) throw new Error('Error submitting review');
-      
-      const result = await response.json(); // getting response
-      setReviews([...reviews, result.newReview]); // Append new review to the list
-      setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
-      setAlertMessage('Review submitted successfully!');
-    } catch (error) {
-      console.error(error);
-      setError('Failed to submit review');
     }
-  }
-};
+  };
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
@@ -172,8 +168,8 @@ const handleSubmitReview = async () => {
   };
 
   const handleViewDetails = (item: ItunesItem) => {
-    setSelectedItem(item);  // This will capture the clicked item for further actions
-    setShowModal(true);     // Open the modal to show item details
+    setSelectedItem(item);
+    setShowModal(true);
   };
 
   return (
