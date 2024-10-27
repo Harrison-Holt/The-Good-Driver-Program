@@ -116,43 +116,46 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
-  // Submit a new review
   const handleSubmitReview = async () => {
     if (selectedItem) {
       try {
         const itemId = selectedItem.trackId || selectedItem.collectionId;
-
+  
         if (!itemId) {
           setError("Item ID is missing, cannot submit review.");
           return;
         }
-
+  
         const reviewPayload = {
           itemId: itemId,
-          user_name: newReview.user_name || 'Anonymous', 
+          user_name: newReview.user_name,
           rating: newReview.rating,
           comment: newReview.comment,
         };
-
+  
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-
-        if (!response.ok) throw new Error('Error submitting review');
-
+  
+        if (!response.ok) {
+          const errorMessage = await response.text(); // Get the error message from the response
+          throw new Error(`Error submitting review: ${errorMessage}`);
+        }
+  
         const result = await response.json();
-        console.log(result); 
-        setReviews([...reviews, result.newReview]); // Append new review
-        setNewReview({ user_name: '', comment: '', rating: 5 }); // Clear form
+        console.log(result);
+        setReviews([...reviews, result.newReview]);
+        setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         console.error(error);
-        setError('Failed to submit review');
+        setError(error.message); // Set error message for display
       }
     }
   };
+  
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
