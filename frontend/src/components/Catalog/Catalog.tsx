@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
+// Define interfaces for iTunes items and reviews
 interface ItunesItem {
   trackId?: string;
   collectionId?: string;
@@ -26,10 +27,18 @@ interface ItunesApiResponse {
   results: ItunesItem[];
 }
 
+// Define the structure of a review
 interface Review {
   username: string;
   reviewText: string;
   rating: number;
+}
+
+// Define the structure of review response data from the API
+interface ApiReview {
+  user_name: string;
+  rating: number;
+  comment: string;
 }
 
 const categories = [
@@ -105,11 +114,18 @@ const Catalog = () => {
             method: 'GET',
           });
           if (!response.ok) throw new Error('Error fetching reviews');
-          const data = await response.json();
-          console.log(data); 
-          setReviews(data); 
+          const data: ApiReview[] = await response.json(); // Specify the correct type
+
+          // Normalize the API response to match expected state structure
+          const normalizedReviews: Review[] = data.map((review) => ({
+            username: review.user_name || 'Anonymous',  // Normalize 'user_name' to 'username'
+            reviewText: review.comment,  // Normalize 'comment' to 'reviewText'
+            rating: review.rating,
+          }));
+
+          setReviews(normalizedReviews);  // Set normalized reviews
         } catch (err) {
-          console.error(err)
+          console.error(err);
           setError('Failed to load reviews');
         }
       };
@@ -261,7 +277,10 @@ const Catalog = () => {
                 {reviews.length > 0 ? (
                   reviews.map((review, index) => (
                     <ListItem key={index}>
-                      <ListItemText primary={`${review.username} (${review.rating} stars)`} secondary={review.reviewText} />
+                      <ListItemText 
+                        primary={`${review.username} (${review.rating} stars)`} 
+                        secondary={review.reviewText || 'No review text available'} 
+                      />
                     </ListItem>
                   ))
                 ) : (
@@ -332,3 +351,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
