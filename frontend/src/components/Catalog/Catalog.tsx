@@ -116,53 +116,43 @@ const Catalog = () => {
     }
   }, [selectedItem]);
 
+  // Submit a new review
   const handleSubmitReview = async () => {
     if (selectedItem) {
       try {
         const itemId = selectedItem.trackId || selectedItem.collectionId;
-  
+
         if (!itemId) {
           setError("Item ID is missing, cannot submit review.");
           return;
         }
-  
+
         const reviewPayload = {
           itemId: itemId,
-          user_name: newReview.user_name, // Use user_name as per your DB schema
+          user_name: newReview.user_name || 'Anonymous', 
           rating: newReview.rating,
-          comment: newReview.comment, // Use comment for the review text
+          comment: newReview.comment,
         };
-  
-        console.log('Review Payload:', reviewPayload); // Log the payload
-  
+
         const response = await fetch(`${REVIEW_API_URL}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(reviewPayload),
         });
-  
-        // Log the response object
-        console.log('Response Status:', response.status);
-        console.log('Response Headers:', response.headers);
-  
-        if (!response.ok) {
-          throw new Error(`Error submitting review. Status: ${response.status}`);
-        }
-  
-        const result = await response.json(); // Read the response as JSON
-        console.log('Parsed Result:', result); // Log the result
-  
-        setReviews([...reviews, result.newReview]); // Append new review to the list
+
+        if (!response.ok) throw new Error('Error submitting review');
+
+        const result = await response.json();
+        console.log(result); 
+        setReviews([...reviews, result.newReview]); // Append new review
         setNewReview({ user_name: '', comment: '', rating: 5 }); // Clear form
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
-        console.error('Error submitting review:', error);
+        console.error(error);
         setError('Failed to submit review');
       }
     }
   };
-  
-  
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
