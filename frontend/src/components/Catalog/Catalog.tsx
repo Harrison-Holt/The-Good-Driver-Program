@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-// Define interfaces for iTunes items and reviews
 interface ItunesItem {
   trackId?: string;
   collectionId?: string;
@@ -27,14 +26,12 @@ interface ItunesApiResponse {
   results: ItunesItem[];
 }
 
-// Define the structure of a review
 interface Review {
-  username: string;
+  user_name: string;
   reviewText: string;
   rating: number;
 }
 
-// Define the structure of review response data from the API
 interface ApiReview {
   user_name: string;
   rating: number;
@@ -61,8 +58,8 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]); // Initial empty reviews
-  const [newReview, setNewReview] = useState<Review>({ username: '', reviewText: '', rating: 5 });
+  const [reviews, setReviews] = useState<ApiReview[]>([]); // Ensure user_name is directly used
+  const [newReview, setNewReview] = useState<Review>({ user_name: '', reviewText: '', rating: 5 });
   const navigate = useNavigate();
 
   // Fetch items from iTunes API
@@ -114,16 +111,10 @@ const Catalog = () => {
             method: 'GET',
           });
           if (!response.ok) throw new Error('Error fetching reviews');
-          const data: ApiReview[] = await response.json(); // Specify the correct type
+          const data: ApiReview[] = await response.json();
+          console.log(data); 
 
-          // Normalize the API response to match expected state structure
-          const normalizedReviews: Review[] = data.map((review) => ({
-            username: review.user_name || 'Anonymous',  // Normalize 'user_name' to 'username'
-            reviewText: review.comment,  // Normalize 'comment' to 'reviewText'
-            rating: review.rating,
-          }));
-
-          setReviews(normalizedReviews);  // Set normalized reviews
+          setReviews(data);  // Directly set the response since user_name will always be there
         } catch (err) {
           console.error(err);
           setError('Failed to load reviews');
@@ -146,7 +137,7 @@ const Catalog = () => {
 
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.username, 
+          userName: newReview.user_name, // Ensure the correct user_name field is sent
           rating: newReview.rating,
           comment: newReview.reviewText,
         };
@@ -161,7 +152,7 @@ const Catalog = () => {
         
         const result = await response.json();
         setReviews([...reviews, result.newReview]); // Append new review
-        setNewReview({ username: '', reviewText: '', rating: 5 }); // Clear form
+        setNewReview({ user_name: '', reviewText: '', rating: 5 }); // Clear form
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         console.error(error);
@@ -278,8 +269,8 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText 
-                        primary={`${review.username} (${review.rating} stars)`} 
-                        secondary={review.reviewText || 'No review text available'} 
+                        primary={`${review.user_name} (${review.rating} stars)`} 
+                        secondary={review.comment || 'No review text available'} 
                       />
                     </ListItem>
                   ))
@@ -298,8 +289,8 @@ const Catalog = () => {
               <TextField
                 fullWidth
                 label="Username"
-                value={newReview.username}
-                onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
+                value={newReview.user_name}
+                onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
               
