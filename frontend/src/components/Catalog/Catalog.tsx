@@ -27,8 +27,8 @@ interface ItunesApiResponse {
 }
 
 interface Review {
-  user_name: string;
-  reviewText: string;
+  user_name?: string;
+  reviewText?: string;
   rating: number;
 }
 
@@ -58,7 +58,7 @@ const Catalog = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [reviews, setReviews] = useState<ApiReview[]>([]); // Ensure user_name is directly used
+  const [reviews, setReviews] = useState<ApiReview[]>([]); // Initial empty reviews
   const [newReview, setNewReview] = useState<Review>({ user_name: '', reviewText: '', rating: 5 });
   const navigate = useNavigate();
 
@@ -269,7 +269,7 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText 
-                        primary={`${review.user_name} (${review.rating} stars)`} 
+                        primary={`${review.user_name || 'Unknown'} (${review.rating} stars)`} 
                         secondary={review.comment || 'No review text available'} 
                       />
                     </ListItem>
@@ -342,4 +342,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
