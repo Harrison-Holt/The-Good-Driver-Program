@@ -106,7 +106,8 @@ const Catalog = () => {
           });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          setReviews(data); // Assuming API returns an array of reviews
+          console.log(data); 
+          setReviews(data); 
         } catch (err) {
           console.error(err)
           setError('Failed to load reviews');
