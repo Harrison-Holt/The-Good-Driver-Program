@@ -27,7 +27,7 @@ interface ItunesApiResponse {
 }
 
 interface Review {
-  userName: string;
+  user_name: string;
   rating: number;
   comment: string;
 }
@@ -53,7 +53,7 @@ const Catalog = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]); // Initial empty reviews
-  const [newReview, setNewReview] = useState<Review>({ userName: '', comment: '', rating: 5 });
+  const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
   const navigate = useNavigate();
 
   // Fetch items from iTunes API
@@ -130,7 +130,7 @@ const Catalog = () => {
   
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.userName,
+          userName: newReview.user_name,
           rating: newReview.rating,
           comment: newReview.comment,
         };
@@ -152,7 +152,7 @@ const Catalog = () => {
         const result = await response.json();
         console.log(result);
         setReviews([...reviews, result.newReview]);
-        setNewReview({ userName: '', comment: '', rating: 5 });
+        setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
         // Use type assertion to specify that error is an instance of Error
@@ -272,7 +272,7 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText
-                        primary={`${review.userName || 'Anonymous'} (${review.rating || 0} stars)`} 
+                        primary={`${review.user_name || 'Anonymous'} (${review.rating || 0} stars)`} 
                         secondary={review.comment || 'No review text available'} 
                       />
                     </ListItem>
@@ -292,8 +292,8 @@ const Catalog = () => {
               <TextField
                 fullWidth
                 label="Username"
-                value={newReview.userName}
-                onChange={(e) => setNewReview({ ...newReview, userName: e.target.value })}
+                value={newReview.user_name}
+                onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
               
