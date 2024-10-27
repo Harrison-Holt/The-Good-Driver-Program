@@ -106,6 +106,8 @@ const Catalog = () => {
           });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
+          console.log('Fetched Reviews:', data);
+
           setReviews(data);
         } catch (err) {
           console.error(err);
