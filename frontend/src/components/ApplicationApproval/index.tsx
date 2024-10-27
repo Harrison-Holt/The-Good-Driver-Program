@@ -27,7 +27,8 @@ const ApplicationApproval: React.FC = () => {
                     name: username
                 }
               }).then((response) => {
-                let data: application[] = JSON.parse(response.data.body);
+                console.log(response)
+                let data: application[] = response.data
                 setApplicationList(data);
                 setLoaded(true);
                 console.log(username); //testing
