@@ -130,7 +130,7 @@ const Catalog = () => {
   
         const reviewPayload = {
           itemId: itemId,
-          userName: newReview.user_name,
+          user_name: newReview.user_name,
           rating: newReview.rating,
           comment: newReview.comment,
         };
