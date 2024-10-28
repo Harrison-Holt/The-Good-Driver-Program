@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import StarRating from './StarRating'; 
-import SearchBar from '../SearchBar'; // Import SearchBar component
+import SearchBar from '../SearchBar'; 
 
 interface ItunesItem {
   trackId?: string;
@@ -47,7 +47,7 @@ const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<ItunesItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-  const [searchTerm, setSearchTerm] = useState(''); // We now use setSearchTerm for filtering the catalog
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -58,13 +58,11 @@ const Catalog = () => {
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
 
-  // Function to calculate the overall average rating
   const calculateAverageRating = (reviews: Review[]) => {
     const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
     return reviews.length ? (totalRatings / reviews.length).toFixed(1) : '0.0';
   };
 
-  // Function to sort reviews
   const sortReviews = (reviews: Review[], option: string) => {
     return [...reviews].sort((a, b) => {
       if (option === 'lowest') return a.rating - b.rating;
@@ -86,10 +84,10 @@ const Catalog = () => {
 
         const fetchedItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
         setItems(fetchedItems);
-        setFilteredItems(fetchedItems); // Initialize filtered items to be the same as fetched items
+        setFilteredItems(fetchedItems); 
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(err.message); // Use the error message if it's an Error object
+          setError(err.message);
         }
       } finally {
         setLoading(false);
@@ -156,22 +154,17 @@ const Catalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-  
-    // Trigger the storage event to notify all listeners
-    window.dispatchEvent(new Event('storage'));
-    
+    window.dispatchEvent(new Event('storage')); 
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
-  
 
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
     setShowModal(true);
   };
 
-  const sortedReviews = sortReviews(reviews, sortOption); // Sort reviews based on the selected option
+  const sortedReviews = sortReviews(reviews, sortOption);
 
-  // Filter items based on the search term
   useEffect(() => {
     const filtered = items.filter((item) =>
       (item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) || item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -185,8 +178,7 @@ const Catalog = () => {
         Discover Your Favorite Media
       </Typography>
 
-      {/* Add SearchBar component and pass options */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} />
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
       <Box sx={{ marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>

@@ -18,16 +18,20 @@ interface ItunesItem {
 interface CatalogItemProps {
   item: ItunesItem;
   onViewDetails: (item: ItunesItem) => void;
+  conversionRate: number; // Add the conversion rate prop
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
+const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversionRate }) => {
+    // Calculate the price in points using the conversion rate
+    const priceInPoints = Math.round(((item.collectionPrice || item.trackPrice || 0) * conversionRate));
+
     return (
         <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
             <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%' }} />
             <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
             <Typography variant="body1">Artist: {item.artistName}</Typography>
             <Typography variant="body1">
-                Price: {item.collectionPrice || item.trackPrice} {item.currency}
+                Points: {priceInPoints} Points
             </Typography>
             <Button variant="contained" color="primary" onClick={() => onViewDetails(item)}>
                 View Details
@@ -37,4 +41,3 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails }) => {
 };
 
 export default CatalogItem;
-
