@@ -8,13 +8,14 @@ interface application {
     application_id: number,
     app_status: string,
     app_description: string,
+    sponsor_id: number,
     driver_id: number,
     driver_username: string
 }
 
 const ApplicationApproval: React.FC = () => {
 
-    const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", driver_id: 0, driver_username: ""}]);
+    const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
     const [loaded, setLoaded] = useState(false)
     const username =  "addisonhough"//useAppSelector(selectUserName); Fix this to use state once login and amplify deployment are fixed
     //const usertype = useAppSelector(selectUserType);
@@ -42,11 +43,12 @@ const ApplicationApproval: React.FC = () => {
         fetchAppList();
     }, [loaded])
 
-    const handleApplicationUpdate = async (appId: number, driverId: number, newStatus: string) => {
+    const handleApplicationUpdate = async (appId: number, driverId: number, newStatus: string, sponsorId: number) => {
         try {
             axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`, {
               app_id: appId,
               driver_id: driverId,
+              sponsor_id: sponsorId,
               status: newStatus
             }).then((response) => {
               console.log(response)
@@ -76,8 +78,8 @@ const ApplicationApproval: React.FC = () => {
                         >
                         </ListItemText>
                         {app.app_status === "pending" ? <Box sx={{marginRight: '0px'}}>
-                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted")}}>Approve</ListItemButton>
-                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied")}}>Deny</ListItemButton>
+                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id)}}>Approve</ListItemButton>
+                            <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id)}}>Deny</ListItemButton>
                         </Box> : <></>}
                     </ListItem>
                     <Divider variant="inset" component="li"/>
