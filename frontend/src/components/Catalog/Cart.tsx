@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField } from '@mui/material';
 
 interface ItunesItem {
-  trackId?: string;
-  collectionId?: string;
-  trackName?: string;
-  collectionName?: string;
+  trackId?: string;  // For tracks
+  collectionId?: string;  // For collections
+  trackName?: string;  // Track name for tracks
+  collectionName?: string;  // Collection name for albums
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;
-  collectionViewUrl?: string;
-  trackPrice?: number;
-  collectionPrice?: number;
+  trackViewUrl?: string;  // URL for tracks
+  collectionViewUrl?: string;  // URL for collections
+  trackPrice?: number;  // Price for tracks
+  collectionPrice?: number;  // Price for collections
   currency?: string;
-  primaryGenreName?: string;
-  releaseDate?: string;
-  country?: string;
-  copyright?: string;
+  primaryGenreName?: string;  // Genre of the track/album
+  releaseDate?: string;  // Release date of the track/album
+  country?: string;  // Country of origin
+  copyright?: string;  // Copyright information
 }
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState(0);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track if the user is logged in
   const [errorMessage, setErrorMessage] = useState(''); // State for error messages
 
@@ -58,7 +59,7 @@ const Cart: React.FC = () => {
 
   const handleCheckout = async () => {
     if (!isLoggedIn) {
-      setErrorMessage('You must be logged in to make a purchase.');
+      setErrorMessage('You must be logged in to make a purchase.'); // Set error message if not logged in
       return;
     }
 
@@ -69,7 +70,7 @@ const Cart: React.FC = () => {
         total: total,
       };
 
-      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', {
+      const response = await fetch('https://your-lambda-api-endpoint/order_confirmation', { // Replace with your actual Lambda endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ const Cart: React.FC = () => {
       setTotal(0);
     } catch (error) {
       console.error(error);
-      setErrorMessage('An error occurred during checkout. Please try again later.');
+      setErrorMessage('An error occurred while processing your order.');
     }
   };
 
@@ -157,6 +158,14 @@ const Cart: React.FC = () => {
           <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px' }}>
             Total: {total.toFixed(2)} USD
           </Typography>
+
+          <TextField
+            fullWidth
+            label="Email for Order Confirmation"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            sx={{ marginBottom: '20px' }}
+          />
 
           <Button
             variant="contained"
