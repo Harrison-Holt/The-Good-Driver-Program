@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import StarRating from './StarRating'; 
+import StarRating from './StarRating';
 
 interface ItunesItem {
   trackId?: string;
@@ -55,20 +55,18 @@ const Catalog = () => {
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
-  const [sortOption, setSortOption] = useState('highest'); // Add a state for sorting option
+  const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
 
-  // Function to calculate the overall average rating
   const calculateAverageRating = (reviews: Review[]) => {
     const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
     return reviews.length ? (totalRatings / reviews.length).toFixed(1) : '0.0';
   };
 
-  // Function to sort reviews
   const sortReviews = (reviews: Review[], option: string) => {
     return [...reviews].sort((a, b) => {
       if (option === 'lowest') return a.rating - b.rating;
-      return b.rating - a.rating; // default to highest rating first
+      return b.rating - a.rating;
     });
   };
 
@@ -102,7 +100,6 @@ const Catalog = () => {
           const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, { method: 'GET' });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          console.log('Fetched Reviews:', data);
           setReviews(data);
         } catch (err) {
           console.error(err);
@@ -124,8 +121,6 @@ const Catalog = () => {
         }
 
         const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
-        console.log('Review Payload:', JSON.stringify(reviewPayload, null, 2));
-
         const response = await fetch(REVIEW_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -137,8 +132,6 @@ const Catalog = () => {
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
 
-        const result = await response.json();
-        console.log(result);
         setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]);
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
@@ -169,11 +162,15 @@ const Catalog = () => {
     setShowModal(true);
   };
 
-  const sortedReviews = sortReviews(reviews, sortOption); // Sort reviews based on the selected option
+  const sortedReviews = sortReviews(reviews, sortOption);
 
   return (
-    <Box sx={{ padding: '20px' }}>
+    <Box sx={{ padding: '40px 20px', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
+      <Typography variant="h4" sx={{ marginBottom: '20px', fontWeight: 'bold' }} align="center">
+        Discover and Review Your Favorite Media
+      </Typography>
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>
         <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
@@ -208,16 +205,16 @@ const Catalog = () => {
 
       {selectedItem && (
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName} (ID: {selectedItem.trackId || selectedItem.collectionId})</DialogTitle>
+          <DialogTitle sx={{ fontWeight: 'bold', fontSize: '24px' }}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
+            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px', borderRadius: '10px' }} />
             <DialogContentText>
               <strong>Artist:</strong> {selectedItem.artistName} <br />
               <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
             </DialogContentText>
 
             <Typography variant="body1" sx={{ marginTop: '10px' }}>
-              <a href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl} target="_blank" rel="noopener noreferrer">
+              <a href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#1976d2' }}>
                 View iTunes Reviews
               </a>
             </Typography>
@@ -292,11 +289,11 @@ const Catalog = () => {
                 ))}
               </Select>
 
-              <Button variant="contained" onClick={handleSubmitReview}>Submit Review</Button>
+              <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%', backgroundColor: '#1976d2' }}>Submit Review</Button>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>Buy Now</Button>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)} sx={{ backgroundColor: '#1976d2' }}>Buy Now</Button>
             <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>Add to Cart</Button>
             <Button onClick={() => setShowModal(false)}>Close</Button>
           </DialogActions>
