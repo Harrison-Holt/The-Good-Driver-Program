@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import StarRating from './StarRating'; // Ensure you import the StarRating component
+import StarRating from './StarRating';
 
 interface ItunesItem {
   trackId?: string;
@@ -55,6 +55,7 @@ const Catalog = () => {
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
+  const [sortOption, setSortOption] = useState('lowest'); // New state for sorting option
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +70,16 @@ const Catalog = () => {
         if (!response.ok) throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         const data: ItunesApiResponse = await response.json();
 
-        setItems(data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : []);
+        let filteredItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
+        
+        // Sort the filtered items based on the sort option
+        if (sortOption === 'lowest') {
+          filteredItems = filteredItems.sort((a, b) => (a.collectionPrice || 0) - (b.collectionPrice || 0));
+        } else if (sortOption === 'highest') {
+          filteredItems = filteredItems.sort((a, b) => (b.collectionPrice || 0) - (a.collectionPrice || 0));
+        }
+
+        setItems(filteredItems);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -78,7 +88,7 @@ const Catalog = () => {
     };
 
     fetchItems();
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, searchTerm, sortOption]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -87,7 +97,6 @@ const Catalog = () => {
           const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, { method: 'GET' });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
-          console.log('Fetched Reviews:', data); // Log fetched reviews
           setReviews(data);
         } catch (err) {
           console.error(err);
@@ -109,7 +118,6 @@ const Catalog = () => {
         }
 
         const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
-        console.log('Review Payload:', JSON.stringify(reviewPayload, null, 2));
 
         const response = await fetch(REVIEW_API_URL, {
           method: 'POST',
@@ -122,8 +130,6 @@ const Catalog = () => {
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
 
-        const result = await response.json();
-        console.log(result);
         setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]);
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
@@ -163,6 +169,18 @@ const Catalog = () => {
           {categories.map((category) => (
             <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
           ))}
+        </Select>
+
+        {/* Sorting Option */}
+        <Typography variant="h6" gutterBottom sx={{ marginTop: '20px' }}>Sort by Price:</Typography>
+        <Select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          fullWidth
+          variant="outlined"
+        >
+          <MenuItem value="lowest">Lowest Price</MenuItem>
+          <MenuItem value="highest">Highest Price</MenuItem>
         </Select>
       </Box>
 
@@ -212,7 +230,7 @@ const Catalog = () => {
                   reviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText
-                        primary={<StarRating rating={review.rating} />} // Use StarRating component here
+                        primary={<StarRating rating={review.rating} />}
                         secondary={`${review.user_name || 'Anonymous'}: ${review.comment || 'No review text available'}`}
                       />
                     </ListItem>
