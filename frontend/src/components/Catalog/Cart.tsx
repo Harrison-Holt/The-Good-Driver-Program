@@ -1,30 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert } from '@mui/material';
+import { jwtDecode } from 'jwt-decode'; // Make sure to install this package
 
 interface ItunesItem {
-  trackId?: string;  // For tracks
-  collectionId?: string;  // For collections
-  trackName?: string;  // Track name for tracks
-  collectionName?: string;  // Collection name for albums
+  trackId?: string;  
+  collectionId?: string;  
+  trackName?: string;  
+  collectionName?: string;  
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  // URL for tracks
-  collectionViewUrl?: string;  // URL for collections
-  trackPrice?: number;  // Price for tracks
-  collectionPrice?: number;  // Price for collections
+  trackViewUrl?: string;  
+  collectionViewUrl?: string;  
+  trackPrice?: number;  
+  collectionPrice?: number;  
   currency?: string;
-  primaryGenreName?: string;  // Genre of the track/album
-  releaseDate?: string;  // Release date of the track/album
-  country?: string;  // Country of origin
-  copyright?: string;  // Copyright information
+  primaryGenreName?: string;  
+  releaseDate?: string;  
+  country?: string;  
+  copyright?: string;  
+}
+
+interface TokenPayload {
+  email: string; 
 }
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState(0);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState(''); 
 
-  // Function to update cart items and total dynamically
   const updateCart = () => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setCartItems(storedCartItems);
@@ -36,10 +43,15 @@ const Cart: React.FC = () => {
   };
 
   useEffect(() => {
-    // Update cart on component mount
     updateCart();
 
-    // Set up event listener to listen for changes in cart items
+    const jwtToken = localStorage.getItem('jwtToken'); 
+    if (jwtToken) {
+      const decodedToken = jwtDecode<TokenPayload>(jwtToken); // Decode the JWT token
+      setUserEmail(decodedToken.email); 
+      setIsLoggedIn(true); 
+    }
+
     const handleStorageChange = () => {
       updateCart();
     };
@@ -51,18 +63,54 @@ const Cart: React.FC = () => {
     };
   }, []);
 
-  const handleCheckout = () => {
-    setCheckoutSuccess(true);
-    localStorage.removeItem('cartItems');
-    setCartItems([]);
-    setTotal(0);
+  const handleCheckout = async () => {
+    if (!isLoggedIn) {
+      setErrorMessage('You must be logged in to make a purchase.'); 
+      return;
+    }
+
+    try {
+      const orderDetails = {
+        orderId: new Date().getTime(),
+        items: cartItems.map(item => item.trackName || item.collectionName),
+        total: total,
+      };
+
+      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`, 
+        },
+        body: JSON.stringify({
+          email: userEmail, 
+          orderDetails: orderDetails,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send order confirmation email');
+      }
+
+      setCheckoutSuccess(true);
+      localStorage.removeItem('cartItems');
+      setCartItems([]);
+      setTotal(0);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage('An error occurred during checkout. Please try again.'); 
+    }
   };
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Your Cart
-      </Typography>
+      <Typography variant="h4" gutterBottom>Your Cart</Typography>
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errorMessage}
+        </Alert>
+      )}
 
       {checkoutSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
