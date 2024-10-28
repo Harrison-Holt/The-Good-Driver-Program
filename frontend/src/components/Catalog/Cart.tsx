@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 interface ItunesItem {
   trackId?: string;  // For tracks
@@ -23,9 +23,9 @@ const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState(0);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track if the user is logged in
+  const [userEmail, setUserEmail] = useState(''); // Now we just ask for the user's email
   const [errorMessage, setErrorMessage] = useState(''); // State for error messages
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false); // State for email confirmation dialog
 
   const updateCart = () => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
@@ -40,12 +40,6 @@ const Cart: React.FC = () => {
   useEffect(() => {
     updateCart();
 
-    // Check if the user is logged in by looking for the JWT token
-    const jwtToken = localStorage.getItem('jwtToken'); // Adjust this as per your authentication flow
-    if (jwtToken) {
-      setIsLoggedIn(true); // User is logged in if token exists
-    }
-
     const handleStorageChange = () => {
       updateCart();
     };
@@ -58,11 +52,11 @@ const Cart: React.FC = () => {
   }, []);
 
   const handleCheckout = async () => {
-    if (!isLoggedIn) {
-      setErrorMessage('You must be logged in to make a purchase.'); // Set error message if not logged in
-      return;
-    }
+    // Just show the confirmation dialog asking for email confirmation
+    setShowConfirmationDialog(true);
+  };
 
+  const confirmCheckout = async () => {
     try {
       const orderDetails = {
         orderId: new Date().getTime(),
@@ -70,13 +64,13 @@ const Cart: React.FC = () => {
         total: total,
       };
 
-      const response = await fetch('https://your-lambda-api-endpoint/order_confirmation', { // Replace with your actual Lambda endpoint
+      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { // Replace with your actual Lambda endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`, // Include the JWT token in the Authorization header
         },
         body: JSON.stringify({
+          email: userEmail, // Use the entered email
           orderDetails: orderDetails,
         }),
       });
@@ -89,9 +83,11 @@ const Cart: React.FC = () => {
       localStorage.removeItem('cartItems');
       setCartItems([]);
       setTotal(0);
+      setShowConfirmationDialog(false); // Close the dialog
     } catch (error) {
       console.error(error);
       setErrorMessage('An error occurred while processing your order.');
+      setShowConfirmationDialog(false); // Close the dialog even if there's an error
     }
   };
 
@@ -175,6 +171,30 @@ const Cart: React.FC = () => {
           >
             Proceed to Checkout
           </Button>
+
+          {/* Email Confirmation Dialog */}
+          <Dialog
+            open={showConfirmationDialog}
+            onClose={() => setShowConfirmationDialog(false)}
+          >
+            <DialogTitle>Email Confirmation</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Please confirm your email before proceeding with the purchase:
+              </Typography>
+              <Typography>
+                <strong>{userEmail}</strong>
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary">
+                Cancel
+              </Button>
+              <Button onClick={confirmCheckout} color="primary">
+                Confirm and Purchase
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Box>
