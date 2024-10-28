@@ -6,6 +6,9 @@ import type { RootState } from './store'
 interface UserState {
   loggedIn: boolean
   userName: string | null
+  firstName: string | null
+  lastName: string | null
+  email: string | null
   userType: string
 }
 
@@ -13,6 +16,9 @@ interface UserState {
 const initialState: UserState = {
   loggedIn: false,
   userName: null,
+  firstName: null,
+  lastName: null,
+  email: null,
   userType: "sponsor"
 }
 
