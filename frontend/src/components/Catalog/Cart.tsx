@@ -1,36 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert } from '@mui/material';
-import { jwtDecode } from 'jwt-decode';
 
 interface ItunesItem {
-  trackId?: string;  
-  collectionId?: string;  
-  trackName?: string;  
-  collectionName?: string;  
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  
-  collectionViewUrl?: string;  
-  trackPrice?: number;  
-  collectionPrice?: number;  
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
   currency?: string;
-  primaryGenreName?: string;  
-  releaseDate?: string;  
-  country?: string;  
-  copyright?: string;  
-}
-
-interface TokenPayload {
-  email: string; 
+  primaryGenreName?: string;
+  releaseDate?: string;
+  country?: string;
+  copyright?: string;
 }
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState(0);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
-  const [errorMessage, setErrorMessage] = useState(''); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track if the user is logged in
+  const [errorMessage, setErrorMessage] = useState(''); // State for error messages
 
   const updateCart = () => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
@@ -45,11 +39,10 @@ const Cart: React.FC = () => {
   useEffect(() => {
     updateCart();
 
-    const jwtToken = localStorage.getItem('jwtToken'); 
+    // Check if the user is logged in by looking for the JWT token
+    const jwtToken = localStorage.getItem('jwtToken'); // Adjust this as per your authentication flow
     if (jwtToken) {
-      const decodedToken = jwtDecode<TokenPayload>(jwtToken); // Decode the JWT token
-      setUserEmail(decodedToken.email); 
-      setIsLoggedIn(true); 
+      setIsLoggedIn(true); // User is logged in if token exists
     }
 
     const handleStorageChange = () => {
@@ -65,7 +58,7 @@ const Cart: React.FC = () => {
 
   const handleCheckout = async () => {
     if (!isLoggedIn) {
-      setErrorMessage('You must be logged in to make a purchase.'); 
+      setErrorMessage('You must be logged in to make a purchase.');
       return;
     }
 
@@ -76,14 +69,13 @@ const Cart: React.FC = () => {
         total: total,
       };
 
-      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { 
+      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`, 
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`, // Include the JWT token in the Authorization header
         },
         body: JSON.stringify({
-          email: userEmail, 
           orderDetails: orderDetails,
         }),
       });
@@ -98,7 +90,7 @@ const Cart: React.FC = () => {
       setTotal(0);
     } catch (error) {
       console.error(error);
-      setErrorMessage('An error occurred during checkout. Please try again.'); 
+      setErrorMessage('An error occurred during checkout. Please try again later.');
     }
   };
 
