@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import StarRating from './StarRating'; // Ensure you import the StarRating component
+import StarRating from './StarRating'; 
 
 interface ItunesItem {
   trackId?: string;
@@ -223,8 +223,9 @@ const Catalog = () => {
             </Typography>
 
             {/* Display overall rating */}
-            <Typography variant="h6" sx={{ marginTop: '20px' }}>
+            <Typography variant="h6" sx={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
               Overall Rating: {calculateAverageRating(reviews)} / 5
+              <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ ml: 2 }} />
             </Typography>
 
             <Box sx={{ marginTop: '20px' }}>
