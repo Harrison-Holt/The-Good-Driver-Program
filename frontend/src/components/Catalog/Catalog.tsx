@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, Card, CardContent, CardMedia
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, Card, CardMedia, CardContent, CardActions
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import SearchBar from '../SearchBar';
 import StarRating from './StarRating'; 
+import SearchBar from '../SearchBar'; // Import SearchBar component
 
 interface ItunesItem {
   trackId?: string;
@@ -45,8 +45,9 @@ const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/d
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<ItunesItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // We now use setSearchTerm for filtering the catalog
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -57,15 +58,17 @@ const Catalog = () => {
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
 
+  // Function to calculate the overall average rating
   const calculateAverageRating = (reviews: Review[]) => {
     const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
     return reviews.length ? (totalRatings / reviews.length).toFixed(1) : '0.0';
   };
 
+  // Function to sort reviews
   const sortReviews = (reviews: Review[], option: string) => {
     return [...reviews].sort((a, b) => {
       if (option === 'lowest') return a.rating - b.rating;
-      return b.rating - a.rating;
+      return b.rating - a.rating; // default to highest rating first
     });
   };
 
@@ -81,9 +84,13 @@ const Catalog = () => {
         if (!response.ok) throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         const data: ItunesApiResponse = await response.json();
 
-        setItems(data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const fetchedItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
+        setItems(fetchedItems);
+        setFilteredItems(fetchedItems); // Initialize filtered items to be the same as fetched items
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message); // Use the error message if it's an Error object
+        }
       } finally {
         setLoading(false);
       }
@@ -100,8 +107,7 @@ const Catalog = () => {
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
           setReviews(data);
-        } catch (err) {
-          console.error(err);
+        } catch {
           setError('Failed to load reviews');
         }
       };
@@ -120,6 +126,7 @@ const Catalog = () => {
         }
 
         const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
+
         const response = await fetch(REVIEW_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -135,9 +142,7 @@ const Catalog = () => {
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        console.error(error);
-        setError(errorMessage);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
       }
     }
   };
@@ -153,7 +158,6 @@ const Catalog = () => {
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
     setShowModal(false);
-    window.dispatchEvent(new Event('storage'));
   };
 
   const handleViewDetails = (item: ItunesItem) => {
@@ -161,17 +165,26 @@ const Catalog = () => {
     setShowModal(true);
   };
 
-  const sortedReviews = sortReviews(reviews, sortOption);
+  const sortedReviews = sortReviews(reviews, sortOption); // Sort reviews based on the selected option
+
+  // Filter items based on the search term
+  useEffect(() => {
+    const filtered = items.filter((item) =>
+      (item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) || item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredItems(filtered);
+  }, [searchTerm, items]);
 
   return (
-    <Box sx={{ padding: '40px 20px', background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)', minHeight: '100vh' }}>
-      <Typography variant="h3" sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
+    <Box sx={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: '40px' }}>
         Discover Your Favorite Media
       </Typography>
 
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      {/* Add SearchBar component and pass options */}
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} />
 
-      <Box sx={{ marginTop: '30px', marginBottom: '30px' }}>
+      <Box sx={{ marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>
         <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
           {categories.map((category) => (
@@ -190,29 +203,30 @@ const Catalog = () => {
       {alertMessage && <Alert severity="success" onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>}
 
       <Grid container spacing={4}>
-        {items.map((item: ItunesItem) => (
-          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
-            <Card sx={{ borderRadius: '15px', boxShadow: '0px 4px 15px rgba(0,0,0,0.1)' }}>
+        {filteredItems.map((item: ItunesItem) => (
+          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
+            <Card>
               <CardMedia
                 component="img"
-                alt={item.trackName || item.collectionName}
-                height="200"
+                height="240"
                 image={item.artworkUrl100}
+                alt={item.trackName || item.collectionName}
               />
               <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                <Typography gutterBottom variant="h6">
                   {item.trackName || item.collectionName}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                  {item.artistName}
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Artist:</strong> {item.artistName}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666', marginTop: '5px' }}>
-                  {item.currency} {item.collectionPrice?.toFixed(2) || item.trackPrice?.toFixed(2)}
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Price:</strong> {item.collectionPrice?.toFixed(2)} {item.currency || 'USD'}
                 </Typography>
-                <Button onClick={() => handleViewDetails(item)} sx={{ mt: 2, width: '100%' }} variant="contained" color="primary">
-                  View Details
-                </Button>
               </CardContent>
+              <CardActions>
+                <Button size="small" color="primary" onClick={() => handleViewDetails(item)}>View Details</Button>
+                <Button size="small" color="secondary" onClick={() => handleAddToCart(item)}>Add to Cart</Button>
+              </CardActions>
             </Card>
           </Grid>
         ))}
@@ -220,24 +234,22 @@ const Catalog = () => {
 
       {selectedItem && (
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
-          <DialogTitle sx={{ backgroundColor: '#1976d2', color: '#fff' }}>
-            {selectedItem.trackName || selectedItem.collectionName}
-          </DialogTitle>
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
+              <DialogContentText>
+                <strong>Artist:</strong> {selectedItem.artistName} <br />
+                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
+              </DialogContentText>
+
+              <Typography variant="h6" sx={{ marginTop: '20px' }}>
+                Overall Rating: {calculateAverageRating(reviews)} / 5
+              </Typography>
+              <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ marginBottom: '20px' }} />
             </Box>
-            <DialogContentText>
-              <strong>Artist:</strong> {selectedItem.artistName} <br />
-              <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
-            </DialogContentText>
 
-            <Typography variant="h6" sx={{ marginTop: '20px' }}>
-              Overall Rating: {calculateAverageRating(reviews)} / 5
-              <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ ml: 2 }} />
-            </Typography>
-
-            <Typography variant="h6" sx={{ marginTop: '20px' }}>User Reviews</Typography>
+            <Typography variant="h6">User Reviews</Typography>
             <Select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
@@ -297,12 +309,12 @@ const Catalog = () => {
                 ))}
               </Select>
 
-              <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%', backgroundColor: '#1976d2' }}>Submit Review</Button>
+              <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%' }}>Submit Review</Button>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)} sx={{ backgroundColor: '#1976d2' }}>Buy Now</Button>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>Add to Cart</Button>
+            <Button variant="contained" onClick={() => handleBuyNow(selectedItem)}>Buy Now</Button>
+            <Button variant="outlined" onClick={() => handleAddToCart(selectedItem)}>Add to Cart</Button>
             <Button onClick={() => setShowModal(false)}>Close</Button>
           </DialogActions>
         </Dialog>
