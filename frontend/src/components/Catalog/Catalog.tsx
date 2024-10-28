@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import StarRating from './StarRating';
+import StarRating from './StarRating'; // Ensure you import the StarRating component
 
 interface ItunesItem {
   trackId?: string;
@@ -55,8 +55,22 @@ const Catalog = () => {
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
-  const [sortOption, setSortOption] = useState('lowest'); // New state for sorting option
+  const [sortOption, setSortOption] = useState('highest'); // Add a state for sorting option
   const navigate = useNavigate();
+
+  // Function to calculate the overall average rating
+  const calculateAverageRating = (reviews: Review[]) => {
+    const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return reviews.length ? (totalRatings / reviews.length).toFixed(1) : '0.0';
+  };
+
+  // Function to sort reviews
+  const sortReviews = (reviews: Review[], option: string) => {
+    return [...reviews].sort((a, b) => {
+      if (option === 'lowest') return a.rating - b.rating;
+      return b.rating - a.rating; // default to highest rating first
+    });
+  };
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -70,16 +84,7 @@ const Catalog = () => {
         if (!response.ok) throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         const data: ItunesApiResponse = await response.json();
 
-        let filteredItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
-        
-        // Sort the filtered items based on the sort option
-        if (sortOption === 'lowest') {
-          filteredItems = filteredItems.sort((a, b) => (a.collectionPrice || 0) - (b.collectionPrice || 0));
-        } else if (sortOption === 'highest') {
-          filteredItems = filteredItems.sort((a, b) => (b.collectionPrice || 0) - (a.collectionPrice || 0));
-        }
-
-        setItems(filteredItems);
+        setItems(data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -88,7 +93,7 @@ const Catalog = () => {
     };
 
     fetchItems();
-  }, [selectedCategory, searchTerm, sortOption]);
+  }, [selectedCategory, searchTerm]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -97,6 +102,7 @@ const Catalog = () => {
           const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, { method: 'GET' });
           if (!response.ok) throw new Error('Error fetching reviews');
           const data = await response.json();
+          console.log('Fetched Reviews:', data);
           setReviews(data);
         } catch (err) {
           console.error(err);
@@ -118,6 +124,7 @@ const Catalog = () => {
         }
 
         const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
+        console.log('Review Payload:', JSON.stringify(reviewPayload, null, 2));
 
         const response = await fetch(REVIEW_API_URL, {
           method: 'POST',
@@ -130,6 +137,8 @@ const Catalog = () => {
           throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
         }
 
+        const result = await response.json();
+        console.log(result);
         setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]);
         setNewReview({ user_name: '', comment: '', rating: 5 });
         setAlertMessage('Review submitted successfully!');
@@ -160,6 +169,8 @@ const Catalog = () => {
     setShowModal(true);
   };
 
+  const sortedReviews = sortReviews(reviews, sortOption); // Sort reviews based on the selected option
+
   return (
     <Box sx={{ padding: '20px' }}>
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
@@ -169,18 +180,6 @@ const Catalog = () => {
           {categories.map((category) => (
             <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
           ))}
-        </Select>
-
-        {/* Sorting Option */}
-        <Typography variant="h6" gutterBottom sx={{ marginTop: '20px' }}>Sort by Price:</Typography>
-        <Select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          fullWidth
-          variant="outlined"
-        >
-          <MenuItem value="lowest">Lowest Price</MenuItem>
-          <MenuItem value="highest">Highest Price</MenuItem>
         </Select>
       </Box>
 
@@ -223,11 +222,27 @@ const Catalog = () => {
               </a>
             </Typography>
 
+            {/* Display overall rating */}
+            <Typography variant="h6" sx={{ marginTop: '20px' }}>
+              Overall Rating: {calculateAverageRating(reviews)} / 5
+            </Typography>
+
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">User Reviews</Typography>
+
+              <Select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                fullWidth
+                sx={{ marginBottom: '10px' }}
+              >
+                <MenuItem value="highest">Highest Rating</MenuItem>
+                <MenuItem value="lowest">Lowest Rating</MenuItem>
+              </Select>
+
               <List>
-                {reviews.length > 0 ? (
-                  reviews.map((review, index) => (
+                {sortedReviews.length > 0 ? (
+                  sortedReviews.map((review, index) => (
                     <ListItem key={index}>
                       <ListItemText
                         primary={<StarRating rating={review.rating} />}
@@ -245,7 +260,7 @@ const Catalog = () => {
 
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">Leave a Review</Typography>
-              
+
               <TextField
                 fullWidth
                 label="Username"
@@ -253,7 +268,7 @@ const Catalog = () => {
                 onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
-              
+
               <TextField
                 fullWidth
                 label="Review"
@@ -263,7 +278,7 @@ const Catalog = () => {
                 onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                 sx={{ marginBottom: '10px' }}
               />
-              
+
               <Typography component="legend">Rating (0-5)</Typography>
               <Select
                 fullWidth
