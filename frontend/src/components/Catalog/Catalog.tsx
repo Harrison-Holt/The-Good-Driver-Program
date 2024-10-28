@@ -156,9 +156,13 @@ const Catalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+  
+    // Trigger the storage event to notify all listeners
+    window.dispatchEvent(new Event('storage'));
+    
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
-    setShowModal(false);
   };
+  
 
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
