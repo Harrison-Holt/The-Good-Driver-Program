@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, Card, CardContent, CardMedia
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
-import StarRating from './StarRating';
+import StarRating from './StarRating'; 
 
 interface ItunesItem {
   trackId?: string;
@@ -165,13 +164,14 @@ const Catalog = () => {
   const sortedReviews = sortReviews(reviews, sortOption);
 
   return (
-    <Box sx={{ padding: '40px 20px', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
-      <Typography variant="h4" sx={{ marginBottom: '20px', fontWeight: 'bold' }} align="center">
-        Discover and Review Your Favorite Media
+    <Box sx={{ padding: '40px 20px', background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)', minHeight: '100vh' }}>
+      <Typography variant="h3" sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
+        Discover Your Favorite Media
       </Typography>
+
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
 
-      <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
+      <Box sx={{ marginTop: '30px', marginBottom: '30px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>
         <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
           {categories.map((category) => (
@@ -192,73 +192,81 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {items.map((item: ItunesItem) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} onViewDetails={handleViewDetails} />
+            <Card sx={{ borderRadius: '15px', boxShadow: '0px 4px 15px rgba(0,0,0,0.1)' }}>
+              <CardMedia
+                component="img"
+                alt={item.trackName || item.collectionName}
+                height="200"
+                image={item.artworkUrl100}
+              />
+              <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  {item.trackName || item.collectionName}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  {item.artistName}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666', marginTop: '5px' }}>
+                  {item.currency} {item.collectionPrice?.toFixed(2) || item.trackPrice?.toFixed(2)}
+                </Typography>
+                <Button onClick={() => handleViewDetails(item)} sx={{ mt: 2, width: '100%' }} variant="contained" color="primary">
+                  View Details
+                </Button>
+              </CardContent>
+            </Card>
           </Grid>
         ))}
       </Grid>
 
-      {!loading && items.length === 0 && !error && (
-        <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
-          No items found. Try searching with a different term or category.
-        </Typography>
-      )}
-
       {selectedItem && (
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
-          <DialogTitle sx={{ fontWeight: 'bold', fontSize: '24px' }}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogTitle sx={{ backgroundColor: '#1976d2', color: '#fff' }}>
+            {selectedItem.trackName || selectedItem.collectionName}
+          </DialogTitle>
           <DialogContent>
-            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px', borderRadius: '10px' }} />
+            <Box sx={{ textAlign: 'center' }}>
+              <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
+            </Box>
             <DialogContentText>
               <strong>Artist:</strong> {selectedItem.artistName} <br />
               <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
             </DialogContentText>
 
-            <Typography variant="body1" sx={{ marginTop: '10px' }}>
-              <a href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#1976d2' }}>
-                View iTunes Reviews
-              </a>
-            </Typography>
-
-            {/* Display overall rating */}
-            <Typography variant="h6" sx={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ marginTop: '20px' }}>
               Overall Rating: {calculateAverageRating(reviews)} / 5
               <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ ml: 2 }} />
             </Typography>
 
-            <Box sx={{ marginTop: '20px' }}>
-              <Typography variant="h6">User Reviews</Typography>
+            <Typography variant="h6" sx={{ marginTop: '20px' }}>User Reviews</Typography>
+            <Select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              fullWidth
+              sx={{ marginBottom: '10px' }}
+            >
+              <MenuItem value="highest">Highest Rating</MenuItem>
+              <MenuItem value="lowest">Lowest Rating</MenuItem>
+            </Select>
 
-              <Select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                fullWidth
-                sx={{ marginBottom: '10px' }}
-              >
-                <MenuItem value="highest">Highest Rating</MenuItem>
-                <MenuItem value="lowest">Lowest Rating</MenuItem>
-              </Select>
-
-              <List>
-                {sortedReviews.length > 0 ? (
-                  sortedReviews.map((review, index) => (
-                    <ListItem key={index}>
-                      <ListItemText
-                        primary={<StarRating rating={review.rating} />}
-                        secondary={`${review.user_name || 'Anonymous'}: ${review.comment || 'No review text available'}`}
-                      />
-                    </ListItem>
-                  ))
-                ) : (
-                  <ListItem>
-                    <ListItemText primary="No reviews yet. Be the first to leave one!" />
+            <List>
+              {sortedReviews.length > 0 ? (
+                sortedReviews.map((review, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={<StarRating rating={review.rating} />}
+                      secondary={`${review.user_name || 'Anonymous'}: ${review.comment || 'No review text available'}`}
+                    />
                   </ListItem>
-                )}
-              </List>
-            </Box>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No reviews yet. Be the first to leave one!" />
+                </ListItem>
+              )}
+            </List>
 
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">Leave a Review</Typography>
-
               <TextField
                 fullWidth
                 label="Username"
