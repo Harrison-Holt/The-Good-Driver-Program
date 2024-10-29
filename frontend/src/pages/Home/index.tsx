@@ -49,10 +49,12 @@ const Home: React.FC = () => {
   // Fetch user info from the API based on the username
   const fetchUserInfo = async (username: string) => {
     try {
-      const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
-      setUserInfo(response.data);  // Store the fetched user info in state
-      console.log('User Info:', response.data);  // Log the user info
-      dispatch(setUserType(userInfo.role));
+      axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`)
+        .then((res) => {
+          setUserInfo(res.data);  // Store the fetched user info in state
+          console.log('User Info:', res.data);  // Log the user info
+          dispatch(setUserType(userInfo.role))
+        });
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
