@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons'
+
 interface ItunesItem {
   trackId?: string;
   collectionId?: string;
@@ -97,6 +100,24 @@ const Catalog = () => {
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleAddToWishList = (item: ItunesItem) => {
+    const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
+    const updatedWList = [...currentWList, item];
+    localStorage.setItem('wishItems', JSON.stringify(updatedWList));
+    setAlertMessage(`${item.trackName || item.collectionName} added to wish list!`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleSaveForLater = (item: ItunesItem) => {
+    const currentSList = JSON.parse(localStorage.getItem('savedItems') || '[]');
+    const updatedSList = [...currentSList, item];
+    localStorage.setItem('savedItems', JSON.stringify(updatedSList));
+    setAlertMessage(`${item.trackName || item.collectionName} saved for later!`);
     setShowModal(false);
     window.dispatchEvent(new Event('storage'));
   };
@@ -208,6 +229,10 @@ const Catalog = () => {
           <DialogActions>
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
+            </Button>
+            <FontAwesomeIcon icon={faStar} onClick={() => handleAddToWishList(selectedItem)}/>
+            <Button variant="outlined" color="secondary" onClick={() => handleSaveForLater(selectedItem)}>
+              Add to Wish List
             </Button>
             <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
               Add to Cart
