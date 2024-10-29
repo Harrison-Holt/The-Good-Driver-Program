@@ -20,15 +20,12 @@ const PointChange: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // Fetch the user info using the provided username
+    // Fetch the user info using the provided username (optional for validation or display)
     const userInfo = await fetchUserInfo(driverUsername);
     if (!userInfo) {
       console.error(`User with username ${driverUsername} not found.`);
       return;
     }
-
-    // Update the user's points based on the input and userInfo
-    const updatedPoints = userInfo.points !== null ? userInfo.points + points : points;
 
     try {
       // Make an API call to update the user's points via a Lambda function
@@ -39,7 +36,7 @@ const PointChange: React.FC = () => {
         },
         body: JSON.stringify({
           username: driverUsername,
-          points: updatedPoints,
+          points: points,  // Send only the points to add
           reason: reason,
         }),
       });
