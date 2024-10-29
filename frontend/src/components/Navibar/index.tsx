@@ -10,12 +10,13 @@ const Navibar = () => {
     useEffect(() => {
         const fetchPoints = async () => {
             try {
-                const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/about'); 
+                const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch points');
                 }
                 const data = await response.json();
                 setPoints(data.points); // Adjust based on your API response structure
+                console.log('Points set to:', data.points);
             } catch (error) {
                 console.error('Error fetching points:', error);
             }
