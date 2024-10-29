@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, TextField, InputAdornment
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import CatalogItem from './CatalogItem';
-import SearchBar from '../SearchBar';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons'
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
+import CatalogItem from './CatalogItem'; 
+import SearchBar from '../SearchBar';
+import StarRating from './StarRating';
 
 interface ItunesItem {
   trackId?: string;
@@ -29,6 +30,12 @@ interface ItunesApiResponse {
   results: ItunesItem[];
 }
 
+interface Review {
+  user_name: string;
+  rating: number;
+  comment: string;
+}
+
 const categories = [
   { id: 'music', name: 'Music' },
   { id: 'podcast', name: 'Podcast' },
@@ -38,18 +45,39 @@ const categories = [
 ];
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
+const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
-  const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
+  const [filteredItems, setFilteredItems] = useState<ItunesItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
-  const [conversionRate, setConversionRate] = useState(100); // Default: 1 dollar = 100 points
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
+  const [conversionRate, setConversionRate] = useState(100); // Points system
+  const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
+
+  const calculatePoints = (price?: number) => {
+    return price ? (price * conversionRate).toFixed(2) : 'N/A';
+  };
+
+  const calculateAverageRating = (reviews: Review[]) => {
+    const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return reviews.length ? (totalRatings / reviews.length).toFixed(1) : '0.0';
+  };
+
+  const sortReviews = (reviews: Review[], option: string) => {
+    return [...reviews].sort((a, b) => {
+      if (option === 'lowest') return a.rating - b.rating;
+      return b.rating - a.rating; // default to highest rating first
+    });
+  };
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -58,30 +86,18 @@ const Catalog = () => {
 
       try {
         const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
+        const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
-        }
-
+        if (!response.ok) throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         const data: ItunesApiResponse = await response.json();
 
-        if (data.resultCount > 0) {
-          const filteredItems = data.results.filter(
-            item => item.collectionPrice && item.collectionPrice > 0
-          );
-          setItems(filteredItems);
-        } else {
-          setItems([]);
+        const fetchedItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
+        setItems(fetchedItems);
+        setFilteredItems(fetchedItems);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -89,6 +105,54 @@ const Catalog = () => {
 
     fetchItems();
   }, [selectedCategory, searchTerm]);
+
+  useEffect(() => {
+    if (selectedItem) {
+      const fetchReviews = async () => {
+        try {
+          const response = await fetch(`${REVIEW_API_URL}?itemId=${selectedItem.trackId || selectedItem.collectionId}`, { method: 'GET' });
+          if (!response.ok) throw new Error('Error fetching reviews');
+          const data = await response.json();
+          setReviews(data);
+        } catch {
+          setError('Failed to load reviews');
+        }
+      };
+      fetchReviews();
+    }
+  }, [selectedItem]);
+
+  const handleSubmitReview = async () => {
+    if (selectedItem) {
+      try {
+        const itemId = selectedItem.trackId || selectedItem.collectionId;
+
+        if (!itemId) {
+          setError("Item ID is missing, cannot submit review.");
+          return;
+        }
+
+        const reviewPayload = { itemId, user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment };
+
+        const response = await fetch(REVIEW_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewPayload),
+        });
+
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          throw new Error(`Error submitting review: ${JSON.stringify(errorDetails)}`);
+        }
+
+        setReviews(prevReviews => [...prevReviews, { user_name: newReview.user_name, rating: newReview.rating, comment: newReview.comment }]);
+        setNewReview({ user_name: '', comment: '', rating: 5 });
+        setAlertMessage('Review submitted successfully!');
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      }
+    }
+  };
 
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
@@ -99,9 +163,12 @@ const Catalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
-    setShowModal(false);
+
+    // Trigger cart update and close modal
     window.dispatchEvent(new Event('storage'));
+    setShowModal(false);
+
+    setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
 
   const handleAddToWishList = (item: ItunesItem) => {
@@ -127,43 +194,44 @@ const Catalog = () => {
     setShowModal(true);
   };
 
+  const sortedReviews = sortReviews(reviews, sortOption);
+
+  useEffect(() => {
+    const filtered = items.filter((item) =>
+      (item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) || item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredItems(filtered);
+  }, [searchTerm, items]);
+
   return (
-    <Box sx={{ padding: '20px' }}>
-
-      <Typography variant="h5" gutterBottom>
-        Set Conversion Rate
+    <Box sx={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: '40px' }}>
+        Discover Your Favorite Media
       </Typography>
-      <TextField
-        label="1 Dollar = X Points"
-        type="number"
-        value={conversionRate}
-        onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
-        InputProps={{
-          startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
-          endAdornment: <InputAdornment position="end">Points</InputAdornment>
-        }}
-        fullWidth
-        sx={{ marginBottom: '20px' }}
-      />
 
-      {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} label={"Search Catalog"} options={categories.map(cat => cat.name)} />
-
-      {/* Category Selection */}
-      <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
-        <Typography variant="h6" gutterBottom>
-          Select Category:
-        </Typography>
-        <Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+      {/* Conversion Rate */}
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
+        <TextField
+          label="1 Dollar = X Points"
+          type="number"
+          value={conversionRate}
+          onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+            endAdornment: <InputAdornment position="end">Points</InputAdornment>
+          }}
           fullWidth
-          variant="outlined"
-        >
+        />
+      </Box>
+
+      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
+
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="h6" gutterBottom>Select Category:</Typography>
+        <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
           {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
+            <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
           ))}
         </Select>
       </Box>
@@ -174,63 +242,102 @@ const Catalog = () => {
         </Box>
       )}
 
-      {error && (
-        <Typography color="error" align="center">
-          Error: {error}
-        </Typography>
-      )}
-
-      {alertMessage && (
-        <Alert severity="success" onClose={() => setAlertMessage(null)}>
-          {alertMessage}
-        </Alert>
-      )}
+      {error && <Typography color="error" align="center">Error: {error}</Typography>}
+      {alertMessage && <Alert severity="success" onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>}
 
       <Grid container spacing={4}>
-        {items.map((item) => (
-          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
+        {filteredItems.map((item: ItunesItem) => (
+          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
             <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} />
           </Grid>
         ))}
       </Grid>
 
-      {!loading && items.length === 0 && !error && (
-        <Typography align="center" variant="h6" sx={{ marginTop: '20px' }}>
-          No items found. Try searching with a different term or category.
-        </Typography>
-      )}
-
       {selectedItem && (
-        <Dialog
-          open={showModal}
-          onClose={() => setShowModal(false)}
-          maxWidth="md"
-          fullWidth
-        >
+        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
-            <DialogContentText>
-              <strong>Artist:</strong> {selectedItem.artistName} <br />
-              <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
-            </DialogContentText>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
+              <DialogContentText>
+                <strong>Artist:</strong> {selectedItem.artistName} <br />
+                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} ({calculatePoints(selectedItem.collectionPrice)} points)
+              </DialogContentText>
 
-            {/* Link to iTunes Reviews */}
-            <Typography variant="body1" sx={{ marginTop: '10px' }}>
-              <a
-                href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Typography variant="h6" sx={{ marginTop: '20px' }}>
+                Overall Rating: {calculateAverageRating(reviews)} / 5
+              </Typography>
+              <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ marginBottom: '20px' }} />
+            </Box>
+
+            <Typography variant="h6">User Reviews</Typography>
+            <Select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              fullWidth
+              sx={{ marginBottom: '10px' }}
+            >
+              <MenuItem value="highest">Highest Rating</MenuItem>
+              <MenuItem value="lowest">Lowest Rating</MenuItem>
+            </Select>
+
+            <List>
+              {sortedReviews.length > 0 ? (
+                sortedReviews.map((review, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={<StarRating rating={review.rating} />}
+                      secondary={`${review.user_name || 'Anonymous'}: ${review.comment || 'No review text available'}`}
+                    />
+                  </ListItem>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No reviews yet. Be the first to leave one!" />
+                </ListItem>
+              )}
+            </List>
+
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography variant="h6">Leave a Review</Typography>
+              <TextField
+                fullWidth
+                label="Username"
+                value={newReview.user_name}
+                onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+
+              <TextField
+                fullWidth
+                label="Review"
+                multiline
+                rows={4}
+                value={newReview.comment}
+                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+
+              <Typography component="legend">Rating (0-5)</Typography>
+              <Select
+                fullWidth
+                value={newReview.rating}
+                onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                sx={{ marginBottom: '10px' }}
               >
-                View iTunes Reviews
-              </a>
-            </Typography>
+                {[0, 1, 2, 3, 4, 5].map((value) => (
+                  <MenuItem key={value} value={value}>{value} Star{value > 1 ? 's' : ''}</MenuItem>
+                ))}
+              </Select>
+
+              <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%' }}>Submit Review</Button>
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
-            <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)}/>
+            <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)} />
             <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
               Add to Wish List
             </Button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 interface ItunesItem {
   trackId?: string;
@@ -17,6 +17,10 @@ const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState(0);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState(''); // Now we just ask for the user's email
+  const [errorMessage, setErrorMessage] = useState(''); // State for error messages
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false); // State for email confirmation dialog
+
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [insufficientPoints, setInsufficientPoints] = useState(false);
 
@@ -58,25 +62,60 @@ const Cart: React.FC = () => {
     };
   }, []);
 
-  const handleCheckout = () => {
-    if (userPoints !== null && userPoints < total) {
-      setInsufficientPoints(true);
-      return;
-    }
+  const handleCheckout = async () => {
+    // Just show the confirmation dialog asking for email confirmation
+    setShowConfirmationDialog(true);
+  };
 
-    setCheckoutSuccess(true);
-    localStorage.removeItem('cartItems');
-    setCartItems([]);
-    setTotal(0);
-    setUserPoints((prev) => (prev !== null ? prev - total : 0));
-    setInsufficientPoints(false);
+  const confirmCheckout = async () => {
+    try {
+      const orderDetails = {
+        orderId: new Date().getTime(),
+        items: cartItems.map(item => item.trackName || item.collectionName),
+        total: total,
+      };
+
+      if (userPoints !== null && userPoints < total) {
+        setInsufficientPoints(true);
+        return;
+      }
+
+      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { // Replace with your actual Lambda endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail, // Use the entered email
+          orderDetails: orderDetails,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send order confirmation email');
+      }
+
+      setCheckoutSuccess(true);
+      localStorage.removeItem('cartItems');
+      setCartItems([]);
+      setTotal(0);
+      setShowConfirmationDialog(false); // Close the dialog
+    } catch (error) {
+      console.error(error);
+      setErrorMessage('An error occurred while processing your order.');
+      setShowConfirmationDialog(false); // Close the dialog even if there's an error
+    }
   };
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Your Cart
-      </Typography>
+      <Typography variant="h4" gutterBottom>Your Cart</Typography>
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errorMessage}
+        </Alert>
+      )}
 
       {checkoutSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
@@ -137,6 +176,14 @@ const Cart: React.FC = () => {
             Your Points: {userPoints !== null ? userPoints : 'Loading...'}
           </Typography>
 
+          <TextField
+            fullWidth
+            label="Email for Order Confirmation"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            sx={{ marginBottom: '20px' }}
+          />
+
           <Button
             variant="contained"
             color="primary"
@@ -146,6 +193,30 @@ const Cart: React.FC = () => {
           >
             Proceed to Checkout
           </Button>
+
+          {/* Email Confirmation Dialog */}
+          <Dialog
+            open={showConfirmationDialog}
+            onClose={() => setShowConfirmationDialog(false)}
+          >
+            <DialogTitle>Email Confirmation</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Please confirm your email before proceeding with the purchase:
+              </Typography>
+              <Typography>
+                <strong>{userEmail}</strong>
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary">
+                Cancel
+              </Button>
+              <Button onClick={confirmCheckout} color="primary">
+                Confirm and Purchase
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Box>
