@@ -53,7 +53,6 @@ const Home: React.FC = () => {
         .then((res) => {
           setUserInfo(res.data);  // Store the fetched user info in state
           console.log('User Info:', res.data);  // Log the user info
-          dispatch(setUserType(userInfo.role))
         });
     } catch (error) {
       console.error('Error fetching user info:', error);
@@ -92,6 +91,8 @@ const Home: React.FC = () => {
       // Once username is available, fetch the user info from the Lambda function
       if (decodedUsername) {
         fetchUserInfo(decodedUsername);  // Fetch user info based on username
+        console.log("TESTING ROLE:" + userInfo.role);
+        dispatch(setUserType(userInfo.role));
       }
     }
   }, []);
