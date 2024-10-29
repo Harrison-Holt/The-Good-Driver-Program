@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 
 // Define the routes including Cart and Confirmationimport About from './pages/About';
 import AuthCallback from './components/AuthCallback';  // Add the callback component
+import PointChange from './components/PointChange.tsx';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/confirmation", // Route for the Confirmation page
     element: <Confirmation />,
+  },
+  {
+    path: "/point_change",
+    element: <PointChange/>,
   },
   {
       path: "/profile",
