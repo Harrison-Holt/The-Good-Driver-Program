@@ -32,7 +32,7 @@ const PointChange: React.FC = () => {
 
     try {
       // Make an API call to update the user's points via a Lambda function
-      const response = await fetch('https://your-api-gateway-endpoint.amazonaws.com/prod/update-driver-points', {
+      const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
