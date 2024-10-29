@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
-import CatalogItem from './CatalogItem'; // Ensure this is used
+import CatalogItem from './CatalogItem'; // Correctly used here
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
 
@@ -59,8 +59,13 @@ const Catalog = () => {
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
+  const [conversionRate, setConversionRate] = useState(100); // Points system
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
+
+  const calculatePoints = (price?: number) => {
+    return price ? (price * conversionRate).toFixed(2) : 'N/A';
+  };
 
   const calculateAverageRating = (reviews: Review[]) => {
     const totalRatings = reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -200,6 +205,22 @@ const Catalog = () => {
         Discover Your Favorite Media
       </Typography>
 
+      {/* Conversion Rate */}
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
+        <TextField
+          label="1 Dollar = X Points"
+          type="number"
+          value={conversionRate}
+          onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+            endAdornment: <InputAdornment position="end">Points</InputAdornment>
+          }}
+          fullWidth
+        />
+      </Box>
+
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
       <Box sx={{ marginBottom: '20px' }}>
@@ -223,7 +244,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {filteredItems.map((item: ItunesItem) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={100} />
+            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} />
           </Grid>
         ))}
       </Grid>
@@ -236,7 +257,7 @@ const Catalog = () => {
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
               <DialogContentText>
                 <strong>Artist:</strong> {selectedItem.artistName} <br />
-                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
+                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} ({calculatePoints(selectedItem.collectionPrice)} points)
               </DialogContentText>
 
               <Typography variant="h6" sx={{ marginTop: '20px' }}>
