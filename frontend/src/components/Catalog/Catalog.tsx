@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
-import CatalogItem from './CatalogItem'; // Correctly used here
+import CatalogItem from './CatalogItem'; 
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
 
@@ -163,7 +163,11 @@ const Catalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+
+    // Trigger cart update and close modal
     window.dispatchEvent(new Event('storage'));
+    setShowModal(false);
+
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
 
