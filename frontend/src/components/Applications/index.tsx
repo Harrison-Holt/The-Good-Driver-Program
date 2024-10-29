@@ -2,8 +2,8 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material"
 import SearchBar from "../SearchBar"
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { useAppDispatch, useAppSelector } from "../../store/hooks"
-import { login, selectUserName, selectUserType } from "../../store/userSlice"
+import { useAppSelector } from "../../store/hooks"
+import { selectUserName, selectUserType } from "../../store/userSlice"
 import ApplicationApproval from "../ApplicationApproval"
 
 
@@ -18,7 +18,7 @@ const Applications: React.FC = () => {
     const usertype = useAppSelector(selectUserType);
 
     //this is for testing usernames
-    const dispatch = useAppDispatch();
+    //const dispatch = useAppDispatch();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,7 +40,7 @@ const Applications: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        dispatch(login("addisonhough")) //Remove this later. This line is only for testing while amplify is down
+        //dispatch(login("addisonhough")) //Remove this later. This line is only for testing while amplify is down
         if ( submitForm ) {
             axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
                 sponsorOrg: {selectedSponsor},

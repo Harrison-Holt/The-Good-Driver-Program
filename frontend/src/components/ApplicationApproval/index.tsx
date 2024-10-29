@@ -1,6 +1,6 @@
 import { Divider, List, ListItem, ListItemText, Typography, Stack, ListItemButton, Box } from "@mui/material";
-//import { useAppSelector } from "../../store/hooks"
-//import { selectUserName } from "../../store/userSlice"
+import { useAppSelector } from "../../store/hooks"
+import { selectUserName } from "../../store/userSlice"
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -17,7 +17,7 @@ const ApplicationApproval: React.FC = () => {
 
     const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
     const [loaded, setLoaded] = useState(false)
-    const username =  "addisonhough"//useAppSelector(selectUserName); Fix this to use state once login and amplify deployment are fixed
+    const username =  useAppSelector(selectUserName);
     //const usertype = useAppSelector(selectUserType);
 
     useEffect(() => {
