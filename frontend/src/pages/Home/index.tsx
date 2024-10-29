@@ -6,7 +6,7 @@ import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
 import { useAppDispatch } from '../../store/hooks';
-import { login, logout, setUserType } from '../../store/userSlice';
+import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -54,6 +54,9 @@ const Home: React.FC = () => {
           setUserInfo(res.data);  // Store the fetched user info in state
           console.log('User Info:', res.data);  // Log the user info
           dispatch(setUserType(res.data.role));
+          dispatch(setFirstName(res.data.first_name));
+          dispatch(setLastName(res.data.last_name));
+          dispatch(setEmail(res.data.email));
         });
     } catch (error) {
       console.error('Error fetching user info:', error);
