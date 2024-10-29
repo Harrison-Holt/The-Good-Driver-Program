@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, Card, CardMedia, CardContent, CardActions
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import StarRating from './StarRating'; 
-import SearchBar from '../SearchBar'; 
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons'
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
+import CatalogItem from './CatalogItem'; // Ensure this is used
+import SearchBar from '../SearchBar';
+import StarRating from './StarRating';
 
 interface ItunesItem {
   trackId?: string;
@@ -87,7 +88,7 @@ const Catalog = () => {
 
         const fetchedItems = data.resultCount > 0 ? data.results.filter(item => item.collectionPrice && item.collectionPrice > 0) : [];
         setItems(fetchedItems);
-        setFilteredItems(fetchedItems); 
+        setFilteredItems(fetchedItems);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -157,7 +158,7 @@ const Catalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('storage')); 
+    window.dispatchEvent(new Event('storage'));
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
 
@@ -222,29 +223,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {filteredItems.map((item: ItunesItem) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="240"
-                image={item.artworkUrl100}
-                alt={item.trackName || item.collectionName}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h6">
-                  {item.trackName || item.collectionName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Artist:</strong> {item.artistName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Price:</strong> {item.collectionPrice?.toFixed(2)} {item.currency || 'USD'}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" color="primary" onClick={() => handleViewDetails(item)}>View Details</Button>
-                <Button size="small" color="secondary" onClick={() => handleAddToCart(item)}>Add to Cart</Button>
-              </CardActions>
-            </Card>
+            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={100} />
           </Grid>
         ))}
       </Grid>
@@ -330,19 +309,19 @@ const Catalog = () => {
             </Box>
           </DialogContent>
           <DialogActions>
-          <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
-                  Buy Now
-                </Button>
-                <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)} />
-                <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
-                  Add to Wish List
-                </Button>
-                <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
-                  Add to Cart
-                </Button>
-                <Button onClick={() => setShowModal(false)}>
-                  Close
-                </Button>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+              Buy Now
+            </Button>
+            <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)} />
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
+              Add to Wish List
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowModal(false)}>
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
       )}
