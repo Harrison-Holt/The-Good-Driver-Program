@@ -34,6 +34,9 @@ export const userSlice = createSlice({
     logout: (state) => {
       state.loggedIn = false;
     },
+    setUserType: (state, action: PayloadAction<string>) => {
+      state.userType = action.payload
+    }
     // Leaving this line for now as an example of proper typing of action payloads
     // // Use the PayloadAction type to declare the contents of `action.payload`
     // incrementByAmount: (state, action: PayloadAction<number>) => {
@@ -42,7 +45,7 @@ export const userSlice = createSlice({
   },
 })
 
-export const {login, logout } = userSlice.actions
+export const {login, logout, setUserType } = userSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectLogin = (state: RootState) => state.currentUser.loggedIn

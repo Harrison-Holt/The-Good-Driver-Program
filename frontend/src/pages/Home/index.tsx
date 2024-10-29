@@ -6,7 +6,7 @@ import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
 import { useAppDispatch } from '../../store/hooks';
-import { login, logout } from '../../store/userSlice';
+import { login, logout, setUserType } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -52,6 +52,7 @@ const Home: React.FC = () => {
       const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
       setUserInfo(response.data);  // Store the fetched user info in state
       console.log('User Info:', response.data);  // Log the user info
+      dispatch(setUserType(userInfo.role));
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
