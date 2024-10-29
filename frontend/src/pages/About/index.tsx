@@ -34,15 +34,12 @@ const About: React.FC = () => {
     fetchData();
   }, []);
 
+  let abPageInfo = (<div>Loading...</div>);
   if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <>
-      <Navibar />
-      
-      {/* Hero Section */}
+    abPageInfo = (<div>Loading...</div>)
+  } else {
+    abPageInfo = (
+      <>
       <div className="bg-light p-5 text-center">
         <h1 className="display-4">About Our {aboutData?.product_name}</h1>
         <p className="lead">
@@ -79,6 +76,16 @@ const About: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Navibar />
+
+      {/* Hero Section */}
+      {abPageInfo}
     </>
   );
 };

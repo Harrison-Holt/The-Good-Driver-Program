@@ -1,51 +1,43 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
-// Define the type for an Ebay item
-interface EbayItem {
-  itemId: string;
-  title: string;
-  image: {
-    imageUrl: string;
-  };
-  price: {
-    value: string;
-    currency: string;
-  };
-  itemWebUrl: string;
+interface ItunesItem {
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
+  artistName: string;
+  artworkUrl100: string;
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
+  currency?: string;
 }
 
-interface Props {
-  item: EbayItem;
+interface CatalogItemProps {
+  item: ItunesItem;
+  onViewDetails: (item: ItunesItem) => void;
+  conversionRate: number; // Add the conversion rate prop
 }
 
-const CatalogItem: React.FC<Props> = ({ item }) => {
-  return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <CardMedia
-        component="img"
-        alt={item.title}
-        height="140"
-        image={item.image.imageUrl || 'https://via.placeholder.com/150'}
-      />
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {item.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {item.price.value} {item.price.currency}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small" color="primary" href={item.itemWebUrl} target="_blank" rel="noopener noreferrer">
-          Buy Now
-        </Button>
-      </CardActions>
-    </Card>
-  );
+const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversionRate }) => {
+    // Calculate the price in points using the conversion rate
+    const priceInPoints = Math.round(((item.collectionPrice || item.trackPrice || 0) * conversionRate));
+
+    return (
+        <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
+            <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%' }} />
+            <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
+            <Typography variant="body1">Artist: {item.artistName}</Typography>
+            <Typography variant="body1">
+                Points: {priceInPoints} Points
+            </Typography>
+            <Button variant="contained" color="primary" onClick={() => onViewDetails(item)}>
+                View Details
+            </Button>
+        </Box>
+    );
 };
 
 export default CatalogItem;
-
-
-

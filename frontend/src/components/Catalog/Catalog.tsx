@@ -1,36 +1,52 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';  // Correct import for Grid
+import { useEffect, useState } from 'react';
+import {
+  Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, DialogContentText, Grid, Alert, TextField, InputAdornment
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import CatalogItem from './CatalogItem';
 import SearchBar from '../SearchBar';
 
-interface EbayItem {
-  itemId: string;
-  title: string;
-  image: {
-    imageUrl: string;
-  };
-  price: {
-    value: string;
-    currency: string;
-  };
-  itemWebUrl: string;
+interface ItunesItem {
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
+  artistName: string;
+  artworkUrl100: string;
+  trackViewUrl?: string;
+  collectionViewUrl?: string;
+  trackPrice?: number;
+  collectionPrice?: number;
+  currency?: string;
+}
+
+interface ItunesApiResponse {
+  resultCount: number;
+  results: ItunesItem[];
 }
 
 const categories = [
-  { id: '11450', name: 'Clothing, Shoes & Accessories' },
-  { id: '58058', name: 'Cell Phones & Accessories' },
-  { id: '267', name: 'Books' },
-  { id: '888', name: 'Sporting Goods' },
-  { id: '26395', name: 'Health & Beauty' },
+  { id: 'music', name: 'Music' },
+  { id: 'podcast', name: 'Podcast' },
+  { id: 'tvShow', name: 'TV Show' },
+  { id: 'movie', name: 'Movie' },
+  { id: 'software', name: 'Software' },
 ];
 
+const API_BASE_URL = 'https://itunes.apple.com/search';
+
 const Catalog = () => {
-  const [items, setItems] = useState<EbayItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [items, setItems] = useState<ItunesItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].id); // Default to 'music'
+  const [searchTerm, setSearchTerm] = useState(''); // Empty initial search term
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [conversionRate, setConversionRate] = useState(100); // Default: 1 dollar = 100 points
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -38,24 +54,31 @@ const Catalog = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://nib1kxgh81.execute-api.us-east-1.amazonaws.com/dev/catalog?category=${selectedCategory}&q=${searchTerm}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
+          throw new Error(`Error fetching items: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
-        setItems(data.itemSummaries || []);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+        const data: ItunesApiResponse = await response.json();
+
+        if (data.resultCount > 0) {
+          const filteredItems = data.results.filter(
+            item => item.collectionPrice && item.collectionPrice > 0
+          );
+          setItems(filteredItems);
+        } else {
+          setItems([]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -64,10 +87,46 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
+  const handleBuyNow = (item: ItunesItem) => {
+    setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
+    navigate('/confirmation', { state: { item } });
+  };
+
+  const handleAddToCart = (item: ItunesItem) => {
+    const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const updatedCart = [...currentCart, item];
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleViewDetails = (item: ItunesItem) => {
+    setSelectedItem(item);
+    setShowModal(true);
+  };
+
   return (
     <Box sx={{ padding: '20px' }}>
+
+      <Typography variant="h5" gutterBottom>
+        Set Conversion Rate
+      </Typography>
+      <TextField
+        label="1 Dollar = X Points"
+        type="number"
+        value={conversionRate}
+        onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+          endAdornment: <InputAdornment position="end">Points</InputAdornment>
+        }}
+        fullWidth
+        sx={{ marginBottom: '20px' }}
+      />
+
       {/* Search Bar */}
-      <SearchBar setSearchTerm={setSearchTerm} options={categories.map(cat => cat.name)} />
+      <SearchBar setSearchTerm={setSearchTerm} label={"Search Catalog"} options={categories.map(cat => cat.name)} />
 
       {/* Category Selection */}
       <Box sx={{ marginTop: '20px', marginBottom: '20px' }}>
@@ -88,7 +147,6 @@ const Catalog = () => {
         </Select>
       </Box>
 
-      {/* Loading and Error Messages */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
           <CircularProgress />
@@ -101,11 +159,16 @@ const Catalog = () => {
         </Typography>
       )}
 
-      {/* Catalog Grid */}
+      {alertMessage && (
+        <Alert severity="success" onClose={() => setAlertMessage(null)}>
+          {alertMessage}
+        </Alert>
+      )}
+
       <Grid container spacing={4}>
         {items.map((item) => (
-          <Grid item key={item.itemId} xs={12} sm={6} md={4} lg={3}>
-            <CatalogItem item={item} />
+          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4} lg={3}>
+            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} />
           </Grid>
         ))}
       </Grid>
@@ -115,10 +178,48 @@ const Catalog = () => {
           No items found. Try searching with a different term or category.
         </Typography>
       )}
+
+      {selectedItem && (
+        <Dialog
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogContent>
+            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
+            <DialogContentText>
+              <strong>Artist:</strong> {selectedItem.artistName} <br />
+              <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
+            </DialogContentText>
+
+            {/* Link to iTunes Reviews */}
+            <Typography variant="body1" sx={{ marginTop: '10px' }}>
+              <a
+                href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View iTunes Reviews
+              </a>
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+              Buy Now
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowModal(false)}>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };
 
 export default Catalog;
-
-
