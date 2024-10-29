@@ -22,16 +22,19 @@ const Cart: React.FC = () => {
 
   // Fetch user points from the backend
   const fetchUserPoints = async (user_Id: string) => {
-    try {
-      const response = await fetch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection?user_id=${user_Id}`);
-      const data = await response.json();
-      console.log('Fetched points:', data); 
-      setUserPoints(data.points);
-    } catch (error) {
-      console.error('Error fetching user points:', error);
-      setUserPoints(0); 
-    }
-  };
+  try {
+    const url = `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection?user_id=${user_Id}`;
+    console.log('Fetching from URL:', url); // Log to confirm correct URL
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('Fetched data:', data); 
+    setUserPoints(data.points);
+  } catch (error) {
+    console.error('Error fetching user points:', error);
+    setUserPoints(0); // Default to 0 points on error
+  }
+};
+
 
   // Update cart items and total dynamically
   const updateCart = () => {
