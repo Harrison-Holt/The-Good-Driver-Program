@@ -1,12 +1,14 @@
 {
   "dependencies": {
     "@aws-amplify/auth": "^6.5.2",
+    "@jridgewell/sourcemap-codec": "^1.5.0",
     "@mui/material": "^6.1.4",
+    "@rollup/plugin-inject": "^5.0.5",
     "jwt-decode": "^4.0.0",
     "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
-    "@types/jwt-decode": "^2.2.1", 
+    "@types/jwt-decode": "^2.2.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^6.6.5",
     "aws-sdk": "^2.1691.0"
