@@ -2,21 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 interface ItunesItem {
-  trackId?: string;  // For tracks
-  collectionId?: string;  // For collections
-  trackName?: string;  // Track name for tracks
-  collectionName?: string;  // Collection name for albums
+  trackId?: string;
+  collectionId?: string;
+  trackName?: string;
+  collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;  // URL for tracks
-  collectionViewUrl?: string;  // URL for collections
-  trackPrice?: number;  // Price for tracks
-  collectionPrice?: number;  // Price for collections
+  trackPrice?: number;
+  collectionPrice?: number;
   currency?: string;
-  primaryGenreName?: string;  // Genre of the track/album
-  releaseDate?: string;  // Release date of the track/album
-  country?: string;  // Country of origin
-  copyright?: string;  // Copyright information
 }
 
 const Cart: React.FC = () => {
@@ -27,6 +21,26 @@ const Cart: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(''); // State for error messages
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false); // State for email confirmation dialog
 
+  const [userPoints, setUserPoints] = useState<number | null>(null);
+  const [insufficientPoints, setInsufficientPoints] = useState(false);
+
+  // Fetch user points from the backend
+  const fetchUserPoints = async (user_Id: string) => {
+  try {
+    const url = `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection?user_id=${user_Id}`;
+    console.log('Fetching from URL:', url); // Log to confirm correct URL
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('Fetched data:', data); 
+    setUserPoints(data.points);
+  } catch (error) {
+    console.error('Error fetching user points:', error);
+    setUserPoints(0); // Default to 0 points on error
+  }
+};
+
+
+  // Update cart items and total dynamically
   const updateCart = () => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setCartItems(storedCartItems);
@@ -38,16 +52,13 @@ const Cart: React.FC = () => {
   };
 
   useEffect(() => {
+    const user_Id = '11';
     updateCart();
+    fetchUserPoints(user_Id);
 
-    const handleStorageChange = () => {
-      updateCart();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
+    window.addEventListener('storage', updateCart);
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage', updateCart);
     };
   }, []);
 
@@ -63,6 +74,11 @@ const Cart: React.FC = () => {
         items: cartItems.map(item => item.trackName || item.collectionName),
         total: total,
       };
+
+      if (userPoints !== null && userPoints < total) {
+        setInsufficientPoints(true);
+        return;
+      }
 
       const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { // Replace with your actual Lambda endpoint
         method: 'POST',
@@ -107,6 +123,12 @@ const Cart: React.FC = () => {
         </Alert>
       )}
 
+      {insufficientPoints && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          You do not have enough points to complete the purchase.
+        </Alert>
+      )}
+
       {cartItems.length === 0 ? (
         <Typography>No items in the cart.</Typography>
       ) : (
@@ -127,15 +149,10 @@ const Cart: React.FC = () => {
                       }
                       secondary={
                         <>
-                          <Typography variant="body2" color="textSecondary">
+                          <Typography component="span" variant="body2" color="textSecondary">
                             <strong>Artist:</strong> {item.artistName}
                           </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            <strong>Genre:</strong> {item.primaryGenreName || 'Unknown'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            <strong>Release Date:</strong> {new Date(item.releaseDate || '').toLocaleDateString()}
-                          </Typography>
+                          <br />
                         </>
                       }
                     />
@@ -152,7 +169,11 @@ const Cart: React.FC = () => {
 
           <Divider sx={{ my: 2 }} />
           <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px' }}>
-            Total: {total.toFixed(2)} USD
+            Total: {total.toFixed(2)} points
+          </Typography>
+
+          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '10px' }}>
+            Your Points: {userPoints !== null ? userPoints : 'Loading...'}
           </Typography>
 
           <TextField
@@ -167,6 +188,7 @@ const Cart: React.FC = () => {
             variant="contained"
             color="primary"
             onClick={handleCheckout}
+            disabled={userPoints === null || userPoints < total}
             sx={{ mt: 2, width: '100%', padding: '12px', fontSize: '16px' }}
           >
             Proceed to Checkout

@@ -173,6 +173,16 @@ const Catalog = () => {
 
   const handleAddToWishList = (item: ItunesItem) => {
     const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
+
+    for (let i in currentWList) {
+      if(currentWList[i].trackName == item.trackName) {
+        setAlertMessage(`${item.trackName || item.collectionName} is already in your wish list...`);
+        setShowModal(false);
+        window.dispatchEvent(new Event('storage'));
+        return;
+      }
+    }
+    
     const updatedWList = [...currentWList, item];
     localStorage.setItem('wishItems', JSON.stringify(updatedWList));
     setAlertMessage(`${item.trackName || item.collectionName} added to wish list!`);
@@ -182,6 +192,16 @@ const Catalog = () => {
 
   const handleSaveForLater = (item: ItunesItem) => {
     const currentSList = JSON.parse(localStorage.getItem('savedItems') || '[]');
+
+    for (let i in currentSList) {
+      if(currentSList[i].trackName == item.trackName) {
+        setAlertMessage(`${item.trackName || item.collectionName} is already saved for later...`);
+        setShowModal(false);
+        window.dispatchEvent(new Event('storage'));
+        return;
+      }
+    }
+
     const updatedSList = [...currentSList, item];
     localStorage.setItem('savedItems', JSON.stringify(updatedSList));
     setAlertMessage(`${item.trackName || item.collectionName} saved for later!`);
