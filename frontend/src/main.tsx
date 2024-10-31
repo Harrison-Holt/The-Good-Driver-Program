@@ -11,6 +11,10 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import Profile from './pages/Profile';
 
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+config.autoAddCss = false;
+
 // Define the routes including Cart and Confirmationimport About from './pages/About';
 import AuthCallback from './components/AuthCallback';  // Add the callback component
 

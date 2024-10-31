@@ -2,6 +2,9 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material"
 import SearchBar from "../SearchBar"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { useAppSelector } from "../../store/hooks"
+import { selectUserName, selectUserType } from "../../store/userSlice"
+import ApplicationApproval from "../ApplicationApproval"
 
 
 const Applications: React.FC = () => {
@@ -10,6 +13,12 @@ const Applications: React.FC = () => {
     const [selectedSponsor, setSelectedSponsor] = useState("");
     const [providedReason, setProvidedReason] = useState("");
     const [submitForm, setSubmitForm] = useState(false);
+
+    const username = useAppSelector(selectUserName);
+    const usertype = useAppSelector(selectUserType);
+
+    //this is for testing usernames
+    //const dispatch = useAppDispatch();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,15 +37,16 @@ const Applications: React.FC = () => {
         };
 
         fetchData();
-        console.log(sponsorList);
     }, []);
 
     useEffect(() => {
+        //dispatch(login("addisonhough")) //Remove this later. This line is only for testing while amplify is down
         if ( submitForm ) {
             axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
                 sponsorOrg: {selectedSponsor},
                 appBody: {providedReason},
-                applyingUserType: "driver"
+                userName: {username},
+                applyingUserType: {usertype}
             }).then(function (response) {
                 console.log(response);
             }).catch(function (error) {
@@ -48,34 +58,47 @@ const Applications: React.FC = () => {
 
     }, [submitForm]);
 
+    let appPage = (<></>);
+    if (usertype === "driver") {
+        appPage = (<>
+            <Stack spacing={2}>
+                <Stack direction={"row"} spacing={2}>
+                    <Typography>Sponsor List:</Typography>
+                    <Box sx={{width: '100%'}}>
+                        <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label={"Sponsors"}/>
+                    </Box>
+                </Stack>
+                <TextField
+                    label={"Application Body"}
+                    multiline
+                    minRows={5}
+                    value={providedReason}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setProvidedReason(event.target.value);
+                    }}
+                />
+                <Stack direction={"row"} spacing={2}>
+                    <Button onClick={() => {setSubmitForm(true)}}>
+                        Submit
+                    </Button>
+                    <Button onClick={() => {setProvidedReason("")}}>
+                        Clear
+                    </Button>
+                </Stack>
+            </Stack>
+        </>)
+    } else {
+        appPage = (
+            <>
+                <ApplicationApproval/>
+            </>
+        )
+    }
+
     return (
         <>
             <Box sx={{maxWidth: '95%', maxHeight:'95%', marginLeft: 'auto', marginRight: 'auto', marginTop:'10px'}}>
-                <Stack spacing={2}>
-                    <Stack direction={"row"} spacing={2}>
-                        <Typography>Sponsor List:</Typography>
-                        <Box sx={{width: '100%'}}>
-                            <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label={"Sponsors"}/>
-                        </Box>
-                    </Stack>
-                    <TextField
-                        label={"Application Body"}
-                        multiline
-                        minRows={5}
-                        value={providedReason}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setProvidedReason(event.target.value);
-                        }}
-                    />
-                    <Stack direction={"row"} spacing={2}>
-                        <Button onClick={() => {setSubmitForm(true)}}>
-                            Submit
-                        </Button>
-                        <Button onClick={() => {setProvidedReason("")}}>
-                            Clear
-                        </Button>
-                    </Stack>
-                </Stack>
+                {appPage}
             </Box>
         </>
     )
