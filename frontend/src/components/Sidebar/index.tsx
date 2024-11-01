@@ -3,12 +3,20 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate} from "react-router-dom";
 import { useState } from "react";
 import { useAppSelector } from "../../store/hooks";
-import { selectLogin } from "../../store/userSlice";
+import { selectLogin, selectUserType } from "../../store/userSlice";
 
 const Sidebar: React.FC = () => {
     const [open, setOpen] = useState(false);
     const nav = useNavigate();
     const loggedIn = useAppSelector(selectLogin);
+    const usertype = useAppSelector(selectUserType);
+    let admin = false;
+
+    if (usertype === "admin") {
+        admin = true;
+    } else {
+        admin = false;
+    }
 
     const sidebarNavList = (
         <Box sx={{ width: 250 }} role="presentation" onClick={() => {setOpen(false)}}>
@@ -25,6 +33,13 @@ const Sidebar: React.FC = () => {
                         onClick={() => {nav("/profile")}}
                     >
                         Profile
+                    </ListItemButton>
+                </ListItem>}
+                {admin && <ListItem>
+                    <ListItemButton
+                        onClick={() => {nav("/user-management")}}
+                    >
+                        User Management
                     </ListItemButton>
                 </ListItem>}
                 <ListItem>
