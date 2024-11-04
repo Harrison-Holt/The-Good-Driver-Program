@@ -14,6 +14,9 @@ import Profile from './pages/Profile';
 // Define the routes including Cart and Confirmationimport About from './pages/About';
 import AuthCallback from './components/AuthCallback';  // Add the callback component
 import PointChange from './components/PointChange.tsx';
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+config.autoAddCss = false;
 
 const router = createBrowserRouter([
   {

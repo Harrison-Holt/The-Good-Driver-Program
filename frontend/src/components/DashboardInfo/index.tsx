@@ -9,6 +9,8 @@ import PointChange from '../PointChange.tsx';
 interface Props {
   currentDisplay: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
+  currentDisplay: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
@@ -69,7 +71,20 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
   }
+    default:
+      dashJsx = (
+        <>
+          <Typography variant="h6">Home</Typography>
+        </>
+      );
+      break;
+  }
 
+  return (
+    <Box sx={{ width: '80%', padding: '20px' }}>
+      {dashJsx}
+    </Box>
+  );
   return (
     <Box sx={{ width: '80%', padding: '20px' }}>
       {dashJsx}

@@ -5,6 +5,8 @@ import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
+import { useAppDispatch } from '../../store/hooks';
+import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -24,6 +26,8 @@ const Home: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);  // State for username
   const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
 
+  const dispatch = useAppDispatch();
+
   // Add the logout function
   const handleLogout = () => {
     const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
@@ -35,6 +39,9 @@ const Home: React.FC = () => {
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
 
+    // Update internal app state
+    dispatch(logout());
+
     // Redirect the user to the Cognito logout URL
     window.location.href = logoutUrl;
   };
@@ -42,9 +49,15 @@ const Home: React.FC = () => {
   // Fetch user info from the API based on the username
   const fetchUserInfo = async (username: string) => {
     try {
-      const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
-      setUserInfo(response.data);  // Store the fetched user info in state
-      console.log('User Info:', response.data);  // Log the user info
+      axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`)
+        .then((res) => {
+          setUserInfo(res.data);  // Store the fetched user info in state
+          console.log('User Info:', res.data);  // Log the user info
+          dispatch(setUserType(res.data.role));
+          dispatch(setFirstName(res.data.first_name));
+          dispatch(setLastName(res.data.last_name));
+          dispatch(setEmail(res.data.email));
+        });
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
@@ -77,6 +90,7 @@ const Home: React.FC = () => {
     if (idToken) {
       const decodedUsername = getUsernameFromToken(idToken);  // Decode the username from the token
       setUsername(decodedUsername);  // Update the state with the decoded username
+      dispatch(login(decodedUsername));
 
       // Once username is available, fetch the user info from the Lambda function
       if (decodedUsername) {

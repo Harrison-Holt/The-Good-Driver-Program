@@ -28,7 +28,7 @@ const LoginButton: React.FC = () => {
     };
 
     return (
-      <Button 
+      <Button
         variant="contained"
         onClick={handleLogin}>Login
       </Button>
@@ -37,9 +37,9 @@ const LoginButton: React.FC = () => {
     const handleLogin = () => {
       window.location.href = "/";  // Redirect to Cognito login URL
     };
-  
+
     return (
-      <Button 
+      <Button
         variant="contained"
         onClick={handleLogin}>Logout
       </Button>
