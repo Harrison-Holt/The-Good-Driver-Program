@@ -17,7 +17,7 @@ const AuthCallback: React.FC = () => {
             grant_type: 'authorization_code',
             client_id: 'ff8qau87sidn42svsuj51v4l4',
             code: code,
-            redirect_uri: 'https://master.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // MUST MATCH Cognito's callback URL
+            redirect_uri: 'https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // MUST MATCH Cognito's callback URL
           }), {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',

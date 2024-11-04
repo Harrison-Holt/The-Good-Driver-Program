@@ -370,6 +370,46 @@ const Catalog = () => {
           </DialogActions>
         </Dialog>
       )}
+
+      {selectedItem && (
+        <Dialog
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogContent>
+            <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '100%', marginBottom: '20px' }} />
+            <DialogContentText>
+              <strong>Artist:</strong> {selectedItem.artistName} <br />
+              <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} <br />
+            </DialogContentText>
+
+            {/* Link to iTunes Reviews */}
+            <Typography variant="body1" sx={{ marginTop: '10px' }}>
+              <a
+                href={selectedItem.collectionViewUrl || selectedItem.trackViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View iTunes Reviews
+              </a>
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+              Buy Now
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowModal(false)}>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };
