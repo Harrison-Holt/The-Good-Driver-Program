@@ -5,7 +5,7 @@ import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
 import PointChange from '../PointChange.tsx';
-import Settings from '../Settings/settings'; // Import the Settings component
+import Settings from '../../pages/Settings/settings.tsx'; // Import the Settings component
 
 interface Props {
   currentDisplay: string;

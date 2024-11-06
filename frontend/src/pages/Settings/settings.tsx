@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Switch, Button, Slider } from '@mui/material';
-import { useSettings } from './settings_context';
+import { useSettings } from '../../components/Settings/settings_context';
 
 const Settings: React.FC = () => {
     const { settings, setSettings, saveSettings } = useSettings();
