@@ -175,6 +175,7 @@ const Catalog = () => {
   };
 
   const handleRemFromCatalog = (item: ItunesItem) => {
+    console.log(item.trackName);
     const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
 
     const updateList = [...removedItems, item];
@@ -222,23 +223,26 @@ const Catalog = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
+  let sponBtn = (<><Button variant="contained" color="primary">Catalog</Button></>);
+  console.log("\"" + usertype + "\"");
+  // Check User Role
+  if (usertype === "sponsor") {
+    console.log("Setting sponBtn");
+    sponBtn = (<>
+      <Button variant="contained" color="primary" onClick={() => selectedItem ? handleRemFromCatalog(selectedItem) : console.log("NULL")}>
+        Unlist from Catalog
+      </Button>
+    </>)
+    console.log("Set sponBtn");
+  } else {
+    console.log("\""+usertype+"\"" + ",\"sponsor\"")
+  }
+
+  // Add a button if the user is a sponsor, then show the item
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
-    checkSponsor(item);
-    setShowModal(true);
+    setShowModal(true);    
   };
-
-  // Check User Role
-  let sponBtn = (<></>);
-  const checkSponsor = (item: ItunesItem) => {
-    if (usertype === "sponsor") {
-      sponBtn = (<>
-        <Button variant="contained" color="primary" onClick={() => handleRemFromCatalog(item)}>
-          Unlist from Catalog;
-        </Button>
-      </>)
-    }
-  }
 
   const sortedReviews = sortReviews(reviews, sortOption);
 

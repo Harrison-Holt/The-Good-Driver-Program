@@ -86,9 +86,8 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     // Retrieve the idToken from local storage
-    const idToken = localStorage.getItem('idToken');
-    if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken);  // Decode the username from the token
+    if (true) {
+      const decodedUsername = 'FastBuck';  // Decode the username from the token
       setUsername(decodedUsername);  // Update the state with the decoded username
       dispatch(login(decodedUsername));
 
