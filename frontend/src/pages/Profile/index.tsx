@@ -3,7 +3,7 @@ import { useAppSelector } from "../../store/hooks";
 import { selectEmail, selectFirstName, selectLastName, selectUserName, selectUserType } from "../../store/userSlice";
 import Navibar from "../../components/Navibar";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { fetchPointChangeNotification, updatePointChangeNotification } from "../../utils/api";
 
 const Profile: React.FC = () => {
     const userType = useAppSelector(selectUserType);
@@ -12,40 +12,50 @@ const Profile: React.FC = () => {
     const lastName = useAppSelector(selectLastName);
     const email = useAppSelector(selectEmail);
 
+    // State to hold the notification preference
     const [emailNotifications, setEmailNotifications] = useState(false);
 
     // Fetch the initial notification preference
     useEffect(() => {
         const fetchNotificationPreference = async () => {
-            try {
-                const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings`, {
-                    params: { username }
-                });
-                setEmailNotifications(response.data.email_notifications);
-            } catch (error) {
-                console.error("Error fetching notification preference:", error);
+            if (username) {  // Ensure username is not null
+                try {
+                    const notificationPreference = await fetchPointChangeNotification(username);
+                    if (notificationPreference !== null) {
+                        setEmailNotifications(notificationPreference);
+                    }
+                } catch (error) {
+                    console.error("Error fetching notification preference:", error);
+                }
             }
         };
-
+    
         fetchNotificationPreference();
     }, [username]);
 
     // Handle checkbox change
-    const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const isChecked = event.target.checked;
-        setEmailNotifications(isChecked);
+const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setEmailNotifications(isChecked);
 
+    if (username) {  // Ensure username is not null
         try {
-            await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings`, {
-                username,
-                email_notifications: isChecked,
-            });
+            const success = await updatePointChangeNotification(username, isChecked);
+            if (!success) {
+                console.error("Failed to update notification preference");
+                setEmailNotifications(!isChecked);  // Revert if update fails
+            }
         } catch (error) {
             console.error("Error updating notification preference:", error);
         }
-    };
+    } else {
+        console.error("Username is null, cannot update notification preference");
+        setEmailNotifications(!isChecked);  // Revert since username is null
+    }
+};
 
-    var profile = (<></>);
+
+    let profile = (<></>);
 
     if (userType === "driver") {
         profile = (
