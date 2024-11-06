@@ -36,7 +36,7 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <ListItem>
                     <ListItemButton
-                        onClick={() => {nav("/settingd")}}
+                        onClick={() => {nav("/settings")}}
                     >
                         Settings
                     </ListItemButton>
