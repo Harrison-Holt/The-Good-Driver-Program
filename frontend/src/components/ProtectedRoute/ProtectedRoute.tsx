@@ -13,6 +13,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
           setIsAuthenticated(true);
         }
       } catch (error: unknown) {  // Handle the error as `unknown`
+        console.error("Error", error); 
         setIsAuthenticated(false);
       }
     };
