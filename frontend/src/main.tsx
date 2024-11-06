@@ -1,5 +1,3 @@
-// main.tsx
-
 import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -23,6 +21,7 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
+// Define the routes
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   { path: "/about", element: <About /> },
@@ -37,8 +36,9 @@ const router = createBrowserRouter([
 
 // Define and export the main App component to satisfy Fast Refresh
 export const App: React.FC = () => {
-  const { settings } = useSettings();
+  const { settings } = useSettings(); // useSettings hook relies on SettingsProvider
 
+  // Dynamically create theme based on settings
   const appliedTheme = createTheme({
     palette: {
       mode: settings.isDarkMode ? 'dark' : 'light',
@@ -53,36 +53,35 @@ export const App: React.FC = () => {
   });
 
   return (
-    <Provider store={store}>
-      <SettingsProvider>
-        <ThemeProvider theme={appliedTheme}>
-          <CssBaseline />
-          <Box
-            sx={{
-              filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-              minHeight: '100vh',
-              backgroundColor: 'background.default',
-              color: 'text.primary',
-              transform: `scale(${settings.zoomLevel})`,
-              transformOrigin: 'top left',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <RouterProvider router={router} />
-          </Box>
-        </ThemeProvider>
-      </SettingsProvider>
-    </Provider>
+    <ThemeProvider theme={appliedTheme}>
+      <CssBaseline />
+      <Box
+        sx={{
+          filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
+          minHeight: '100vh',
+          backgroundColor: 'background.default',
+          color: 'text.primary',
+          transform: `scale(${settings.zoomLevel})`,
+          transformOrigin: 'top left',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        <RouterProvider router={router} />
+      </Box>
+    </ThemeProvider>
   );
 };
 
-// Render the root component with StrictMode
+// Render the root component with StrictMode and wrap App in SettingsProvider
 const rootElement = document.getElementById('root');
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
-      <App />
+      <Provider store={store}>
+        <SettingsProvider> {/* Wrap the app in SettingsProvider */}
+          <App />
+        </SettingsProvider>
+      </Provider>
     </StrictMode>
   );
 }
-
