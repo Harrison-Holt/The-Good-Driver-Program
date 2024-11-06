@@ -64,6 +64,7 @@ const Catalog = () => {
   const [conversionRate, setConversionRate] = useState(100); // Points system
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
+  const usertype = useAppSelector(selectUserType);
 
   const calculatePoints = (price?: number) => {
     return price ? (price * conversionRate).toFixed(2) : 'N/A';
@@ -230,7 +231,6 @@ const Catalog = () => {
   // Check User Role
   let sponBtn = (<></>);
   const checkSponsor = (item: ItunesItem) => {
-    const usertype = useAppSelector(selectUserType);
     if (usertype === "sponsor") {
       sponBtn = (<>
         <Button variant="contained" color="primary" onClick={() => handleRemFromCatalog(item)}>
