@@ -50,6 +50,10 @@ const router = createBrowserRouter([
   {
     path: "/auth-callback",  // Handle the Cognito redirect here
     element: <AuthCallback />
+  }, 
+  {
+    path: "/settings", 
+    element: <Catalog />
   }
 ]);
 
