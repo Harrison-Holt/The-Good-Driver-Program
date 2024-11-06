@@ -1,87 +1,63 @@
-import React from 'react';
 import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { CssBaseline, Box, ThemeProvider, createTheme } from '@mui/material';
-import { store } from './store/store';
-
+import { RouterProvider } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
-import Cart from './components/Catalog/Cart';
-import Confirmation from './components/Catalog/Confirmation';
+import Cart from './components/Catalog/Cart'; // Import the Cart page
+import Confirmation from './components/Catalog/Confirmation'; // Import the Confirmation page
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 import Profile from './pages/Profile';
-import AuthCallback from './components/AuthCallback';
-import Settings from './components/Settings/settings';
-import PointChange from './components/PointChange.tsx';
-import { SettingsProvider, useSettings } from './components/Settings/settings_context';
+import { createRoot } from 'react-dom/client';
 
+// Define the routes including Cart and Confirmationimport About from './pages/About';
+import AuthCallback from './components/AuthCallback';  // Add the callback component
+import PointChange from './components/PointChange.tsx';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
-// Define the routes
 const router = createBrowserRouter([
-  { path: "/", element: <Home /> },
-  { path: "/about", element: <About /> },
-  { path: "/catalog", element: <Catalog /> },
-  { path: "/cart", element: <Cart /> },
-  { path: "/confirmation", element: <Confirmation /> },
-  { path: "/profile", element: <Profile /> },
-  { path: "/auth-callback", element: <AuthCallback /> },
-  { path: "/settings", element: <Settings /> },
-  { path: "/point_change", element: <PointChange /> },
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  {
+    path: "/catalog",
+    element: <Catalog />,
+  },
+  {
+    path: "/cart", // Route for the Cart page
+    element: <Cart />,
+  },
+  {
+    path: "/confirmation", // Route for the Confirmation page
+    element: <Confirmation />,
+  },
+  {
+    path: "/point_change",
+    element: <PointChange/>,
+  },
+  {
+      path: "/profile",
+      element: <Profile/>,
+  },
+  {
+    path: "/auth-callback",  // Handle the Cognito redirect here
+    element: <AuthCallback />
+  }
 ]);
 
-// Define and export the main App component to satisfy Fast Refresh
-export const App: React.FC = () => {
-  const { settings } = useSettings(); // useSettings hook relies on SettingsProvider
-
-  // Dynamically create theme based on settings
-  const appliedTheme = createTheme({
-    palette: {
-      mode: settings.isDarkMode ? 'dark' : 'light',
-      background: {
-        default: settings.isHighContrast ? '#000' : settings.isDarkMode ? '#121212' : '#fff',
-        paper: settings.isHighContrast ? '#000' : undefined,
-      },
-      text: {
-        primary: settings.isHighContrast ? '#fff' : settings.isDarkMode ? '#fff' : '#000',
-      },
-    },
-  });
-
-  return (
-    <ThemeProvider theme={appliedTheme}>
-      <CssBaseline />
-      <Box
-        sx={{
-          filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-          minHeight: '100vh',
-          backgroundColor: 'background.default',
-          color: 'text.primary',
-          transform: `scale(${settings.zoomLevel})`,
-          transformOrigin: 'top left',
-          transition: 'all 0.3s ease',
-        }}
-      >
-        <RouterProvider router={router} />
-      </Box>
-    </ThemeProvider>
-  );
-};
-
-// Render the root component with StrictMode and wrap App in SettingsProvider
-const rootElement = document.getElementById('root');
-if (rootElement) {
-  createRoot(rootElement).render(
-    <StrictMode>
-      <Provider store={store}>
-        <SettingsProvider> {/* Wrap the app in SettingsProvider */}
-          <App />
-        </SettingsProvider>
-      </Provider>
-    </StrictMode>
-  );
-}
+// Render the root component with StrictMode and the router provider
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </StrictMode>
+);
