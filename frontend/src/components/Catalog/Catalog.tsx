@@ -4,6 +4,8 @@ import {
   Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from "../../store/hooks"
+import { selectUserType } from "../../store/userSlice"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
@@ -171,6 +173,16 @@ const Catalog = () => {
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
 
+  const handleRemFromCatalog = (item: ItunesItem) => {
+    const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+
+    const updateList = [...removedItems, item];
+    localStorage.setItem('remItems', JSON.stringify(updateList));
+    setAlertMessage(`${item.trackName || item.collectionName} has been removed from your catalog.`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
   const handleAddToWishList = (item: ItunesItem) => {
     const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
 
@@ -211,8 +223,22 @@ const Catalog = () => {
 
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
+    checkSponsor(item);
     setShowModal(true);
   };
+
+  // Check User Role
+  let sponBtn = (<></>);
+  const checkSponsor = (item: ItunesItem) => {
+    const usertype = useAppSelector(selectUserType);
+    if (usertype === "sponsor") {
+      sponBtn = (<>
+        <Button variant="contained" color="primary" onClick={() => handleRemFromCatalog(item)}>
+          Unlist from Catalog;
+        </Button>
+      </>)
+    }
+  }
 
   const sortedReviews = sortReviews(reviews, sortOption);
 
@@ -354,6 +380,7 @@ const Catalog = () => {
             </Box>
           </DialogContent>
           <DialogActions>
+            {sponBtn}
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
