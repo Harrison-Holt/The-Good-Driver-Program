@@ -5,6 +5,7 @@ import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
 import PointChange from '../PointChange.tsx';
+import Settings from '../Settings/settings'; // Import the Settings component
 
 interface Props {
   currentDisplay: string;
@@ -14,52 +15,60 @@ interface Props {
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   let dashJsx;
 
-    switch (currentDisplay) {
-        case "search":
-            dashJsx = (
-                <>
-                    <Typography variant='h6'>Search</Typography>
-                    <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
-                </>
-            );
-            break;
+  switch (currentDisplay) {
+    case "search":
+      dashJsx = (
+        <>
+          <Typography variant='h6'>Search</Typography>
+          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
+        </>
+      );
+      break;
 
-        case "cart":
-        dashJsx = (
-            <>
-            <Typography variant="h6">Your Cart</Typography>
-            <Cart /> {/* Render the Cart component */}
-            </>
-        );
-        break;
+    case "cart":
+      dashJsx = (
+        <>
+          <Typography variant="h6">Your Cart</Typography>
+          <Cart /> {/* Render the Cart component */}
+        </>
+      );
+      break;
 
-        case "catalog":
-        dashJsx = (
-            <>
-            <Typography variant="h6">Catalog</Typography>
-            <Catalog /> {/* Render the Catalog component */}
-            </>
-        );
-        break;
+    case "catalog":
+      dashJsx = (
+        <>
+          <Typography variant="h6">Catalog</Typography>
+          <Catalog /> {/* Render the Catalog component */}
+        </>
+      );
+      break;
 
-        case "applications":
-            dashJsx = (
-                <>
-                    <Typography variant='h6'>Applications</Typography>
-                    <Applications/>
-                </>
-            );
-        break;
+    case "applications":
+      dashJsx = (
+        <>
+          <Typography variant='h6'>Applications</Typography>
+          <Applications />
+        </>
+      );
+      break;
 
-        // Adding new "pointChange" case in the switch
-        case "pointChange":
-            dashJsx = (
-                <>
-                    <Typography variant="h6">Point Change</Typography>
-                    <PointChange /> {/* Create and import this component */}
-                </>
-        );break;
-  
+    case "pointChange":
+      dashJsx = (
+        <>
+          <Typography variant="h6">Point Change</Typography>
+          <PointChange /> {/* Render the PointChange component */}
+        </>
+      );
+      break;
+
+    case "settings": // New case for settings
+      dashJsx = (
+        <>
+          <Typography variant="h6">Settings</Typography>
+          <Settings /> {/* Render the Settings component */}
+        </>
+      );
+      break;
 
     default:
       dashJsx = (
@@ -70,11 +79,6 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       break;
   }
 
-  return (
-    <Box sx={{ width: '80%', padding: '20px' }}>
-      {dashJsx}
-    </Box>
-  );
   return (
     <Box sx={{ width: '80%', padding: '20px' }}>
       {dashJsx}
