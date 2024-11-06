@@ -1,3 +1,5 @@
+// main.tsx
+
 import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -21,7 +23,6 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
-// Define the routes
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   { path: "/about", element: <About /> },
@@ -34,11 +35,10 @@ const router = createBrowserRouter([
   { path: "/point_change", element: <PointChange /> },
 ]);
 
-// Define App component and add an export to satisfy Fast Refresh
+// Define and export the main App component to satisfy Fast Refresh
 export const App: React.FC = () => {
   const { settings } = useSettings();
 
-  // Dynamically create theme based on settings
   const appliedTheme = createTheme({
     palette: {
       mode: settings.isDarkMode ? 'dark' : 'light',
@@ -48,59 +48,6 @@ export const App: React.FC = () => {
       },
       text: {
         primary: settings.isHighContrast ? '#fff' : settings.isDarkMode ? '#fff' : '#000',
-      },
-    },
-    components: {
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: settings.isHighContrast ? '#000' : undefined,
-            color: settings.isHighContrast ? '#fff' : undefined,
-          },
-        },
-      },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: settings.isHighContrast ? '#000' : undefined,
-            color: settings.isHighContrast ? '#fff' : undefined,
-          },
-        },
-      },
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            color: settings.isHighContrast ? '#fff' : undefined,
-            backgroundColor: settings.isHighContrast ? '#333' : undefined,
-            '&:hover': {
-              backgroundColor: settings.isHighContrast ? '#555' : undefined,
-            },
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            backgroundColor: settings.isHighContrast ? '#000' : undefined,
-            color: settings.isHighContrast ? '#fff' : undefined,
-            boxShadow: settings.isHighContrast ? 'none' : undefined,
-          },
-        },
-      },
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            backgroundColor: settings.isHighContrast ? '#000' : undefined,
-            color: settings.isHighContrast ? '#fff' : undefined,
-          },
-        },
-      },
-      MuiTypography: {
-        styleOverrides: {
-          root: {
-            color: settings.isHighContrast ? '#fff' : undefined,
-          },
-        },
       },
     },
   });
