@@ -1,5 +1,8 @@
+// settings_context.tsx
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { loadSettingsFromLocalStorage, saveSettingsToLocalStorage } from './settings_utils';
 
 interface Settings {
   timezone: string;
@@ -32,33 +35,8 @@ interface SettingsProviderProps {
   children: ReactNode;
 }
 
-// Define keys for local storage
-const LOCAL_STORAGE_KEY = 'userSettings';
-
 // Retrieve JWT token from local storage
 const token = localStorage.getItem('jwtToken');
-
-// Function to load settings from local storage
-const loadSettingsFromLocalStorage = (): Settings => {
-  const storedSettings = localStorage.getItem(LOCAL_STORAGE_KEY);
-  return storedSettings
-    ? JSON.parse(storedSettings)
-    : {
-        timezone: '',
-        isGreyscale: false,
-        isHighContrast: false,
-        isDarkMode: false,
-        zoomLevel: 1,
-        lineHeight: 1.5,
-        isAudioEnabled: false,
-        textAlign: 'left',
-      };
-};
-
-// Save settings to local storage
-const saveSettingsToLocalStorage = (settings: Settings) => {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
-};
 
 // SettingsProvider component to wrap the application
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
