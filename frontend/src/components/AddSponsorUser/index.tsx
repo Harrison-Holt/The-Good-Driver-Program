@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Snackbar, Stack, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import SearchBar from "../../components/SearchBar";
 import axios from "axios";
@@ -9,7 +9,8 @@ const AddSponsorUser: React.FC = () => {
 
     const [newSponsorUser, setNewSponsorUser] = useState("")
     const [userList, setUserList] = useState([]);
-
+    const [openSnack, setOpenSnack] = useState(false);
+    const [snackMessage, setSnackMessage] = useState("");
     const username = useAppSelector(selectUserName);
 
     const AddSponsorUser = async () => {
@@ -19,9 +20,13 @@ const AddSponsorUser: React.FC = () => {
                 new_sponsor_user: newSponsorUser
             }).then((response) => {
                 console.log(response);
+                setSnackMessage("User Added");
+                setOpenSnack(true);
             });
         } catch (error) {
             console.error('Error adding sponsor user:', error);
+            setSnackMessage("Error adding sponsor user");
+            setOpenSnack(true);
         }
     }
 
@@ -42,7 +47,7 @@ const AddSponsorUser: React.FC = () => {
         };
 
         fetchData();
-    }, []);
+    }, [openSnack]);
 
     return (
         <>
@@ -51,6 +56,12 @@ const AddSponsorUser: React.FC = () => {
                 <SearchBar setSearchTerm={setNewSponsorUser} options={userList} label="Select New Sponsor User" />
                 <Button variant={"contained"} onClick={() => {AddSponsorUser()}}>Submit</Button>
             </Stack>
+            <Snackbar
+                open={openSnack}
+                autoHideDuration={6000}
+                onClose={() => {setOpenSnack(false)}}
+                message={snackMessage}
+            />
         </>
     )
 }
