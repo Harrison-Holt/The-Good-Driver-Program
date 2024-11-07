@@ -93,7 +93,7 @@ const ApplicationApproval: React.FC = () => {
 
   return(
       <Box sx={containerStyles}>
-          <SearchBar setSearchTerm={requestFilter} label="filter" options={[]}/>
+          <SearchBar setSearchTerm={requestFilter} label="filter" options={[""]}/>
           {loaded && <List>
               {filteredList.map((app) => (<>
                   <Divider variant="inset" component="li"/>
