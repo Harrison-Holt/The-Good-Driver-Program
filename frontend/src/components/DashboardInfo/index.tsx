@@ -1,26 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Applications from '../Applications';
 import SearchBar from '../../components/SearchBar';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, TextField, Button } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
-import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
+import Cart from '../Catalog/Cart';
 import PointChange from '../PointChange.tsx';
-import Profile from '../Profile'; // Updated import path for Profile
+import Profile from '../Profile';
+import PointHistory from '../PointHistory';
 
 interface Props {
   currentDisplay: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
+  const [driverUsername, setDriverUsername] = useState<string>(''); // State to hold the driver's username
   let dashJsx;
+
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDriverUsername(event.target.value);
+  };
+
+  const renderPointHistory = () => (
+    <>
+      <Typography variant="h6">Point History</Typography>
+      <TextField
+        label="Driver Username"
+        variant="outlined"
+        value={driverUsername}
+        onChange={handleUsernameChange}
+        fullWidth
+        sx={{ marginBottom: '16px' }}
+      />
+      <Button variant="contained" color="primary" onClick={() => setDriverUsername(driverUsername)}>
+        View Point History
+      </Button>
+      {driverUsername && <PointHistory driverUsername={driverUsername} />}
+    </>
+  );
 
   switch (currentDisplay) {
     case "search":
       dashJsx = (
         <>
           <Typography variant='h6'>Search</Typography>
-          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
+          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} />
         </>
       );
       break;
@@ -29,7 +53,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart /> {/* Render the Cart component */}
+          <Cart />
         </>
       );
       break;
@@ -38,7 +62,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Catalog</Typography>
-          <Catalog /> {/* Render the Catalog component */}
+          <Catalog />
         </>
       );
       break;
@@ -56,16 +80,20 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Point Change</Typography>
-          <PointChange /> {/* Render the PointChange component */}
+          <PointChange />
         </>
       );
+      break;
+
+    case "pointHistory":
+      dashJsx = renderPointHistory();
       break;
 
     case "profile":
       dashJsx = (
         <>
           <Typography variant="h6">Profile</Typography>
-          <Profile /> {/* Render the Profile component */}
+          <Profile />
         </>
       );
       break;

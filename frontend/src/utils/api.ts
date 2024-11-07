@@ -8,14 +8,20 @@ interface UserInfo {
   point_change_notification: boolean;
 }
 
+interface PointHistoryEntry {
+  change_date: string;
+  points_changed: number;
+  reason: string;
+}
+
 // Function to fetch user info from API based on the username
 export const fetchUserInfo = async (username: string): Promise<UserInfo | null> => {
   try {
     const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
-    return response.data;  // Assuming that response.data contains the user information
+    return response.data; 
   } catch (error) {
     console.error('Error fetching user info:', error);
-    return null;  // Return null or throw error based on your error-handling strategy
+    return null; 
   }
 };
 
@@ -49,7 +55,16 @@ export const fetchPointChangeNotification = async (username: string): Promise<bo
   return userInfo ? userInfo.point_change_notification : null;
 };
 
-
+// Function to fetch point change history based on the username
+export const fetchPointChangeHistory = async (username: string): Promise<PointHistoryEntry[] | null> => {
+  try {
+    const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/point-history?username=${username}`);
+    return response.data; 
+  } catch (error) {
+    console.error('Error fetching point change history:', error);
+    return null;
+  }
+};
 
 /** example of how to call one of these functions in another file:
  
