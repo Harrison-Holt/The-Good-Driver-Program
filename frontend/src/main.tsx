@@ -7,7 +7,6 @@ import { store } from './store/store';
 import { createRoot } from 'react-dom/client';
 import { SettingsProvider } from './components/Settings/SettingsProvider';
 
-import MainLayout from './components/MainLayout'; // Import the layout with Navibar
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './components/Catalog/Catalog';
@@ -19,21 +18,15 @@ import AuthCallback from './components/AuthCallback';
 import PointChange from './components/PointChange.tsx';
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainLayout />,  // Wrap all routes within MainLayout to show Navibar on each page
-    children: [
-      { path: "", element: <Home /> },
-      { path: "about", element: <About /> },
-      { path: "catalog", element: <Catalog /> },
-      { path: "cart", element: <Cart /> },
-      { path: "confirmation", element: <Confirmation /> },
-      { path: "profile", element: <Profile /> },
-      { path: "settings", element: <Settings /> },
-      { path: "auth-callback", element: <AuthCallback /> },
-      { path: "point_change", element: <PointChange /> },
-    ],
-  },
+  { path: "/", element: <Home /> },
+  { path: "/about", element: <About /> },
+  { path: "/catalog", element: <Catalog /> },
+  { path: "/cart", element: <Cart /> },
+  { path: "/confirmation", element: <Confirmation /> },
+  { path: "/profile", element: <Profile /> },
+  { path: "/auth-callback", element: <AuthCallback /> },
+  { path: "/settings", element: <Settings /> },
+  { path: "/point_change", element: <PointChange /> },
 ]);
 
 createRoot(document.getElementById('root')!).render(

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Box, Typography, Switch, Button, Slider } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
+import  Navibar from '../../components/Navibar'
 
 const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
@@ -40,7 +41,9 @@ const Settings: React.FC = () => {
   };
 
   return (
+
     <Box sx={containerStyle}>
+          <Navibar />
       <Typography variant="h6">Settings</Typography>
       <Box sx={{ marginTop: '20px' }}>
         <Typography>Greyscale Mode</Typography>
