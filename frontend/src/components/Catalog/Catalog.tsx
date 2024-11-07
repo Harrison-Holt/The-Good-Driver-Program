@@ -298,10 +298,10 @@ const Catalog = () => {
       {selectedItem && (
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth scroll="paper" >
           <DialogTitle sx={dialogContentStyles}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
-          <DialogContent>
+          <DialogContent sx = {dialogContentStyles}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxHeight: '75vh'}}>
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
-              <DialogContentText>
+              <DialogContentText sx={dialogContentStyles}>
                 <strong>Artist:</strong> {selectedItem.artistName} <br />
                 <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} ({calculatePoints(selectedItem.collectionPrice)} points)
               </DialogContentText>
@@ -312,7 +312,7 @@ const Catalog = () => {
               <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ marginBottom: '20px' }} />
             </Box>
 
-            <Typography variant="h6">User Reviews</Typography>
+            <Typography variant="h6" sx={dialogContentStyles}>User Reviews</Typography>
             <Select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
@@ -360,7 +360,7 @@ const Catalog = () => {
                 sx={{ marginBottom: '10px', backgroundColor: theme.palette.background.paper}}
               />
 
-              <Typography component="legend">Rating (0-5)</Typography>
+              <Typography component="legend" >Rating (0-5)</Typography>
               <Select
                 fullWidth
                 value={newReview.rating}
