@@ -54,6 +54,7 @@ const ApplicationApproval: React.FC = () => {
               console.log(response)
               const data: Application[] = response.data
               setApplicationList(data);
+              setFilteredList(data);
               setLoaded(true);
               console.log(username); //testing
               console.log('ApplicationList:', data);  // Log the application info
