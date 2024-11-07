@@ -15,9 +15,11 @@ import Profile from './pages/Profile';
 import AuthCallback from './components/AuthCallback';
 import Settings from './pages/Settings/settings';
 import PointChange from './components/PointChange.tsx';
-import { useSettings } from './components/Settings/settings_context';
-import { SettingsProvider } from './components/Settings/SettingsProvider.tsx'
 
+import { useSettings } from './components/Settings/settings_context';
+import { SettingsProvider } from './components/Settings/SettingsProvider.tsx';
+
+// Define routes for the application
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/about', element: <About /> },
@@ -30,11 +32,11 @@ const router = createBrowserRouter([
   { path: '/point_change', element: <PointChange /> },
 ]);
 
-// eslint-disable-next-line react-refresh/only-export-components
+// Main App component with applied global theme and settings
 const AppContent: React.FC = () => {
   const { settings } = useSettings();
 
-  // Define global styles based on settings
+  // Create theme based on user settings
   const appliedTheme = createTheme({
     palette: {
       mode: settings.isDarkMode ? 'dark' : 'light',
@@ -54,10 +56,10 @@ const AppContent: React.FC = () => {
       <Box
         sx={{
           filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-          transform: `scale(${settings.zoomLevel})`, // Apply zoom globally
-          transformOrigin: 'top left', // Scale from top left for consistent layout
+          transform: `scale(${settings.zoomLevel})`,
+          transformOrigin: 'top left',
           minHeight: '100vh',
-          transition: 'all 0.3s ease', // Smooth transitions
+          transition: 'all 0.3s ease',
         }}
       >
         <RouterProvider router={router} />
@@ -66,12 +68,13 @@ const AppContent: React.FC = () => {
   );
 };
 
+// Initialize the application
 const rootElement = document.getElementById('root');
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
       <Provider store={store}>
-        <SettingsProvider> {/* Wrap the app in SettingsProvider for global context */}
+        <SettingsProvider>
           <AppContent />
         </SettingsProvider>
       </Provider>

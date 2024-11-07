@@ -36,6 +36,7 @@ const Home: React.FC = () => {
     const clientId = 'ff8qau87sidn42svsuj51v4l4';
     const cognitoDomain = 'team08-domain';
     const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
+
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -112,6 +113,12 @@ const Home: React.FC = () => {
         </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>Point Change</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("profile")}>Profile</ListItemButton>
         </ListItem>
         <ListItem>
           <ListItemButton onClick={handleLogout}>Logout</ListItemButton>

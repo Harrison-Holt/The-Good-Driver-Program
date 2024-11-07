@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppSelector } from '../../store/hooks';
 import Applications from '../Applications';
 import SearchBar from '../../components/SearchBar';
 import { Box, Typography, useTheme, Paper } from '@mui/material';
@@ -6,7 +7,10 @@ import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart';
 import PointChange from '../PointChange.tsx';
 import Settings from '../../pages/Settings/settings.tsx';
+import Profile from '../Profile';
+import PointHistory from '../PointHistory';
 import { useSettings } from '../../components/Settings/settings_context';
+import { selectUserName } from '../../store/userSlice';
 
 interface Props {
   currentDisplay: string;
@@ -16,6 +20,7 @@ interface Props {
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   const theme = useTheme();
   const { settings } = useSettings();
+  const username = useAppSelector(selectUserName);
 
   // Main container styles
   const containerStyles = {
@@ -90,6 +95,24 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
         <Paper sx={paperStyles}>
           <Typography variant="h6" sx={textStyle}>Point Change</Typography>
           <PointChange />
+        </Paper>
+      );
+      break;
+
+    case "pointHistory":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>Point History</Typography>
+          {username && <PointHistory driverUsername={username} />}
+        </Paper>
+      );
+      break;
+
+    case "profile":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>Profile</Typography>
+          <Profile />
         </Paper>
       );
       break;
