@@ -81,6 +81,7 @@ const Home: React.FC = () => {
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCartClick = () => setSelectedDisplay("cart");

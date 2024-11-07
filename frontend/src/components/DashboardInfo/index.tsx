@@ -17,7 +17,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   const theme = useTheme();
   const { settings } = useSettings();
 
-  // Define styles for the main container
+  // Main container styles
   const containerStyles = {
     width: '80%',
     padding: '20px',
@@ -31,13 +31,11 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     transition: 'all 0.3s ease',
   };
 
-  // Define styles for the Paper component wrapping each section
+  // Paper component styles
   const paperStyles = {
     padding: '20px',
     marginBottom: '20px',
-    backgroundColor: settings.isHighContrast
-      ? '#333'  // Darker background for high contrast mode
-      : theme.palette.background.paper,  // Use theme's paper color
+    backgroundColor: settings.isHighContrast ? '#333' : theme.palette.background.paper,
     color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
     borderRadius: '10px',
     boxShadow: theme.shadows[3],
