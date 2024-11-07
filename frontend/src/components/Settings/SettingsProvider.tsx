@@ -20,19 +20,31 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
   const saveSettings = async () => {
     try {
-      const userId = 'exampleUserId'; // Get the user ID from your authentication context or store
+      const token = localStorage.getItem('idToken'); // Get the JWT from local storage
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
 
-      const response = await axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings', {
-        user_id: userId,
+      // Prepare the settings payload
+      const payload = {
+        token, // Send the token for Lambda to decode and verify
         is_greyscale: settings.isGreyscale ? 1 : 0,
         is_high_contrast: settings.isHighContrast ? 1 : 0,
         is_dark_mode: settings.isDarkMode ? 1 : 0,
         zoom_level: settings.zoomLevel,
+      };
+
+      // Send the settings payload to your API Gateway endpoint
+      const response = await axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings', payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      console.log('Settings saved successfully', response.data);
+      console.log('Settings saved successfully:', response.data);
     } catch (error) {
-      console.error('Error saving settings:', error);
+      console.error('Failed to save settings:', error);
     }
   };
 
