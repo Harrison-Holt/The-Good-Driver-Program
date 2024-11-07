@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Select, MenuItem, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment
+  Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment,
+  useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,6 +11,7 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import CatalogItem from './CatalogItem'; 
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
+import { useSettings } from '../Settings/settings_context';  // Import settings context
 
 interface ItunesItem {
   trackId?: string;
@@ -62,6 +64,26 @@ const Catalog = () => {
   const [conversionRate, setConversionRate] = useState(100); // Points system
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
+
+  const theme = useTheme();  // Access MUI theme
+  const { settings } = useSettings();  // Access custom settings
+
+  // Calculate points function remains the same
+
+  const containerStyles = {
+    padding: '40px 20px',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
+    filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
+    transition: 'all 0.3s ease',  // Smooth transitions for theme changes
+  };
+
+  const dialogContentStyles = {
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
+  };
 
   const calculatePoints = (price?: number) => {
     return price ? (price * conversionRate).toFixed(2) : 'N/A';
@@ -224,7 +246,7 @@ const Catalog = () => {
   }, [searchTerm, items]);
 
   return (
-    <Box sx={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <Box sx={containerStyles}>
       <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: '40px' }}>
         Discover Your Favorite Media
       </Typography>
@@ -275,7 +297,7 @@ const Catalog = () => {
 
       {selectedItem && (
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth scroll="paper" >
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogTitle sx={dialogContentStyles}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxHeight: '75vh'}}>
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
@@ -284,7 +306,7 @@ const Catalog = () => {
                 <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency} ({calculatePoints(selectedItem.collectionPrice)} points)
               </DialogContentText>
 
-              <Typography variant="h6" sx={{ marginTop: '20px' }}>
+              <Typography variant="h6" sx={{ marginTop: '20px', backgroundColor: theme.palette.background.paper }}>
                 Overall Rating: {calculateAverageRating(reviews)} / 5
               </Typography>
               <Rating value={parseFloat(calculateAverageRating(reviews))} readOnly precision={0.5} sx={{ marginBottom: '20px' }} />
@@ -295,7 +317,7 @@ const Catalog = () => {
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
               fullWidth
-              sx={{ marginBottom: '10px' }}
+              sx={{ marginBottom: '10px', backgroundColor: theme.palette.background.paper }}
             >
               <MenuItem value="highest">Highest Rating</MenuItem>
               <MenuItem value="lowest">Lowest Rating</MenuItem>
@@ -325,7 +347,7 @@ const Catalog = () => {
                 label="Username"
                 value={newReview.user_name}
                 onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
-                sx={{ marginBottom: '10px' }}
+                sx={{ marginBottom: '10px', backgroundColor: theme.palette.background.paper}}
               />
 
               <TextField
@@ -335,7 +357,7 @@ const Catalog = () => {
                 rows={4}
                 value={newReview.comment}
                 onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                sx={{ marginBottom: '10px' }}
+                sx={{ marginBottom: '10px', backgroundColor: theme.palette.background.paper}}
               />
 
               <Typography component="legend">Rating (0-5)</Typography>
@@ -343,7 +365,7 @@ const Catalog = () => {
                 fullWidth
                 value={newReview.rating}
                 onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
-                sx={{ marginBottom: '10px' }}
+                sx={{ marginBottom: '10px', backgroundColor: theme.palette.background.paper}}
               >
                 {[0, 1, 2, 3, 4, 5].map((value) => (
                   <MenuItem key={value} value={value}>{value} Star{value > 1 ? 's' : ''}</MenuItem>
@@ -353,7 +375,7 @@ const Catalog = () => {
               <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%' }}>Submit Review</Button>
             </Box>
           </DialogContent>
-          <DialogActions>
+          <DialogActions sx={dialogContentStyles}>
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
