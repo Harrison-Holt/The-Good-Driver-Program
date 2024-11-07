@@ -1,7 +1,7 @@
 import React, { useState, ReactNode } from 'react';
 import { Settings, SettingsContext } from './settings_context';
 import axios from 'axios';
-import { getSession } from '../../utils/cognitoAuth';  // Import the getSession function
+import { getSession } from '../../utils/cognitoAuth';  
 import { getUsernameFromToken } from '../../utils/tokenUtils';
 
 interface SettingsProviderProps {
@@ -40,6 +40,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       console.log('Settings saved successfully:', response.data);
     } catch (error) {
       console.error('Failed to save settings:', error);
+      
+      // If user is not signed in, store settings in local storage
+      const localStorageSettings = {
+        ...settings,  // Spread existing settings
+      };
+
+      // Save settings to localStorage
+      localStorage.setItem('userSettings', JSON.stringify(localStorageSettings));
+      console.log('Settings saved to local storage:', localStorageSettings);
     }
   };
 
