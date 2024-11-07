@@ -41,6 +41,7 @@ const ApplicationApproval: React.FC = () => {
         };
 
         fetchAppList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loaded])
 
     const handleApplicationUpdate = async (appId: number, driverId: number, newStatus: string, sponsorId: number) => {

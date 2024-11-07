@@ -98,6 +98,7 @@ const Home: React.FC = () => {
         fetchUserInfo(decodedUsername);  // Fetch user info based on username
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle navigation to Cart

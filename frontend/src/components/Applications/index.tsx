@@ -56,6 +56,7 @@ const Applications: React.FC = () => {
             setSubmitForm(false);
         }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [submitForm]);
 
     let appPage = (<></>);
