@@ -46,7 +46,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart />
+          <Cart cartItems={[]} total={0} userPoints={null} userEmail={''} setUserEmail={function (): void {
+            throw new Error('Function not implemented.');
+          } } handleCheckout={function (): void {
+            throw new Error('Function not implemented.');
+          } } showConfirmationDialog={false} setShowConfirmationDialog={function (): void {
+            throw new Error('Function not implemented.');
+          } } confirmCheckout={function (): void {
+            throw new Error('Function not implemented.');
+          } } errorMessage={null} checkoutSuccess={false} insufficientPoints={false} />
         </>
       );
       break;
