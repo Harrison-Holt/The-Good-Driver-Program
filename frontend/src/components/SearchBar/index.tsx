@@ -1,8 +1,10 @@
 import React from 'react';
 import { Autocomplete, TextField } from "@mui/material";
 
+type stringParamFunction = (a: string) => any
+
 interface SearchBarProps {
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  setSearchTerm: stringParamFunction;
   label: string
   options: string[]; // Add a prop for the options
 }

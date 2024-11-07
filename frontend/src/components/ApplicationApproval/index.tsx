@@ -4,6 +4,7 @@ import { useAppSelector } from "../../store/hooks";
 import { selectUserName } from "../../store/userSlice";
 import axios from "axios";
 import { useSettings } from "../../components/Settings/settings_context";
+import SearchBar from "../SearchBar";
 
 interface Application {
   application_id: number;
@@ -15,9 +16,11 @@ interface Application {
 }
 
 const ApplicationApproval: React.FC = () => {
-  const [applicationList, setApplicationList] = useState<Application[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const username = useAppSelector(selectUserName);
+
+  const [applicationList, setApplicationList] = useState<Application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
+  const [filteredList, setFilteredList] = useState<Application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
+  const [loaded, setLoaded] = useState(false)
+  const username =  useAppSelector(selectUserName);
 
   const theme = useTheme();
   const { settings } = useSettings();
@@ -41,19 +44,24 @@ const ApplicationApproval: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchAppList = async () => {
-      try {
-        const response = await axios.get(
-          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`,
-          { params: { name: username } }
-        );
-        const data: Application[] = response.data;
-        setApplicationList(data);
-        setLoaded(true);
-      } catch (error) {
-        console.error('Error fetching applications:', error);
-      }
-    };
+      const fetchAppList = async () => {
+          try {
+            axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`, {
+              params: {
+                  name: username
+              }
+            }).then((response) => {
+              console.log(response)
+              const data: Application[] = response.data
+              setApplicationList(data);
+              setLoaded(true);
+              console.log(username); //testing
+              console.log('ApplicationList:', data);  // Log the application info
+            });
+          } catch (error) {
+            console.error('Error fetching user info:', error);
+          }
+      };
 
     fetchAppList();
   }, [loaded, username]);
@@ -72,45 +80,46 @@ const ApplicationApproval: React.FC = () => {
     }
   };
 
-  return (
-    <Box sx={containerStyles}>
-      {loaded && (
-        <List>
-          {applicationList.map((app) => (
-            <React.Fragment key={app.application_id}>
-              <Divider variant="inset" component="li" />
-              <ListItem>
-                <ListItemText
-                  primary={
-                    <Stack direction="row" spacing={1}>
-                      <Typography variant="h6" sx={{ color: containerStyles.color }}>
-                        {app.driver_username}
-                      </Typography>
-                      <Typography sx={{ color: containerStyles.color }}>
-                        {app.app_status}
-                      </Typography>
-                    </Stack>
-                  }
-                  secondary={<Typography sx={{ color: containerStyles.color }}>{app.app_description}</Typography>}
-                />
-                {app.app_status === "pending" && (
-                  <Box>
-                    <ListItemButton onClick={() => handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id)} sx={buttonStyles}>
-                      Approve
-                    </ListItemButton>
-                    <ListItemButton onClick={() => handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id)} sx={buttonStyles}>
-                      Deny
-                    </ListItemButton>
-                  </Box>
-                )}
-              </ListItem>
-              <Divider variant="inset" component="li" />
-            </React.Fragment>
-          ))}
-        </List>
-      )}
-    </Box>
-  );
-};
+  const requestFilter = (filterValue: string) => {
+      const apps = applicationList.filter((app) => {
+          if (app.app_status.toLowerCase().includes(filterValue.toLowerCase())) {
+              return app
+          } else if (app.driver_username.includes(filterValue)) {
+              return app
+          }
+      });
+      setFilteredList(apps)
+  }
+
+  return(
+      <Box sx={containerStyles}>
+          <SearchBar setSearchTerm={requestFilter} label="filter" options={[]}/>
+          {loaded && <List>
+              {filteredList.map((app) => (<>
+                  <Divider variant="inset" component="li"/>
+                  <ListItem key={app.application_id}>
+                      <ListItemText
+                          primary={<Stack direction="row" spacing={1}>
+                              <Typography variant="h6" sx={{ color: containerStyles.color }}>
+                                  {app.driver_username}
+                              </Typography>
+                              <Typography sx={{ color: containerStyles.color }}>
+                                  {app.app_status}
+                              </Typography>
+                          </Stack>}
+                          secondary={app.app_description}
+                      >
+                      </ListItemText>
+                      {app.app_status === "pending" ? <Box sx={{marginRight: '0px'}}>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id)}} sx={buttonStyles}>Approve</ListItemButton>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id)}} sx={buttonStyles}>Deny</ListItemButton>
+                      </Box> : <></>}
+                  </ListItem>
+                  <Divider variant="inset" component="li"/>
+              </>))}
+          </List>}
+      </Box>
+  )
+}
 
 export default ApplicationApproval;
