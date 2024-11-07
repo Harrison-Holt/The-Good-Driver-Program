@@ -7,7 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
-import { useSettings } from '../../components/Settings/settings_context';  // Import the settings context
+import { useSettings } from '../../components/Settings/settings_context';
 
 interface ItunesItem {
   trackId?: string;
@@ -21,16 +21,11 @@ interface ItunesItem {
   currency?: string;
 }
 
-
-
 const Home: React.FC = () => {
-
-  
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
   const [username, setUsername] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
@@ -92,7 +87,7 @@ const Home: React.FC = () => {
   const cartItemCount = cartItems.length;
 
   const dashboardList = (
-    <Box sx={{ width: '250px', backgroundColor: '#f5f5f5', padding: '10px' }}>
+    <Box sx={{ width: '250px', backgroundColor: settings.isHighContrast ? '#000' : theme.palette.background.paper, padding: '10px', color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary }}>
       <List>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("home")}>Home</ListItemButton>
@@ -138,7 +133,7 @@ const Home: React.FC = () => {
       <Stack direction={"row"} spacing={5} sx={{ padding: '20px' }}>
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
-        <Box sx={{ flex: 1, padding: '20px' }}>
+        <Box sx={{ flex: 1, padding: '20px', backgroundColor: settings.isHighContrast ? '#111' : theme.palette.background.paper }}>
           <DashboardInfo setSearchTerm={() => {}} currentDisplay={selectedDisplay} />
         </Box>
         <Box>
