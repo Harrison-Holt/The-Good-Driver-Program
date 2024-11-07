@@ -1,8 +1,8 @@
-// src/components/Settings/SettingsProvider.tsx
 import React, { useState, ReactNode } from 'react';
 import { Settings, SettingsContext } from './settings_context';
 import axios from 'axios';
 import { getSession } from '../../utils/cognitoAuth';  // Import the getSession function
+import { getUsernameFromToken } from '../../utils/tokenUtils';
 
 interface SettingsProviderProps {
   children: ReactNode;
@@ -22,11 +22,12 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   const saveSettings = async () => {
     try {
       const session = await getSession();  // Get the current session
-      const userId = session.getIdToken().payload.sub; // Get the user ID from the token payload
+      const idToken = session.getIdToken().getJwtToken(); // Get the ID token
+      const username = getUsernameFromToken(idToken); // Decode the token to get the username
 
       // Prepare the settings payload
       const payload = {
-        user_id: userId,  
+        user_id: username,  // Use username instead of user ID
         is_greyscale: settings.isGreyscale ? 1 : 0,
         is_high_contrast: settings.isHighContrast ? 1 : 0,
         is_dark_mode: settings.isDarkMode ? 1 : 0,
