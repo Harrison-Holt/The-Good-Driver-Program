@@ -9,7 +9,7 @@ import Cart from './components/Catalog/Cart'; // Import the Cart page
 import Confirmation from './components/Catalog/Confirmation'; // Import the Confirmation page
 import { Provider } from 'react-redux';
 import { store } from './store/store';
-import Profile from './pages/Profile';
+import Profile from './components/Profile/index.tsx';
 
 // Define the routes including Cart and Confirmationimport About from './pages/About';
 import AuthCallback from './components/AuthCallback';  // Add the callback component

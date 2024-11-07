@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-// Define the UserInfo type if needed (this helps with TypeScript type checking)
+// Define the UserInfo type for TypeScript type checking
 interface UserInfo {
   username: string;
   email: string;
   points: number | null;
+  point_change_notification: boolean;
 }
 
 // Function to fetch user info from API based on the username
@@ -27,6 +28,27 @@ export const fetchUserPoints = async (username: string): Promise<number | null> 
     return null;
   }
 };
+
+// New function to update the user's point change notification preference
+export const updatePointChangeNotification = async (username: string, enableNotification: boolean): Promise<boolean> => {
+  try {
+    const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`, {
+      username,
+      point_change_notification: enableNotification
+    });
+    return response.status === 200;  // Return true if update was successful
+  } catch (error) {
+    console.error('Error updating notification preference:', error);
+    return false;  // Return false if the update failed
+  }
+};
+
+// Function to fetch the user's notification preference
+export const fetchPointChangeNotification = async (username: string): Promise<boolean | null> => {
+  const userInfo = await fetchUserInfo(username);
+  return userInfo ? userInfo.point_change_notification : null;
+};
+
 
 
 /** example of how to call one of these functions in another file:

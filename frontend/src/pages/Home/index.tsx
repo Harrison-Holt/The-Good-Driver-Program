@@ -34,6 +34,9 @@ const Home: React.FC = () => {
     const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
     const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
 
+    // for anthony's branch
+    // const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
+
     // Clear any stored tokens to simulate logout in the app
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
@@ -143,6 +146,11 @@ const Home: React.FC = () => {
           Point Change
         </ListItemButton>
       </ListItem>
+      <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("profile")}>
+            Profile
+          </ListItemButton>
+        </ListItem>
         <ListItem>
           <ListItemButton onClick={handleLogout}>
             Logout
