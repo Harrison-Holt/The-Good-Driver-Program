@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import Navibar from '../../components/Navibar';
 
 interface AboutData {
@@ -19,11 +20,7 @@ const About: React.FC = () => {
       try {
         const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/about');
         let data = await response.json();
-
-        // Parse the `body` which contains the actual JSON data
-        data = JSON.parse(data.body);
-
-        console.log('API Response:', data); // Log the response to inspect it
+        data = JSON.parse(data.body); // Parse the `body` if necessary
         setAboutData(data[0]);
         setLoading(false);
       } catch (error) {
@@ -34,58 +31,63 @@ const About: React.FC = () => {
     fetchData();
   }, []);
 
-  let abPageInfo = (<div>Loading...</div>);
   if (loading) {
-    abPageInfo = (<div>Loading...</div>)
-  } else {
-    abPageInfo = (
-      <>
-      <div className="bg-light p-5 text-center">
-        <h1 className="display-4">About Our {aboutData?.product_name}</h1>
-        <p className="lead">
-          A system designed to reward and incentivize truck drivers for safe and efficient driving.
-        </p>
-      </div>
-
-      {/* Project Information Section */}
-      <div className="about-page mt-5">
-        <h2 className="text-center">Project Information</h2>
-        <div className="card shadow-sm p-4 mb-5 bg-white rounded">
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <p><strong>Team Number:</strong> {aboutData?.team_number}</p>
-            </div>
-            <div className="col-md-6">
-              <p><strong>Version (Sprint #):</strong> Sprint {aboutData?.sprint_number}</p>
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <p><strong>Release Date:</strong> {aboutData?.release_date}</p>
-            </div>
-            <div className="col-md-6">
-              <p><strong>Product Name:</strong> {aboutData?.product_name}</p>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-12">
-              <p><strong>Product Description:</strong> 
-                {aboutData?.product_description}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      </>
-    )
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
     <>
       <Navibar />
+      <Box sx={{ padding: 4, backgroundColor: 'background.default', color: 'text.primary' }}>
+        {/* Header Section */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            About Our {aboutData?.product_name}
+          </Typography>
+          <Typography variant="h6" color="textSecondary">
+            A system designed to reward and incentivize truck drivers for safe and efficient driving.
+          </Typography>
+        </Box>
 
-      {/* Hero Section */}
-      {abPageInfo}
+        {/* Project Information Section */}
+        <Paper elevation={3} sx={{ padding: 3, mt: 4 }}>
+          <Typography variant="h5" component="h2" gutterBottom align="center">
+            Project Information
+          </Typography>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                <strong>Team Number:</strong> {aboutData?.team_number}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                <strong>Version (Sprint #):</strong> Sprint {aboutData?.sprint_number}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                <strong>Release Date:</strong> {aboutData?.release_date}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                <strong>Product Name:</strong> {aboutData?.product_name}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body1">
+                <strong>Product Description:</strong> {aboutData?.product_description}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Box>
     </>
   );
 };
