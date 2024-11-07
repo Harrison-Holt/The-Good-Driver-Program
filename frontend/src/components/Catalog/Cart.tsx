@@ -1,114 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Button, Grid, Divider, Alert, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import React from 'react';
+import {
+  Box, Typography, List, ListItem, ListItemText, Grid, Divider, TextField, Button, Dialog, DialogTitle,
+  DialogContent, DialogActions, Alert, useTheme
+} from '@mui/material';
+import { useSettings } from '../../components/Settings/settings_context';
 
 interface ItunesItem {
-  trackId?: string;
-  collectionId?: string;
+  artworkUrl100: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
-  artworkUrl100: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
 }
 
-const Cart: React.FC = () => {
-  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
-  const [userEmail, setUserEmail] = useState(''); // Now we just ask for the user's email
-  const [errorMessage, setErrorMessage] = useState(''); // State for error messages
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false); // State for email confirmation dialog
+interface CartProps {
+  cartItems: ItunesItem[];
+  total: number;
+  userPoints: number | null;
+  userEmail: string;
+  setUserEmail: React.Dispatch<React.SetStateAction<string>>;
+  handleCheckout: () => void;
+  showConfirmationDialog: boolean;
+  setShowConfirmationDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  confirmCheckout: () => void;
+  errorMessage: string | null;
+  checkoutSuccess: boolean;
+  insufficientPoints: boolean;
+}
 
-  const [userPoints, setUserPoints] = useState<number | null>(null);
-  const [insufficientPoints, setInsufficientPoints] = useState(false);
-
-  // Fetch user points from the backend
-  const fetchUserPoints = async (user_Id: string) => {
-  try {
-    const url = `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection?user_id=${user_Id}`;
-    console.log('Fetching from URL:', url); // Log to confirm correct URL
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log('Fetched data:', data); 
-    setUserPoints(data.points);
-  } catch (error) {
-    console.error('Error fetching user points:', error);
-    setUserPoints(0); // Default to 0 points on error
-  }
-};
-
-
-  // Update cart items and total dynamically
-  const updateCart = () => {
-    const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    setCartItems(storedCartItems);
-
-    const cartTotal = storedCartItems.reduce((acc: number, item: ItunesItem) => {
-      return acc + (item.collectionPrice || item.trackPrice || 0);
-    }, 0);
-    setTotal(cartTotal);
-  };
-
-  useEffect(() => {
-    const user_Id = '11';
-    updateCart();
-    fetchUserPoints(user_Id);
-
-    window.addEventListener('storage', updateCart);
-    return () => {
-      window.removeEventListener('storage', updateCart);
-    };
-  }, []);
-
-  const handleCheckout = async () => {
-    // Just show the confirmation dialog asking for email confirmation
-    setShowConfirmationDialog(true);
-  };
-
-  const confirmCheckout = async () => {
-    try {
-      const orderDetails = {
-        orderId: new Date().getTime(),
-        items: cartItems.map(item => item.trackName || item.collectionName),
-        total: total,
-      };
-
-      if (userPoints !== null && userPoints < total) {
-        setInsufficientPoints(true);
-        return;
-      }
-
-      const response = await fetch('https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation', { // Replace with your actual Lambda endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: userEmail, // Use the entered email
-          orderDetails: orderDetails,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send order confirmation email');
-      }
-
-      setCheckoutSuccess(true);
-      localStorage.removeItem('cartItems');
-      setCartItems([]);
-      setTotal(0);
-      setShowConfirmationDialog(false); // Close the dialog
-    } catch (error) {
-      console.error(error);
-      setErrorMessage('An error occurred while processing your order.');
-      setShowConfirmationDialog(false); // Close the dialog even if there's an error
-    }
-  };
+const Cart: React.FC<CartProps> = ({
+  cartItems, total, userPoints, userEmail, setUserEmail, handleCheckout,
+  showConfirmationDialog, setShowConfirmationDialog, confirmCheckout,
+  errorMessage, checkoutSuccess, insufficientPoints
+}) => {
+  const { settings } = useSettings(); // Access settings from context
+  const theme = useTheme();
 
   return (
-    <Box sx={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+    <Box
+      sx={{
+        padding: '20px',
+        maxWidth: '800px',
+        margin: '0 auto',
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
+        filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
+      }}
+    >
       <Typography variant="h4" gutterBottom>Your Cart</Typography>
 
       {errorMessage && (
@@ -198,6 +138,12 @@ const Cart: React.FC = () => {
           <Dialog
             open={showConfirmationDialog}
             onClose={() => setShowConfirmationDialog(false)}
+            PaperProps={{
+              sx: {
+                backgroundColor: theme.palette.background.default,
+                color: theme.palette.text.primary,
+              },
+            }}
           >
             <DialogTitle>Email Confirmation</DialogTitle>
             <DialogContent>

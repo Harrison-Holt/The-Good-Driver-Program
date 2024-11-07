@@ -6,10 +6,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-
+import { useSettings } from '../../components/Settings/settings_context';
 import CatalogItem from './CatalogItem'; 
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 interface ItunesItem {
   trackId?: string;
@@ -48,6 +49,9 @@ const API_BASE_URL = 'https://itunes.apple.com/search';
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const Catalog = () => {
+  const theme = useTheme(); // Retrieve the theme object here
+
+  const { settings } = useSettings(); // Access settings from context
   const [items, setItems] = useState<ItunesItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<ItunesItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
@@ -224,7 +228,12 @@ const Catalog = () => {
   }, [searchTerm, items]);
 
   return (
-    <Box sx={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <Box sx={{ padding: '40px 20px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+      filter: settings.isGreyscale ? 'grayscale(100%)' : 'none', }}>
       <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: '40px' }}>
         Discover Your Favorite Media
       </Typography>
@@ -274,8 +283,20 @@ const Catalog = () => {
       </Grid>
 
       {selectedItem && (
-        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+        <Dialog
+  open={showModal}
+  onClose={() => setShowModal(false)}
+  maxWidth="md"
+  fullWidth
+  scroll="paper"  // Enable scrolling within the dialog content
+  PaperProps={{
+    sx: {
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+      overflowY: 'auto', // Ensures content scrolls within dialog
+    },
+  }}
+>          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
