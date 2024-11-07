@@ -14,24 +14,24 @@ interface Props {
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
-  const theme = useTheme();  // Access MUI theme
-  const { settings } = useSettings();  // Access custom settings for modes
+  const theme = useTheme(); // Access MUI theme
+  const { settings } = useSettings(); // Access custom settings for modes
 
   // Define styles based on settings and theme
   const containerStyles = {
     width: '80%',
     padding: '20px',
     backgroundColor: settings.isHighContrast
-      ? '#000'  // High contrast mode: set to solid black background
+      ? '#000' // High contrast mode: set to solid black background
       : theme.palette.mode === 'dark'
-      ? '#121212'  // Dark mode: dark background
-      : theme.palette.background.default,  // Default background color in light mode
+      ? theme.palette.background.default // Dark mode: theme background
+      : theme.palette.background.paper, // Light mode: paper background for better contrast
     color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
     filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-    transform: `scale(${settings.zoomLevel})`,  // Apply zoom level from settings
+    transform: `scale(${settings.zoomLevel})`, // Apply zoom level from settings
     transformOrigin: 'top left',
     minHeight: '100vh',
-    transition: 'all 0.3s ease',  // Smooth transition for theme changes
+    transition: 'all 0.3s ease', // Smooth transition for theme changes
   };
 
   const textStyle = {
@@ -44,10 +44,10 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   switch (currentDisplay) {
     case "search":
       dashJsx = (
-        <>
+            <Box sx={containerStyles}>
           <Typography variant="h6" sx={textStyle}>Search</Typography>
           <SearchBar setSearchTerm={setSearchTerm} label="search" options={[]} />
-        </>
+        </Box>
       );
       break;
 
