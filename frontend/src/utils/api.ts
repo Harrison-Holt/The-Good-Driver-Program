@@ -32,7 +32,7 @@ export const fetchUserPoints = async (username: string): Promise<number | null> 
 // New function to update the user's point change notification preference
 export const updatePointChangeNotification = async (username: string, enableNotification: boolean): Promise<boolean> => {
   try {
-    const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/update-notification-preference`, {
+    const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`, {
       username,
       point_change_notification: enableNotification
     });
