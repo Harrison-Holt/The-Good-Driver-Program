@@ -21,8 +21,12 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   const containerStyles = {
     width: '80%',
     padding: '20px',
-    backgroundColor: theme.palette.background.default,
-    color: theme.palette.text.primary,
+    backgroundColor: settings.isHighContrast
+      ? '#000'  // High contrast mode: set to solid black background
+      : theme.palette.mode === 'dark'
+      ? '#121212'  // Dark mode: dark background
+      : theme.palette.background.default,  // Default background color in light mode
+    color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
     filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
     transform: `scale(${settings.zoomLevel})`,  // Apply zoom level from settings
     transformOrigin: 'top left',
@@ -31,7 +35,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   };
 
   const textStyle = {
-    color: theme.palette.text.primary,
+    color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
     marginBottom: '10px',
   };
 
@@ -109,4 +113,3 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
 };
 
 export default DashboardInfo;
-

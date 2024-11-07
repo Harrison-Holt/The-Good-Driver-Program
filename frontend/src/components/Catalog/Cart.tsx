@@ -45,7 +45,6 @@ const Cart: React.FC = () => {
   useEffect(() => {
     // Simulate fetching user points
     const fetchUserPoints = async () => {
-      // Replace this with actual API call to get user points
       setUserPoints(1000); // Example value
     };
     fetchUserPoints();
@@ -60,10 +59,8 @@ const Cart: React.FC = () => {
   };
 
   const confirmCheckout = () => {
-    // Handle the checkout logic here (e.g., API call to process the order)
     setCheckoutSuccess(true);
     setShowConfirmationDialog(false);
-    // Clear cart after successful checkout
     setCartItems([]);
     localStorage.removeItem('cartItems');
   };
@@ -103,9 +100,19 @@ const Cart: React.FC = () => {
         <Typography>No items in the cart.</Typography>
       ) : (
         <>
-          <List sx={{ backgroundColor: '#f9f9f9', borderRadius: '10px', padding: '20px' }}>
+          <List sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '10px', padding: '20px' }}>
             {cartItems.map((item, index) => (
-              <ListItem key={index} sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid #ddd' }}>
+              <ListItem
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '15px',
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.background.default, // Adjust item background for theme
+                  color: theme.palette.text.primary,
+                }}
+              >
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={3}>
                     <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%', borderRadius: '4px' }} />
@@ -113,22 +120,19 @@ const Cart: React.FC = () => {
                   <Grid item xs={7}>
                     <ListItemText
                       primary={
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
                           {item.trackName || item.collectionName}
                         </Typography>
                       }
                       secondary={
-                        <>
-                          <Typography component="span" variant="body2" color="textSecondary">
-                            <strong>Artist:</strong> {item.artistName}
-                          </Typography>
-                          <br />
-                        </>
+                        <Typography component="span" variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                          <strong>Artist:</strong> {item.artistName}
+                        </Typography>
                       }
                     />
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="h6" sx={{ textAlign: 'right' }}>
+                    <Typography variant="h6" sx={{ textAlign: 'right', color: theme.palette.text.primary }}>
                       {(item.collectionPrice || item.trackPrice)?.toFixed(2)} {item.currency || 'USD'}
                     </Typography>
                   </Grid>
@@ -200,3 +204,4 @@ const Cart: React.FC = () => {
 };
 
 export default Cart;
+
