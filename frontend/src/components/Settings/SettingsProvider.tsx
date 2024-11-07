@@ -39,7 +39,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
       // Prepare the settings payload
       const payload = {
-        user_id: username,  // Use username instead of user ID
+        username: username,  // Use username instead of user ID
         is_greyscale: settings.isGreyscale ? 1 : 0,
         is_high_contrast: settings.isHighContrast ? 1 : 0,
         is_dark_mode: settings.isDarkMode ? 1 : 0,
