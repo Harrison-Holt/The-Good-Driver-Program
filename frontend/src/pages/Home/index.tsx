@@ -143,6 +143,11 @@ const Home: React.FC = () => {
           Point Change
         </ListItemButton>
       </ListItem>
+      <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("profile")}>
+            Profile
+          </ListItemButton>
+        </ListItem>
         <ListItem>
           <ListItemButton onClick={handleLogout}>
             Logout

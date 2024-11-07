@@ -1,7 +1,6 @@
 import { Typography, Checkbox, FormControlLabel } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
 import { selectEmail, selectFirstName, selectLastName, selectUserName, selectUserType } from "../../store/userSlice";
-import Navibar from "../../components/Navibar";
 import { useState, useEffect } from "react";
 import { fetchPointChangeNotification, updatePointChangeNotification } from "../../utils/api";
 
@@ -21,6 +20,7 @@ const Profile: React.FC = () => {
             if (username) {  // Ensure username is not null
                 try {
                     const notificationPreference = await fetchPointChangeNotification(username);
+                    console.log("Fetched notification preference:", notificationPreference);  // Debug log
                     if (notificationPreference !== null) {
                         setEmailNotifications(notificationPreference);
                     }
@@ -29,31 +29,31 @@ const Profile: React.FC = () => {
                 }
             }
         };
-    
+
         fetchNotificationPreference();
     }, [username]);
 
     // Handle checkbox change
-const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked;
-    setEmailNotifications(isChecked);
+    const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = event.target.checked;
+        setEmailNotifications(isChecked);
 
-    if (username) {  // Ensure username is not null
-        try {
-            const success = await updatePointChangeNotification(username, isChecked);
-            if (!success) {
-                console.error("Failed to update notification preference");
-                setEmailNotifications(!isChecked);  // Revert if update fails
+        if (username) {  // Ensure username is not null
+            try {
+                const success = await updatePointChangeNotification(username, isChecked);
+                console.log("Updated notification preference:", success);  // Debug log
+                if (!success) {
+                    console.error("Failed to update notification preference");
+                    setEmailNotifications(!isChecked);  // Revert if update fails
+                }
+            } catch (error) {
+                console.error("Error updating notification preference:", error);
             }
-        } catch (error) {
-            console.error("Error updating notification preference:", error);
+        } else {
+            console.error("Username is null, cannot update notification preference");
+            setEmailNotifications(!isChecked);  // Revert since username is null
         }
-    } else {
-        console.error("Username is null, cannot update notification preference");
-        setEmailNotifications(!isChecked);  // Revert since username is null
-    }
-};
-
+    };
 
     let profile = (<></>);
 
@@ -107,7 +107,6 @@ const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) 
 
     return (
         <>
-            <Navibar />
             {profile}
         </>
     );
