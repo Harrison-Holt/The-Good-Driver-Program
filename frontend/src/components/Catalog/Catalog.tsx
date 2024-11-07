@@ -274,10 +274,10 @@ const Catalog = () => {
       </Grid>
 
       {selectedItem && (
-        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
+        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth scroll="paper" >
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxHeight: '75vh'}}>
               <img src={selectedItem.artworkUrl100} alt={selectedItem.trackName} style={{ width: '200px', marginBottom: '20px' }} />
               <DialogContentText>
                 <strong>Artist:</strong> {selectedItem.artistName} <br />

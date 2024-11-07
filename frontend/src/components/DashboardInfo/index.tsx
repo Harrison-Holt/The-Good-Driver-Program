@@ -1,43 +1,26 @@
 import React from 'react';
 import Applications from '../Applications';
 import SearchBar from '../../components/SearchBar';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
-import Cart from '../Catalog/Cart';
+import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
 import PointChange from '../PointChange.tsx';
-import Settings from '../../pages/Settings/settings.tsx';
-import { useSettings } from '../../components/Settings/settings_context'; // Import the settings context
+import Settings from '../../pages/Settings/settings.tsx'; // Import the Settings component
 
 interface Props {
   currentDisplay: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
-  const { settings } = useSettings(); // Use the settings context
-  const theme = useTheme();
-
-  // Define conditional styles based on settings
-  const containerStyles = {
-    width: '80%',
-    padding: '20px',
-    backgroundColor: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-    transform: `scale(${settings.zoomLevel})`,
-    transformOrigin: 'top left',
-    minHeight: '100vh',
-    transition: 'all 0.3s ease',
-  };
-
   let dashJsx;
 
   switch (currentDisplay) {
     case "search":
       dashJsx = (
         <>
-          <Typography variant="h6">Search</Typography>
-          <SearchBar setSearchTerm={setSearchTerm} label="search" options={[]} />
+          <Typography variant='h6'>Search</Typography>
+          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
         </>
       );
       break;
@@ -46,7 +29,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart />
+          <Cart /> {/* Render the Cart component */}
         </>
       );
       break;
@@ -55,7 +38,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Catalog</Typography>
-          <Catalog />
+          <Catalog /> {/* Render the Catalog component */}
         </>
       );
       break;
@@ -63,7 +46,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "applications":
       dashJsx = (
         <>
-          <Typography variant="h6">Applications</Typography>
+          <Typography variant='h6'>Applications</Typography>
           <Applications />
         </>
       );
@@ -73,16 +56,16 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Point Change</Typography>
-          <PointChange />
+          <PointChange /> {/* Render the PointChange component */}
         </>
       );
       break;
 
-    case "settings":
+    case "settings": // New case for settings
       dashJsx = (
         <>
           <Typography variant="h6">Settings</Typography>
-          <Settings />
+          <Settings /> {/* Render the Settings component */}
         </>
       );
       break;
@@ -97,7 +80,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   }
 
   return (
-    <Box sx={containerStyles}>
+    <Box sx={{ width: '80%', padding: '20px' }}>
       {dashJsx}
     </Box>
   );
