@@ -22,15 +22,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/about', element: <About /> },
   { path: '/catalog', element: <Catalog /> },
-  { path: '/cart', element: <Cart cartItems={[]} total={0} userPoints={null} userEmail={''} setUserEmail={function (): void {
-    throw new Error('Function not implemented.');
-  } } handleCheckout={function (): void {
-    throw new Error('Function not implemented.');
-  } } showConfirmationDialog={false} setShowConfirmationDialog={function (): void {
-    throw new Error('Function not implemented.');
-  } } confirmCheckout={function (): void {
-    throw new Error('Function not implemented.');
-  } } errorMessage={null} checkoutSuccess={false} insufficientPoints={false} /> },
+  { path: '/cart', element: <Cart /> },
   { path: '/confirmation', element: <Confirmation /> },
   { path: '/profile', element: <Profile /> },
   { path: '/auth-callback', element: <AuthCallback /> },

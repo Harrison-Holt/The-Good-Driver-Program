@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, List, ListItem, ListItemText, Grid, Divider, TextField, Button, Dialog, DialogTitle,
   DialogContent, DialogActions, Alert, useTheme
@@ -15,28 +15,58 @@ interface ItunesItem {
   currency?: string;
 }
 
-interface CartProps {
-  cartItems: ItunesItem[];
-  total: number;
-  userPoints: number | null;
-  userEmail: string;
-  setUserEmail: React.Dispatch<React.SetStateAction<string>>;
-  handleCheckout: () => void;
-  showConfirmationDialog: boolean;
-  setShowConfirmationDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  confirmCheckout: () => void;
-  errorMessage: string | null;
-  checkoutSuccess: boolean;
-  insufficientPoints: boolean;
-}
-
-const Cart: React.FC<CartProps> = ({
-  cartItems, total, userPoints, userEmail, setUserEmail, handleCheckout,
-  showConfirmationDialog, setShowConfirmationDialog, confirmCheckout,
-  errorMessage, checkoutSuccess, insufficientPoints
-}) => {
+const Cart: React.FC = () => {
   const { settings } = useSettings(); // Access settings from context
   const theme = useTheme();
+
+  // Internal state management
+  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [userPoints, setUserPoints] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState<boolean>(false);
+  const [errorMessage] = useState<string | null>(null);
+  const [checkoutSuccess, setCheckoutSuccess] = useState<boolean>(false);
+  const [insufficientPoints, setInsufficientPoints] = useState<boolean>(false);
+
+  // Load cart items from localStorage
+  useEffect(() => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    setCartItems(storedCartItems);
+  }, []);
+
+  // Calculate total price
+  useEffect(() => {
+    const calculatedTotal = cartItems.reduce((acc, item) => acc + (item.collectionPrice || item.trackPrice || 0), 0);
+    setTotal(calculatedTotal);
+  }, [cartItems]);
+
+  // Fetch user points (replace with your actual logic, e.g., API call)
+  useEffect(() => {
+    // Simulate fetching user points
+    const fetchUserPoints = async () => {
+      // Replace this with actual API call to get user points
+      setUserPoints(1000); // Example value
+    };
+    fetchUserPoints();
+  }, []);
+
+  const handleCheckout = () => {
+    if (userPoints !== null && userPoints >= total) {
+      setShowConfirmationDialog(true);
+    } else {
+      setInsufficientPoints(true);
+    }
+  };
+
+  const confirmCheckout = () => {
+    // Handle the checkout logic here (e.g., API call to process the order)
+    setCheckoutSuccess(true);
+    setShowConfirmationDialog(false);
+    // Clear cart after successful checkout
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+  };
 
   return (
     <Box
