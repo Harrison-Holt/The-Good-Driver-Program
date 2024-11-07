@@ -10,13 +10,6 @@ const Sidebar: React.FC = () => {
     const nav = useNavigate();
     const loggedIn = useAppSelector(selectLogin);
     const usertype = useAppSelector(selectUserType);
-    let admin = false;
-
-    if (usertype === "admin") {
-        admin = true;
-    } else {
-        admin = false;
-    }
 
     const sidebarNavList = (
         <Box sx={{ width: 250 }} role="presentation" onClick={() => {setOpen(false)}}>
@@ -35,7 +28,7 @@ const Sidebar: React.FC = () => {
                         Profile
                     </ListItemButton>
                 </ListItem>}
-                {admin && <ListItem>
+                {(usertype === "admin" || usertype === "sponsor") && <ListItem>
                     <ListItemButton
                         onClick={() => {nav("/user-management")}}
                     >
