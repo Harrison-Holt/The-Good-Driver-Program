@@ -14,24 +14,27 @@ interface Props {
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
-  const theme = useTheme(); // Access MUI theme
-  const { settings } = useSettings(); // Access custom settings for modes
+  const theme = useTheme();
+  const { settings } = useSettings();
 
-  // Define styles based on settings and theme
+  // Force background color application
+  const backgroundColor = settings.isHighContrast
+    ? '#000' // Solid black for high-contrast mode
+    : theme.palette.mode === 'dark'
+    ? '#121212' // Dark background for dark mode
+    : '#f5f5f5'; // Light background fallback for light mode
+
   const containerStyles = {
     width: '80%',
     padding: '20px',
-    backgroundColor: settings.isHighContrast
-      ? '#000' // High contrast mode: set to solid black background
-      : theme.palette.mode === 'dark'
-      ? theme.palette.background.default // Dark mode: theme background
-      : theme.palette.background.paper, // Light mode: paper background for better contrast
+    backgroundColor: `${backgroundColor} !important`, // Force the background color
     color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
     filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-    transform: `scale(${settings.zoomLevel})`, // Apply zoom level from settings
+    transform: `scale(${settings.zoomLevel})`,
     transformOrigin: 'top left',
     minHeight: '100vh',
-    transition: 'all 0.3s ease', // Smooth transition for theme changes
+    overflow: 'auto', // Ensure scrolling if content exceeds viewport height
+    transition: 'all 0.3s ease',
   };
 
   const textStyle = {
@@ -44,10 +47,10 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   switch (currentDisplay) {
     case "search":
       dashJsx = (
-            <Box sx={containerStyles}>
+        <>
           <Typography variant="h6" sx={textStyle}>Search</Typography>
           <SearchBar setSearchTerm={setSearchTerm} label="search" options={[]} />
-        </Box>
+        </>
       );
       break;
 
