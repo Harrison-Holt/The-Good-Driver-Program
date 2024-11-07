@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAppSelector } from '../../store/hooks'; // Import the selector hook from your store
 import Applications from '../Applications';
 import SearchBar from '../../components/SearchBar';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart';
 import PointChange from '../PointChange.tsx';
 import Profile from '../Profile';
 import PointHistory from '../PointHistory';
+import { selectUserName } from '../../store/userSlice'; // Import the selector for username
 
 interface Props {
   currentDisplay: string;
@@ -14,30 +16,10 @@ interface Props {
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
-  const [driverUsername, setDriverUsername] = useState<string>(''); // State to hold the driver's username
+  // Retrieve the logged-in username from global state
+  const username = useAppSelector(selectUserName);
+
   let dashJsx;
-
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDriverUsername(event.target.value);
-  };
-
-  const renderPointHistory = () => (
-    <>
-      <Typography variant="h6">Point History</Typography>
-      <TextField
-        label="Driver Username"
-        variant="outlined"
-        value={driverUsername}
-        onChange={handleUsernameChange}
-        fullWidth
-        sx={{ marginBottom: '16px' }}
-      />
-      <Button variant="contained" color="primary" onClick={() => setDriverUsername(driverUsername)}>
-        View Point History
-      </Button>
-      {driverUsername && <PointHistory driverUsername={driverUsername} />}
-    </>
-  );
 
   switch (currentDisplay) {
     case "search":
@@ -85,9 +67,14 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
-    case "pointHistory":
-      dashJsx = renderPointHistory();
-      break;
+      case "pointHistory":
+        dashJsx = (
+          <>
+            <Typography variant="h6">Point History</Typography>
+            {username && <PointHistory driverUsername={username} />} {/* Render only if username exists */}
+          </>
+        );
+        break;
 
     case "profile":
       dashJsx = (
