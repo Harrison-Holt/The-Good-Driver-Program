@@ -2,7 +2,7 @@
 import React from 'react';
 import { Box, Typography, Switch, Button, Slider } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
-import  Navibar from '../../components/Navibar'
+import Navibar from '../../components/Navibar';
 
 const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
@@ -41,42 +41,39 @@ const Settings: React.FC = () => {
   };
 
   return (
-
     <div>
       <Navibar />
-
-    <Box sx={containerStyle}>
-      <Typography variant="h6">Settings</Typography>
-      <Box sx={{ marginTop: '20px' }}>
-        <Typography>Greyscale Mode</Typography>
-        <Switch checked={settings.isGreyscale} onChange={handleToggleGreyscale} />
+      <Box sx={containerStyle}>
+        <Typography variant="h6">Settings</Typography>
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography>Greyscale Mode</Typography>
+          <Switch checked={settings.isGreyscale} onChange={handleToggleGreyscale} />
+        </Box>
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography>High Contrast Mode</Typography>
+          <Switch checked={settings.isHighContrast} onChange={handleToggleHighContrast} />
+        </Box>
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography>Dark Mode</Typography>
+          <Switch checked={settings.isDarkMode} onChange={handleToggleDarkMode} />
+        </Box>
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography>Zoom Level</Typography>
+          <Slider
+            value={settings.zoomLevel}
+            onChange={handleZoomChange}
+            min={1}
+            max={2}
+            step={0.1}
+            aria-labelledby="zoom-slider"
+          />
+        </Box>
+        <Button variant="contained" onClick={handleSaveSettings} sx={buttonStyle}>
+          Save Settings
+        </Button>
       </Box>
-      <Box sx={{ marginTop: '20px' }}>
-        <Typography>High Contrast Mode</Typography>
-        <Switch checked={settings.isHighContrast} onChange={handleToggleHighContrast} />
-      </Box>
-      <Box sx={{ marginTop: '20px' }}>
-        <Typography>Dark Mode</Typography>
-        <Switch checked={settings.isDarkMode} onChange={handleToggleDarkMode} />
-      </Box>
-      <Box sx={{ marginTop: '20px' }}>
-        <Typography>Zoom Level</Typography>
-        <Slider
-          value={settings.zoomLevel}
-          onChange={handleZoomChange}
-          min={1}
-          max={2}
-          step={0.1}
-          aria-labelledby="zoom-slider"
-        />
-      </Box>
-      <Button variant="contained" onClick={handleSaveSettings} sx={buttonStyle}>
-        Save Settings
-      </Button>
-    </Box>
     </div>
   );
 };
 
 export default Settings;
-

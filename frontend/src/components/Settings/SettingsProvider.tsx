@@ -32,7 +32,10 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       const session = await getSession();  // Get the current session
       const idToken = session.getIdToken().getJwtToken(); // Get the ID token
       const username = getUsernameFromToken(idToken); // Decode the token to get the username
-  
+      
+      // Log the username for debugging
+      console.log('Username from token:', username);
+
       // Prepare the settings payload
       const payload = {
         user_id: username,  // Use username instead of user ID
@@ -41,13 +44,13 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         is_dark_mode: settings.isDarkMode ? 1 : 0,
         zoom_level: settings.zoomLevel,
       };
-  
+
       // Log the payload to see the contents
       console.log('Payload to save:', payload);
-  
+
       // Send the settings payload to your API Gateway endpoint
       const response = await axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings', payload);
-  
+
       console.log('Settings saved successfully:', response.data);
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -56,7 +59,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       const localStorageSettings = {
         ...settings,  // Spread existing settings
       };
-  
+
       // Save settings to localStorage
       localStorage.setItem('userSettings', JSON.stringify(localStorageSettings));
       console.log('Settings saved to local storage:', localStorageSettings);
