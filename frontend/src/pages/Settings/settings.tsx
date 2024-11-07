@@ -42,8 +42,10 @@ const Settings: React.FC = () => {
 
   return (
 
+    <div>
+      <Navibar />
+
     <Box sx={containerStyle}>
-          <Navibar />
       <Typography variant="h6">Settings</Typography>
       <Box sx={{ marginTop: '20px' }}>
         <Typography>Greyscale Mode</Typography>
@@ -72,6 +74,7 @@ const Settings: React.FC = () => {
         Save Settings
       </Button>
     </Box>
+    </div>
   );
 };
 

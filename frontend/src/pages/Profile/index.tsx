@@ -10,7 +10,7 @@ const Profile: React.FC = () => {
     const lastName = useAppSelector(selectLastName);
     const email = useAppSelector(selectEmail);
 
-    var profile = (<></>);
+    let profile = (<></>);
 
     if (userType === "driver") {
         profile = (
