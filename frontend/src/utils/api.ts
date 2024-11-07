@@ -58,7 +58,7 @@ export const fetchPointChangeNotification = async (username: string): Promise<bo
 // Function to fetch point change history based on the username
 export const fetchPointChangeHistory = async (username: string): Promise<PointHistoryEntry[] | null> => {
   try {
-    const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
+    const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/point-history/${username}`);
     return response.data; 
   } catch (error) {
     console.error('Error fetching point change history:', error);
