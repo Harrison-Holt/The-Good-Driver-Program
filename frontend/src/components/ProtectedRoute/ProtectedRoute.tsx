@@ -12,6 +12,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         if (session.isValid()) {  // Use session.isValid() to check session validity
           setIsAuthenticated(true);
         }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error: unknown) {  // Handle the error as `unknown`
         setIsAuthenticated(false);
       }

@@ -24,6 +24,7 @@ const Home: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
   const [username, setUsername] = useState<string | null>(null);  // State for username
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
 
   const dispatch = useAppDispatch();

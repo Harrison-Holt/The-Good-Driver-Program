@@ -14,6 +14,7 @@ const LoginButton: React.FC = () => {
         if (session.isValid()) {  // Use session.isValid() to check session validity
           setIsAuthenticated(true);
         }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error: unknown) {  // Handle the error as `unknown`
         setIsAuthenticated(false);
       }

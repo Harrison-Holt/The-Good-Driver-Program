@@ -29,7 +29,7 @@ const ApplicationApproval: React.FC = () => {
                 }
               }).then((response) => {
                 console.log(response)
-                let data: application[] = response.data
+                const data: application[] = response.data
                 setApplicationList(data);
                 setLoaded(true);
                 console.log(username); //testing
