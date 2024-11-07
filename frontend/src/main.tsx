@@ -17,6 +17,7 @@ config.autoAddCss = false;
 
 // Define the routes including Cart and Confirmationimport About from './pages/About';
 import AuthCallback from './components/AuthCallback';  // Add the callback component
+import UserManagement from './pages/UserManagement';
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/auth-callback",  // Handle the Cognito redirect here
     element: <AuthCallback />
+  },
+  {
+    path: "/user-management",
+    element: <UserManagement />
   }
 ]);
 

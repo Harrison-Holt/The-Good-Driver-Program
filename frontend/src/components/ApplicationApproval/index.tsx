@@ -3,6 +3,7 @@ import { useAppSelector } from "../../store/hooks"
 import { selectUserName } from "../../store/userSlice"
 import { useEffect, useState } from "react";
 import axios from "axios";
+import SearchBar from "../SearchBar";
 
 interface application {
     application_id: number,
@@ -16,6 +17,7 @@ interface application {
 const ApplicationApproval: React.FC = () => {
 
     const [applicationList, setApplicationList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
+    const [filteredList, setFilteredList] = useState<application[]>([{application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: ""}]);
     const [loaded, setLoaded] = useState(false)
     const username =  useAppSelector(selectUserName);
     //const usertype = useAppSelector(selectUserType);
@@ -31,6 +33,7 @@ const ApplicationApproval: React.FC = () => {
                 console.log(response)
                 const data: application[] = response.data
                 setApplicationList(data);
+                setFilteredList(applicationList);
                 setLoaded(true);
                 console.log(username); //testing
                 console.log('ApplicationList:', data);  // Log the application info
@@ -60,10 +63,22 @@ const ApplicationApproval: React.FC = () => {
           }
     }
 
+    const requestFilter = (filterValue: string) => {
+        const apps = applicationList.filter((app) => {
+            if (app.app_status.toLowerCase().includes(filterValue.toLowerCase())) {
+                return app
+            } else if (app.driver_username.includes(filterValue)) {
+                return app
+            }
+        });
+        setFilteredList(apps)
+    }
+
     return(
         <>
+            <SearchBar setSearchTerm={requestFilter} label="filter" options={[]}/>
             {loaded && <List>
-                {applicationList.map((app) => (<>
+                {filteredList.map((app) => (<>
                     <Divider variant="inset" component="li"/>
                     <ListItem key={app.application_id}>
                         <ListItemText
