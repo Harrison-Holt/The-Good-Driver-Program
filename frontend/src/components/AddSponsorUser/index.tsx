@@ -1,4 +1,4 @@
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import SearchBar from "../../components/SearchBar";
 import axios from "axios";
@@ -7,7 +7,6 @@ import { selectUserName } from "../../store/userSlice";
 
 const AddSponsorUser: React.FC = () => {
 
-    const [orgName, setOrgName] = useState("")
     const [newSponsorUser, setNewSponsorUser] = useState("")
     const [userList, setUserList] = useState([]);
 
