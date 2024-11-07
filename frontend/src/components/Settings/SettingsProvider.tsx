@@ -1,8 +1,8 @@
 import React, { useState, ReactNode, useEffect } from 'react';
 import { Settings, SettingsContext } from './settings_context';
 import axios from 'axios';
-import { getSession } from '../../utils/cognitoAuth';  
-import { getUsernameFromToken } from '../../utils/tokenUtils';
+import { useAppSelector } from '../../store/hooks';
+import { selectUserName } from '../../store/userSlice';
 
 interface SettingsProviderProps {
   children: ReactNode;
@@ -18,6 +18,7 @@ const defaultSettings: Settings = {
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const username = useAppSelector(selectUserName);
 
   // Effect to load settings from local storage
   useEffect(() => {
@@ -29,9 +30,9 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
   const saveSettings = async () => {
     try {
-      const session = await getSession();  // Get the current session
-      const idToken = session.getIdToken().getJwtToken(); // Get the ID token
-      const username = getUsernameFromToken(idToken); // Decode the token to get the username
+      //const session = await getSession();  // Get the current session
+      //const idToken = session.getIdToken().getJwtToken(); // Get the ID token
+      //const username = getUsernameFromToken(idToken); // Decode the token to get the username
       
       // Log the username for debugging
       console.log('Username from token:', username);
