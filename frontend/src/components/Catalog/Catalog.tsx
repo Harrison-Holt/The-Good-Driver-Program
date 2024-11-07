@@ -4,6 +4,8 @@ import {
   Button, DialogContentText, Grid, Alert, List, ListItem, ListItemText, TextField, Rating, InputAdornment
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from "../../store/hooks"
+import { selectUserType } from "../../store/userSlice"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
@@ -62,6 +64,7 @@ const Catalog = () => {
   const [conversionRate, setConversionRate] = useState(100); // Points system
   const [sortOption, setSortOption] = useState('highest');
   const navigate = useNavigate();
+  const usertype = useAppSelector(selectUserType);
 
   const calculatePoints = (price?: number) => {
     return price ? (price * conversionRate).toFixed(2) : 'N/A';
@@ -171,6 +174,17 @@ const Catalog = () => {
     setAlertMessage(`${item.trackName || item.collectionName} added to cart!`);
   };
 
+  const handleRemFromCatalog = (item: ItunesItem) => {
+    console.log(item.trackName);
+    const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+
+    const updateList = [...removedItems, item];
+    localStorage.setItem('remItems', JSON.stringify(updateList));
+    setAlertMessage(`${item.trackName || item.collectionName} has been removed from your catalog.`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
   const handleAddToWishList = (item: ItunesItem) => {
     const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
 
@@ -209,9 +223,25 @@ const Catalog = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
+  let sponBtn = (<><Button variant="contained" color="primary">Catalog</Button></>);
+  console.log("\"" + usertype + "\"");
+  // Check User Role
+  if (usertype === "sponsor") {
+    console.log("Setting sponBtn");
+    sponBtn = (<>
+      <Button variant="contained" color="primary" onClick={() => selectedItem ? handleRemFromCatalog(selectedItem) : console.log("NULL")}>
+        Unlist from Catalog
+      </Button>
+    </>)
+    console.log("Set sponBtn");
+  } else {
+    console.log("\""+usertype+"\"" + ",\"sponsor\"")
+  }
+
+  // Add a button if the user is a sponsor, then show the item
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
-    setShowModal(true);
+    setShowModal(true);    
   };
 
   const sortedReviews = sortReviews(reviews, sortOption);
@@ -354,6 +384,7 @@ const Catalog = () => {
             </Box>
           </DialogContent>
           <DialogActions>
+            {sponBtn}
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
