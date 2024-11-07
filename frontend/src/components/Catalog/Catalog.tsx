@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
 import CatalogItem from './CatalogItem'; 
+import { useAppSelector } from "../../store/hooks"
+import { selectUserType } from "../../store/userSlice"
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
 import { useSettings } from '../Settings/settings_context';  // Import settings context
@@ -67,6 +69,8 @@ const Catalog = () => {
 
   const theme = useTheme();  // Access MUI theme
   const { settings } = useSettings();  // Access custom settings
+
+  const usertype = useAppSelector(selectUserType); // 
 
   // Calculate points function remains the same
 
@@ -176,6 +180,17 @@ const Catalog = () => {
     }
   };
 
+  const handleRemFromCatalog = (item: ItunesItem) => {
+    console.log(item.trackName);
+    const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+
+    const updateList = [...removedItems, item];
+    localStorage.setItem('remItems', JSON.stringify(updateList));
+    setAlertMessage(`${item.trackName || item.collectionName} has been removed from your catalog.`);
+    setShowModal(false);
+    window.dispatchEvent(new Event('storage'));
+  };
+
   const handleBuyNow = (item: ItunesItem) => {
     setAlertMessage(`Purchased ${item.trackName || item.collectionName}!`);
     navigate('/confirmation', { state: { item } });
@@ -230,6 +245,21 @@ const Catalog = () => {
     setShowModal(false);
     window.dispatchEvent(new Event('storage'));
   };
+
+  let sponBtn = (<><Button variant="contained" color="primary">Catalog</Button></>);
+  console.log("\"" + usertype + "\"");
+  // Check User Role
+  if (usertype === "sponsor") {
+    console.log("Setting sponBtn");
+    sponBtn = (<>
+      <Button variant="contained" color="primary" onClick={() => selectedItem ? handleRemFromCatalog(selectedItem) : console.log("NULL")}>
+        Unlist from Catalog
+      </Button>
+    </>)
+    console.log("Set sponBtn");
+  } else {
+    console.log("\""+usertype+"\"" + ",\"sponsor\"")
+  }
 
   const handleViewDetails = (item: ItunesItem) => {
     setSelectedItem(item);
@@ -376,6 +406,7 @@ const Catalog = () => {
             </Box>
           </DialogContent>
           <DialogActions sx={dialogContentStyles}>
+            {sponBtn}
             <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
               Buy Now
             </Button>
