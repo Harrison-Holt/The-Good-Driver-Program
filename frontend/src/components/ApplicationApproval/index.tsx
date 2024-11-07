@@ -3,7 +3,7 @@ import { Divider, List, ListItem, ListItemText, Typography, Stack, ListItemButto
 import { useAppSelector } from "../../store/hooks";
 import { selectUserName } from "../../store/userSlice";
 import axios from "axios";
-import { useSettings } from "../../components/Settings/settings_context"; // Import the settings context
+import { useSettings } from "../../components/Settings/settings_context";
 
 interface Application {
   application_id: number;
@@ -15,10 +15,10 @@ interface Application {
 }
 
 const ApplicationApproval: React.FC = () => {
-  const [applicationList, setApplicationList] = useState<Application[]>([{ application_id: 0, app_status: "", app_description: "", sponsor_id: 0, driver_id: 0, driver_username: "" }]);
+  const [applicationList, setApplicationList] = useState<Application[]>([]);
   const [loaded, setLoaded] = useState(false);
   const username = useAppSelector(selectUserName);
-  
+
   const theme = useTheme();
   const { settings } = useSettings();
 
@@ -43,9 +43,10 @@ const ApplicationApproval: React.FC = () => {
   useEffect(() => {
     const fetchAppList = async () => {
       try {
-        const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`, {
-          params: { name: username }
-        });
+        const response = await axios.get(
+          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application`,
+          { params: { name: username } }
+        );
         const data: Application[] = response.data;
         setApplicationList(data);
         setLoaded(true);

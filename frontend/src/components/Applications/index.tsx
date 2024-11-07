@@ -8,7 +8,7 @@ import ApplicationApproval from "../ApplicationApproval";
 import { useSettings } from "../../components/Settings/settings_context";
 
 const Applications: React.FC = () => {
-  const [sponsorList, setSponsorList] = useState([]);
+  const [sponsorList, setSponsorList] = useState<string[]>([]);
   const [selectedSponsor, setSelectedSponsor] = useState("");
   const [providedReason, setProvidedReason] = useState("");
   const [submitForm, setSubmitForm] = useState(false);
@@ -26,10 +26,10 @@ const Applications: React.FC = () => {
     margin: '10px auto',
     padding: '20px',
     backgroundColor: settings.isHighContrast
-      ? '#000'  // High contrast: solid black
+      ? '#000' // High contrast: solid black
       : theme.palette.mode === 'dark'
-      ? theme.palette.background.default  // Dark mode
-      : '#ffffff',  // Light mode
+      ? theme.palette.background.default // Dark mode
+      : '#ffffff', // Light mode
     color: settings.isHighContrast ? '#fff' : theme.palette.text.primary,
     filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
     borderRadius: '8px',
@@ -37,7 +37,7 @@ const Applications: React.FC = () => {
   };
 
   const buttonStyles = {
-    color: settings.isHighContrast ? '#FFD700' : theme.palette.primary.main,  // High contrast yellow accent
+    color: settings.isHighContrast ? '#FFD700' : theme.palette.primary.main, // High contrast yellow accent
     backgroundColor: settings.isHighContrast ? '#333' : undefined,
     '&:hover': {
       backgroundColor: settings.isHighContrast ? '#555' : theme.palette.action.hover,
@@ -47,40 +47,40 @@ const Applications: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors');
-        let data = await response.json();
-        data = JSON.parse(data.body);
+        const response = await axios.get('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors');
+        const data = JSON.parse(response.data.body);
         setSponsorList(data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
     if (submitForm) {
-      axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
-        sponsorOrg: selectedSponsor,
-        appBody: providedReason,
-        userName: username,
-        applyingUserType: usertype,
-      }).then(response => {
-        console.log(response);
-      }).catch(error => {
-        console.log(error);
-      });
-
+      axios
+        .post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/application', {
+          sponsorOrg: selectedSponsor,
+          appBody: providedReason,
+          userName: username,
+          applyingUserType: usertype,
+        })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error);
+        });
       setSubmitForm(false);
     }
   }, [submitForm, selectedSponsor, providedReason, username, usertype]);
 
-  let appPage = (<></>);
+  let appPage = <></>;
   if (usertype === "driver") {
     appPage = (
       <Stack spacing={2}>
-        <Stack direction={"row"} spacing={2}>
+        <Stack direction="row" spacing={2}>
           <Typography sx={{ color: containerStyles.color }}>Sponsor List:</Typography>
           <Box sx={{ width: '100%' }}>
             <SearchBar setSearchTerm={setSelectedSponsor} options={sponsorList} label="Sponsors" />
@@ -98,8 +98,12 @@ const Applications: React.FC = () => {
           }}
         />
         <Stack direction="row" spacing={2}>
-          <Button onClick={() => setSubmitForm(true)} sx={buttonStyles}>Submit</Button>
-          <Button onClick={() => setProvidedReason("")} sx={buttonStyles}>Clear</Button>
+          <Button onClick={() => setSubmitForm(true)} sx={buttonStyles}>
+            Submit
+          </Button>
+          <Button onClick={() => setProvidedReason("")} sx={buttonStyles}>
+            Clear
+          </Button>
         </Stack>
       </Stack>
     );
