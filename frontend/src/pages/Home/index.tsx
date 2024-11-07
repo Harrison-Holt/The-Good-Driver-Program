@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Stack, Divider, List, ListItem, ListItemButton, Typography, Badge } from '@mui/material';
-import axios from 'axios';  // Import Axios
+import { Box, Stack, Divider, List, ListItem, ListItemButton, Typography, Badge, useTheme } from '@mui/material';
+import axios from 'axios';
 import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { getUsernameFromToken } from '../../utils/tokenUtils';  // Import the utility function
+import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
+import { useSettings } from '../../components/Settings/settings_context';  // Import the settings context
 
 interface ItunesItem {
   trackId?: string;
@@ -20,115 +21,90 @@ interface ItunesItem {
   currency?: string;
 }
 
+
+
 const Home: React.FC = () => {
+
+  
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
-  const [username, setUsername] = useState<string | null>(null);  // State for username
-  const [userInfo, setUserInfo] = useState<any>(null);  // State for storing user info from Lambda
+  const [username, setUsername] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [userInfo, setUserInfo] = useState<any>(null);
 
   const dispatch = useAppDispatch();
+  const theme = useTheme();
+  const { settings } = useSettings();  // Access settings from context
 
-  // Add the logout function
+  // Handle logout with redirect to Cognito
   const handleLogout = () => {
-    const clientId = 'ff8qau87sidn42svsuj51v4l4';  // Replace with your Cognito App Client ID
-    const cognitoDomain = 'team08-domain';  // Replace with your Cognito domain name
+    const clientId = 'ff8qau87sidn42svsuj51v4l4';
+    const cognitoDomain = 'team08-domain';
     const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
-
-    // Clear any stored tokens to simulate logout in the app
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
-
-    // Update internal app state
     dispatch(logout());
-
-    // Redirect the user to the Cognito logout URL
     window.location.href = logoutUrl;
   };
 
-  // Fetch user info from the API based on the username
+  // Fetch user info based on username
   const fetchUserInfo = async (username: string) => {
     try {
-      axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`)
-        .then((res) => {
-          setUserInfo(res.data);  // Store the fetched user info in state
-          console.log('User Info:', res.data);  // Log the user info
-          dispatch(setUserType(res.data.role));
-          dispatch(setFirstName(res.data.first_name));
-          dispatch(setLastName(res.data.last_name));
-          dispatch(setEmail(res.data.email));
-        });
+      const response = await axios.get(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`);
+      setUserInfo(response.data);
+      dispatch(setUserType(response.data.role));
+      dispatch(setFirstName(response.data.first_name));
+      dispatch(setLastName(response.data.last_name));
+      dispatch(setEmail(response.data.email));
     } catch (error) {
       console.error('Error fetching user info:', error);
     }
   };
 
-  // Load cart from localStorage (if any) on component mount
+  // Load cart from localStorage on component mount
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    setCartItems(storedCartItems); // Update state with items from localStorage
+    setCartItems(storedCartItems);
   }, []);
 
   // Add a storage event listener to update cart when changes are detected in localStorage
   useEffect(() => {
     const handleStorageChange = () => {
       const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      setCartItems(storedCartItems); // Update the cart items
+      setCartItems(storedCartItems);
     };
-
     window.addEventListener('storage', handleStorageChange);
-
-    // Clean up event listener on unmount
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   useEffect(() => {
-    // Retrieve the idToken from local storage
     const idToken = localStorage.getItem('idToken');
     if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken);  // Decode the username from the token
-      setUsername(decodedUsername);  // Update the state with the decoded username
+      const decodedUsername = getUsernameFromToken(idToken);
+      setUsername(decodedUsername);
       dispatch(login(decodedUsername));
-
-      // Once username is available, fetch the user info from the Lambda function
-      if (decodedUsername) {
-        fetchUserInfo(decodedUsername);  // Fetch user info based on username
-      }
+      if (decodedUsername) fetchUserInfo(decodedUsername);
     }
   }, []);
 
-  // Handle navigation to Cart
-  const handleCartClick = () => {
-    setSelectedDisplay("cart");
-  };
-
-  // Get the total number of items in the cart
+  const handleCartClick = () => setSelectedDisplay("cart");
   const cartItemCount = cartItems.length;
 
   const dashboardList = (
     <Box sx={{ width: '250px', backgroundColor: '#f5f5f5', padding: '10px' }}>
       <List>
         <ListItem>
-          <ListItemButton onClick={() => setSelectedDisplay("home")}>
-            Home
-          </ListItemButton>
+          <ListItemButton onClick={() => setSelectedDisplay("home")}>Home</ListItemButton>
         </ListItem>
         <ListItem>
-        <ListItemButton onClick={() => setSelectedDisplay("notifications")}>
-          Notifications
-        </ListItemButton>
-      </ListItem>
-      <ListItem>
-        <ListItemButton onClick={() => setSelectedDisplay("applications")}>
-          Applications
-        </ListItemButton>
-      </ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("notifications")}>Notifications</ListItemButton>
+        </ListItem>
         <ListItem>
-          <ListItemButton onClick={() => setSelectedDisplay("catalog")}>
-            Catalog
-          </ListItemButton>
+          <ListItemButton onClick={() => setSelectedDisplay("applications")}>Applications</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
         <ListItem>
           <ListItemButton onClick={handleCartClick}>
@@ -138,40 +114,43 @@ const Home: React.FC = () => {
             <Typography sx={{ ml: 1 }}>Cart</Typography>
           </ListItemButton>
         </ListItem>
-      <ListItem>
-        <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>
-          Point Change
-        </ListItemButton>
-      </ListItem>
         <ListItem>
-          <ListItemButton onClick={handleLogout}>
-            Logout
-          </ListItemButton>
+          <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>Point Change</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={handleLogout}>Logout</ListItemButton>
         </ListItem>
       </List>
     </Box>
   );
 
   return (
-    <Box sx={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        backgroundColor: settings.isHighContrast ? '#000' : settings.isDarkMode ? theme.palette.background.default : '#ffffff',
+        color: settings.isHighContrast ? '#fff' : theme.palette.text.primary,
+        minHeight: '100vh',
+        filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
+        transition: 'all 0.3s ease',
+      }}
+    >
       <Navibar />
       <Stack direction={"row"} spacing={5} sx={{ padding: '20px' }}>
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
         <Box sx={{ flex: 1, padding: '20px' }}>
-          {/* Pass the currentDisplay prop to DashboardInfo */}
-          <DashboardInfo setSearchTerm={()=>{}} currentDisplay={selectedDisplay} />
+          <DashboardInfo setSearchTerm={() => {}} currentDisplay={selectedDisplay} />
         </Box>
         <Box>
-            {username && <p>Welcome, {username}!</p>}
-            {userInfo && (
-              <div>
-                <p>Name: {userInfo.first_name} {userInfo.last_name}</p>
-                <p>Email: {userInfo.email}</p>
-                <p>Role: {userInfo.role}</p>
-              </div>
-            )}
-          </Box>
+          {username && <Typography>Welcome, {username}!</Typography>}
+          {userInfo && (
+            <div>
+              <Typography>Name: {userInfo.first_name} {userInfo.last_name}</Typography>
+              <Typography>Email: {userInfo.email}</Typography>
+              <Typography>Role: {userInfo.role}</Typography>
+            </div>
+          )}
+        </Box>
       </Stack>
     </Box>
   );

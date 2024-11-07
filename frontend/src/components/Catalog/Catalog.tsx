@@ -174,7 +174,7 @@ const Catalog = () => {
   const handleAddToWishList = (item: ItunesItem) => {
     const currentWList = JSON.parse(localStorage.getItem('wishItems') || '[]');
 
-    for (let i in currentWList) {
+    for (const i in currentWList) {
       if(currentWList[i].trackName == item.trackName) {
         setAlertMessage(`${item.trackName || item.collectionName} is already in your wish list...`);
         setShowModal(false);
@@ -193,7 +193,7 @@ const Catalog = () => {
   const handleSaveForLater = (item: ItunesItem) => {
     const currentSList = JSON.parse(localStorage.getItem('savedItems') || '[]');
 
-    for (let i in currentSList) {
+    for (const i in currentSList) {
       if(currentSList[i].trackName == item.trackName) {
         setAlertMessage(`${item.trackName || item.collectionName} is already saved for later...`);
         setShowModal(false);

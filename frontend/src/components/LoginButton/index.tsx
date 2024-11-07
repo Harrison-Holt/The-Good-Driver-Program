@@ -15,6 +15,7 @@ const LoginButton: React.FC = () => {
           setIsAuthenticated(true);
         }
       } catch (error: unknown) {  // Handle the error as `unknown`
+        console.error(error); 
         setIsAuthenticated(false);
       }
     };
