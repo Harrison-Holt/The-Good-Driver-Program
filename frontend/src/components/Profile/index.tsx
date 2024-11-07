@@ -14,10 +14,10 @@ const Profile: React.FC = () => {
     // State to hold the notification preference
     const [emailNotifications, setEmailNotifications] = useState(false);
 
-    // Fetch the initial notification preference
+    // Fetch the initial notification preference only once
     useEffect(() => {
         const fetchNotificationPreference = async () => {
-            if (username) {  // Ensure username is not null
+            if (username) {
                 try {
                     const notificationPreference = await fetchPointChangeNotification(username);
                     console.log("Fetched notification preference:", notificationPreference);  // Debug log
@@ -31,27 +31,31 @@ const Profile: React.FC = () => {
         };
 
         fetchNotificationPreference();
-    }, [username]);
+    }, [username]); // Dependency array includes `username` only to fetch once when `username` is available
 
     // Handle checkbox change
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
+        
+        // Optimistically update the state
         setEmailNotifications(isChecked);
+        console.log("Checkbox clicked, setting emailNotifications to:", isChecked); // Debug log
 
-        if (username) {  // Ensure username is not null
+        if (username) {
             try {
                 const success = await updatePointChangeNotification(username, isChecked);
-                console.log("Updated notification preference:", success);  // Debug log
                 if (!success) {
-                    console.error("Failed to update notification preference");
-                    setEmailNotifications(!isChecked);  // Revert if update fails
+                    console.error("Failed to update notification preference on server");
+                    // Revert state if the API call fails
+                    setEmailNotifications(!isChecked);
                 }
             } catch (error) {
                 console.error("Error updating notification preference:", error);
+                // Revert state if an error occurs
+                setEmailNotifications(!isChecked);
             }
         } else {
             console.error("Username is null, cannot update notification preference");
-            setEmailNotifications(!isChecked);  // Revert since username is null
         }
     };
 
