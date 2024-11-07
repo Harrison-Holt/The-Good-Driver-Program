@@ -6,7 +6,7 @@ import Catalog from '../Catalog/Catalog';
 import Cart from '../Catalog/Cart';
 import PointChange from '../PointChange.tsx';
 import Settings from '../../pages/Settings/settings.tsx';
-import { useSettings } from '../../components/Settings/settings_context'; // Import the settings context
+import { useSettings } from '../../components/Settings/settings_context';
 
 interface Props {
   currentDisplay: string;
@@ -30,13 +30,18 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     transition: 'all 0.3s ease',  // Smooth transition for theme changes
   };
 
+  const textStyle = {
+    color: theme.palette.text.primary,
+    marginBottom: '10px',
+  };
+
   let dashJsx;
 
   switch (currentDisplay) {
     case "search":
       dashJsx = (
         <>
-          <Typography variant="h6">Search</Typography>
+          <Typography variant="h6" sx={textStyle}>Search</Typography>
           <SearchBar setSearchTerm={setSearchTerm} label="search" options={[]} />
         </>
       );
@@ -45,7 +50,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "cart":
       dashJsx = (
         <>
-          <Typography variant="h6">Your Cart</Typography>
+          <Typography variant="h6" sx={textStyle}>Your Cart</Typography>
           <Cart />
         </>
       );
@@ -54,7 +59,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "catalog":
       dashJsx = (
         <>
-          <Typography variant="h6">Catalog</Typography>
+          <Typography variant="h6" sx={textStyle}>Catalog</Typography>
           <Catalog />
         </>
       );
@@ -63,7 +68,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "applications":
       dashJsx = (
         <>
-          <Typography variant="h6">Applications</Typography>
+          <Typography variant="h6" sx={textStyle}>Applications</Typography>
           <Applications />
         </>
       );
@@ -72,7 +77,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "pointChange":
       dashJsx = (
         <>
-          <Typography variant="h6">Point Change</Typography>
+          <Typography variant="h6" sx={textStyle}>Point Change</Typography>
           <PointChange />
         </>
       );
@@ -81,7 +86,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "settings":
       dashJsx = (
         <>
-          <Typography variant="h6">Settings</Typography>
+          <Typography variant="h6" sx={textStyle}>Settings</Typography>
           <Settings />
         </>
       );
@@ -90,7 +95,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     default:
       dashJsx = (
         <>
-          <Typography variant="h6">Home</Typography>
+          <Typography variant="h6" sx={textStyle}>Home</Typography>
         </>
       );
       break;
