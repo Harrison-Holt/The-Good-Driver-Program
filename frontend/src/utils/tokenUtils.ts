@@ -10,6 +10,7 @@ interface DecodedToken {
 
 export function getUsernameFromToken(token: string): string | null {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decoded: any = jwtDecode(token);
 
     const decodedToken: DecodedToken = {
