@@ -1,18 +1,24 @@
 import React from 'react';
+import { useAppSelector } from '../../store/hooks'; // Import the selector hook from your store
 import Applications from '../Applications';
 import SearchBar from '../../components/SearchBar';
 import { Box, Typography } from '@mui/material';
 import Catalog from '../Catalog/Catalog';
-import Cart from '../Catalog/Cart'; // Assuming Cart is imported here
+import Cart from '../Catalog/Cart';
 import PointChange from '../PointChange.tsx';
-import Profile from '../Profile'; // Updated import path for Profile
+import Profile from '../Profile';
+import PointHistory from '../PointHistory';
+import { selectUserName } from '../../store/userSlice'; // Import the selector for username
 
 interface Props {
   currentDisplay: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>; // Add setSearchTerm as a prop
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
+  // Retrieve the logged-in username from global state
+  const username = useAppSelector(selectUserName);
+
   let dashJsx;
 
   switch (currentDisplay) {
@@ -20,7 +26,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant='h6'>Search</Typography>
-          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} /> {/* Ensure the 'options' prop is passed */}
+          <SearchBar setSearchTerm={setSearchTerm} label='search' options={[]} />
         </>
       );
       break;
@@ -29,7 +35,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Your Cart</Typography>
-          <Cart /> {/* Render the Cart component */}
+          <Cart />
         </>
       );
       break;
@@ -38,7 +44,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Catalog</Typography>
-          <Catalog /> {/* Render the Catalog component */}
+          <Catalog />
         </>
       );
       break;
@@ -56,16 +62,25 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       dashJsx = (
         <>
           <Typography variant="h6">Point Change</Typography>
-          <PointChange /> {/* Render the PointChange component */}
+          <PointChange />
         </>
       );
       break;
+
+      case "pointHistory":
+        dashJsx = (
+          <>
+            <Typography variant="h6">Point History</Typography>
+            {username && <PointHistory driverUsername={username} />} {/* Render only if username exists */}
+          </>
+        );
+        break;
 
     case "profile":
       dashJsx = (
         <>
           <Typography variant="h6">Profile</Typography>
-          <Profile /> {/* Render the Profile component */}
+          <Profile />
         </>
       );
       break;
