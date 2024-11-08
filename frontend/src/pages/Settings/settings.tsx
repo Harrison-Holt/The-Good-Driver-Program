@@ -13,8 +13,8 @@ import { useSettings } from '../../components/Settings/settings_context';
 import Navibar from '../../components/Navibar';
 import moment from 'moment-timezone';
 
-// Get the list of time zones using moment-timezone
-const timeZones = moment.tz.names();
+// Comprehensive list of time zones
+const timeZones: string[] = moment.tz.names();
 
 const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
@@ -110,7 +110,7 @@ const Settings: React.FC = () => {
             onChange={handleTimezoneChange}
             fullWidth
           >
-            {timeZones.map(zone => (
+            {timeZones.map((zone: string) => (
               <MenuItem key={zone} value={zone}>
                 {zone}
               </MenuItem>
