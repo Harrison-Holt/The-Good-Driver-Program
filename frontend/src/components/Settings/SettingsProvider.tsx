@@ -10,11 +10,13 @@ interface SettingsProviderProps {
 
 // Default settings configuration
 const defaultSettings: Settings = {
-  isGreyscale: false,
-  isHighContrast: false,
-  isDarkMode: false,
-  zoomLevel: 1,
-};
+    isGreyscale: false,
+    isHighContrast: false,
+    isDarkMode: false,
+    zoomLevel: 1,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
+  };
+  
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -30,12 +32,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
   const saveSettings = async () => {
     try {
-      //const session = await getSession();  // Get the current session
-      //const idToken = session.getIdToken().getJwtToken(); // Get the ID token
-      //const username = getUsernameFromToken(idToken); // Decode the token to get the username
-      
-      // Log the username for debugging
-      console.log('Username from token:', username);
+
 
       // Prepare the settings payload
       const payload = {

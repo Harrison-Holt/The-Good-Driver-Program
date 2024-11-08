@@ -1,11 +1,27 @@
-// src/components/Settings/Settings.tsx
 import React from 'react';
-import { Box, Typography, Switch, Button, Slider } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Switch,
+  Button,
+  Slider,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import Navibar from '../../components/Navibar';
+import moment from 'moment-timezone';
+
+// Get the list of time zones using moment-timezone
+const timeZones = moment.tz.names();
 
 const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
+
+  const handleTimezoneChange = (event: SelectChangeEvent<string>) => {
+    setSettings(prev => ({ ...prev, timezone: event.target.value }));
+  };
 
   const handleToggleGreyscale = () => {
     setSettings(prev => ({ ...prev, isGreyscale: !prev.isGreyscale }));
@@ -45,18 +61,35 @@ const Settings: React.FC = () => {
       <Navibar />
       <Box sx={containerStyle}>
         <Typography variant="h6">Settings</Typography>
+
+        {/* Greyscale Mode */}
         <Box sx={{ marginTop: '20px' }}>
           <Typography>Greyscale Mode</Typography>
-          <Switch checked={settings.isGreyscale} onChange={handleToggleGreyscale} />
+          <Switch
+            checked={settings.isGreyscale}
+            onChange={handleToggleGreyscale}
+          />
         </Box>
+
+        {/* High Contrast Mode */}
         <Box sx={{ marginTop: '20px' }}>
           <Typography>High Contrast Mode</Typography>
-          <Switch checked={settings.isHighContrast} onChange={handleToggleHighContrast} />
+          <Switch
+            checked={settings.isHighContrast}
+            onChange={handleToggleHighContrast}
+          />
         </Box>
+
+        {/* Dark Mode */}
         <Box sx={{ marginTop: '20px' }}>
           <Typography>Dark Mode</Typography>
-          <Switch checked={settings.isDarkMode} onChange={handleToggleDarkMode} />
+          <Switch
+            checked={settings.isDarkMode}
+            onChange={handleToggleDarkMode}
+          />
         </Box>
+
+        {/* Zoom Level */}
         <Box sx={{ marginTop: '20px' }}>
           <Typography>Zoom Level</Typography>
           <Slider
@@ -68,7 +101,29 @@ const Settings: React.FC = () => {
             aria-labelledby="zoom-slider"
           />
         </Box>
-        <Button variant="contained" onClick={handleSaveSettings} sx={buttonStyle}>
+
+        {/* Timezone */}
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography>Timezone</Typography>
+          <Select
+            value={settings.timezone || 'UTC'}
+            onChange={handleTimezoneChange}
+            fullWidth
+          >
+            {timeZones.map(zone => (
+              <MenuItem key={zone} value={zone}>
+                {zone}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+
+        {/* Save Settings Button */}
+        <Button
+          variant="contained"
+          onClick={handleSaveSettings}
+          sx={buttonStyle}
+        >
           Save Settings
         </Button>
       </Box>

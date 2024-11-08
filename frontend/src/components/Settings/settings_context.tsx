@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 
 export interface Settings {
+  timezone: string;
   isGreyscale: boolean;
   isHighContrast: boolean;
   isDarkMode: boolean;

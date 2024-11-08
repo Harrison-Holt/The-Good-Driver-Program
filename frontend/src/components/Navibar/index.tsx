@@ -5,9 +5,11 @@ import LoginButton from "../LoginButton";
 import { fetchUserPoints } from "../../utils/api";
 import { useSelector } from 'react-redux';
 import { selectUserName } from '../../store/userSlice';
+import { useSettings } from '../Settings/settings_context';
 
 const Navibar = () => {
     const username = useSelector(selectUserName);
+    const { settings } = useSettings();
     const [points, setPoints] = useState<number>(0);
     const [currentTime, setCurrentTime] = useState<string>("");
 
@@ -34,14 +36,19 @@ const Navibar = () => {
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
-            setCurrentTime(now.toLocaleTimeString());
+            const options: Intl.DateTimeFormatOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: settings.timezone || 'UTC',
+            };
+            setCurrentTime(now.toLocaleTimeString(undefined, options));
         };
 
         updateTime(); // Set the initial time
         const timerId = setInterval(updateTime, 1000); // Update every second
 
         return () => clearInterval(timerId); // Cleanup on unmount
-    }, []);
+    }, [settings.timezone]);
 
     return (
         <AppBar position="static" color="primary">
