@@ -2,32 +2,46 @@ import { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import Sidebar from "../Sidebar";
 import LoginButton from "../LoginButton";
-import { fetchUserPoints } from "../../utils/api"; // Import the helper function
+import { fetchUserPoints } from "../../utils/api";
 import { useSelector } from 'react-redux';
-import { selectUserName } from '../../store/userSlice'; // Import the selector for username
+import { selectUserName } from '../../store/userSlice';
 
 const Navibar = () => {
-    const username = useSelector(selectUserName); // Access the username from Redux
+    const username = useSelector(selectUserName);
     const [points, setPoints] = useState<number>(0);
+    const [currentTime, setCurrentTime] = useState<string>("");
 
+    // Fetch user points
     useEffect(() => {
         const loadPoints = async () => {
             if (username) {
                 try {
-                    // Fetch points based on the logged-in username
                     const userPoints = await fetchUserPoints(username);
-                    setPoints(userPoints !== null ? userPoints : 0); // Set to 0 if points are null
+                    setPoints(userPoints !== null ? userPoints : 0);
                 } catch (error) {
                     console.error("Error fetching user points:", error);
-                    setPoints(0); // Set points to 0 if there's an error
+                    setPoints(0);
                 }
             } else {
-                setPoints(0); // Set to 0 if no user is logged in
+                setPoints(0);
             }
         };
 
         loadPoints();
     }, [username]);
+
+    // Update the current time
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            setCurrentTime(now.toLocaleTimeString());
+        };
+
+        updateTime(); // Set the initial time
+        const timerId = setInterval(updateTime, 1000); // Update every second
+
+        return () => clearInterval(timerId); // Cleanup on unmount
+    }, []);
 
     return (
         <AppBar position="static" color="primary">
@@ -35,6 +49,9 @@ const Navibar = () => {
                 <Sidebar />
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Team 08
+                </Typography>
+                <Typography variant="body1" sx={{ mr: 2 }}>
+                    {currentTime} {/* Display the current time */}
                 </Typography>
                 <LoginButton />
                 <Button color="inherit" sx={{ ml: 2 }}>
