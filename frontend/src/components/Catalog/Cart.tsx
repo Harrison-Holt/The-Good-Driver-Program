@@ -17,7 +17,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
-import audioFeedbackFile from '../../assets/audio_feedback.mp3'; // Import the audio file
+import audioFeedbackFile from '../../assets/audio_feedback.wav'; // Import the audio file
 
 interface ItunesItem {
   artworkUrl100: string;
