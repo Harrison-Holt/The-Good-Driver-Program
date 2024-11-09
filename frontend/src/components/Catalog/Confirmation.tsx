@@ -31,6 +31,8 @@ const Confirmation = () => {
         lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
         backgroundColor: settings.isHighContrast ? '#000' : '#fff',
         color: settings.isHighContrast ? '#fff' : '#000',
+        lineHeight: settings.lineHeight || 1.5,
+        textAlign: settings.textAlign || 'left',
       }}
     >
       <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>

@@ -25,7 +25,8 @@ const Home: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
   const [username, setUsername] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [userInfo, setUserInfo] = useState<any>(null);
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
@@ -82,8 +83,7 @@ const Home: React.FC = () => {
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
   const handleCartClick = () => setSelectedDisplay("cart");
   const cartItemCount = cartItems.length;
@@ -142,7 +142,7 @@ const Home: React.FC = () => {
         color: settings.isHighContrast ? '#fff' : theme.palette.text.primary,
         minHeight: '100vh',
         filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-        lineHeight: settings.lineHeight || 1.5, // Apply textHeight globally
+        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
         transition: 'all 0.3s ease',
       }}
     >
@@ -155,7 +155,7 @@ const Home: React.FC = () => {
             flex: 1,
             padding: '20px',
             backgroundColor: settings.isHighContrast ? '#111' : theme.palette.background.paper,
-            lineHeight: settings.lineHeight || 1.5, // Apply textHeight to the main content
+            lineHeight: settings.lineHeight || 1.5,
           }}
         >
           <DashboardInfo setSearchTerm={() => {}} currentDisplay={selectedDisplay} />

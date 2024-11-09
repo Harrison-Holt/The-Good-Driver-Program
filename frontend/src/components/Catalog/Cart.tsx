@@ -74,7 +74,8 @@ const Cart: React.FC = () => {
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
         filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
+        lineHeight: settings.lineHeight || 1.5, 
+        textAlign: settings.textAlign || 'left',
       }}
     >
       <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>

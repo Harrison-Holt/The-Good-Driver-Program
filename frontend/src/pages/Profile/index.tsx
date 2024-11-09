@@ -13,11 +13,17 @@ const Profile: React.FC = () => {
 
     const { settings } = useSettings(); // Access settings from context
 
+    const profileStyle = {
+        lineHeight: settings.lineHeight || 1.5,
+        textAlign: settings.textAlign || 'left',
+        padding: '20px',
+    };
+
     let profile = (<></>);
 
     if (userType === "driver") {
         profile = (
-            <Box sx={{ lineHeight: settings.lineHeight || 1.5, padding: '20px' }}>
+            <Box sx={profileStyle}>
                 <Typography variant="h5">Driver Profile</Typography>
                 <Typography>Welcome, {username}!</Typography>
                 <Box sx={{ marginTop: '20px' }}>
@@ -29,7 +35,7 @@ const Profile: React.FC = () => {
         );
     } else if (userType === "sponsor") {
         profile = (
-            <Box sx={{ lineHeight: settings.lineHeight || 1.5, padding: '20px' }}>
+            <Box sx={profileStyle}>
                 <Typography variant="h5">Sponsor Profile</Typography>
                 <Typography>Welcome, {username}!</Typography>
                 <Box sx={{ marginTop: '20px' }}>
@@ -41,7 +47,7 @@ const Profile: React.FC = () => {
         );
     } else if (userType === "admin") {
         profile = (
-            <Box sx={{ lineHeight: settings.lineHeight || 1.5, padding: '20px' }}>
+            <Box sx={profileStyle}>
                 <Typography variant="h5">Admin Profile</Typography>
                 <Typography>Welcome, {username}!</Typography>
                 <Box sx={{ marginTop: '20px' }}>

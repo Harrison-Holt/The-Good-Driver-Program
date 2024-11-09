@@ -44,7 +44,8 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
         border: '1px solid #ccc',
         padding: '10px',
         borderRadius: '5px',
-        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
+        lineHeight: settings.lineHeight || 1.5,
+        textAlign: settings.textAlign || 'left',
       }}
     >
       <img
