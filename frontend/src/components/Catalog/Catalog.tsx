@@ -14,7 +14,7 @@ import { selectUserType } from "../../store/userSlice"
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
 import { useSettings } from '../Settings/settings_context';  
-import audioFeedbackFile from '../../assets/audio_feedback.mp3'; 
+import audioFeedbackFile from '../../assets/audio_feedback.wav'; 
 
 interface ItunesItem {
   trackId?: string;
