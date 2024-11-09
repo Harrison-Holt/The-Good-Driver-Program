@@ -15,7 +15,8 @@ const defaultSettings: Settings = {
   isDarkMode: false,
   zoomLevel: 1,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  lineHeight: 1.5, // Default value for textHeight
+  lineHeight: 1.5, 
+  textAlign: 'left', 
 };
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
@@ -39,7 +40,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         is_high_contrast: settings.isHighContrast ? 1 : 0,
         is_dark_mode: settings.isDarkMode ? 1 : 0,
         zoom_level: settings.zoomLevel,
-        text_height: settings.lineHeight, // Include textHeight in the payload
+        line_height: settings.lineHeight, // Include line height in the payload
+        text_align: settings.textAlign, // Include text alignment in the payload
       };
 
       // Log the payload to see the contents

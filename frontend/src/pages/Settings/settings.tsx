@@ -99,6 +99,10 @@ const Settings: React.FC = () => {
     setSettings(prev => ({ ...prev, lineHeight: newValue as number }));
   };
 
+  const handleTextAlignmentChange = (event: SelectChangeEvent<string>) => {
+    setSettings(prev => ({ ...prev, textAlign: event.target.value }));
+  };
+
   const handleSaveSettings = async () => {
     await saveSettings();
   };
@@ -109,6 +113,7 @@ const Settings: React.FC = () => {
     color: settings.isHighContrast ? '#fff' : '#000',
     minHeight: '100vh',
     lineHeight: settings.lineHeight || 1.5, // Apply user-selected line height
+    textAlign: settings.textAlign || 'left', // Apply user-selected text alignment
   };
 
   const buttonStyle = {
@@ -159,7 +164,7 @@ const Settings: React.FC = () => {
             value={settings.zoomLevel}
             onChange={handleZoomChange}
             min={1}
-            max={2}
+            max={3}
             step={0.1}
             aria-labelledby="zoom-slider"
           />
@@ -176,6 +181,20 @@ const Settings: React.FC = () => {
             step={0.1}
             aria-labelledby="line-height-slider"
           />
+        </Box>
+
+        {/* Text Alignment */}
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Text Alignment</Typography>
+          <Select
+            value={settings.textAlign || 'left'}
+            onChange={handleTextAlignmentChange}
+            fullWidth
+          >
+            <MenuItem value="left">Left</MenuItem>
+            <MenuItem value="center">Center</MenuItem>
+            <MenuItem value="right">Right</MenuItem>
+          </Select>
         </Box>
 
         {/* Timezone */}

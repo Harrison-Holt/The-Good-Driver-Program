@@ -9,6 +9,7 @@ export interface Settings {
   isDarkMode: boolean;
   zoomLevel: number;
   lineHeight: number; 
+  textAlign: 'left' | 'center' | 'right'; 
 }
 
 export interface SettingsContextType {
@@ -28,3 +29,4 @@ export const useSettings = () => {
   }
   return context;
 };
+

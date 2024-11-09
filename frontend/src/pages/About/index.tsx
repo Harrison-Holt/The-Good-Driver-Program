@@ -41,7 +41,10 @@ const About: React.FC = () => {
         justifyContent="center"
         alignItems="center"
         minHeight="100vh"
-        sx={{ lineHeight: settings.lineHeight || 1.5 }}
+        sx={{
+          lineHeight: settings.lineHeight || 1.5,
+          textAlign: settings.textAlign || 'left', // Apply textAlign setting
+        }}
       >
         <CircularProgress />
       </Box>
@@ -56,7 +59,8 @@ const About: React.FC = () => {
           padding: 4,
           backgroundColor: 'background.default',
           color: 'text.primary',
-          lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
+          lineHeight: settings.lineHeight || 1.5,
+          textAlign: settings.textAlign || 'left', // Apply textAlign setting
         }}
       >
         {/* Header Section */}
@@ -65,14 +69,20 @@ const About: React.FC = () => {
             variant="h4"
             component="h1"
             gutterBottom
-            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+            sx={{
+              lineHeight: settings.lineHeight || 1.5,
+              textAlign: settings.textAlign || 'center', // Align based on setting
+            }}
           >
             About Our {aboutData?.product_name}
           </Typography>
           <Typography
             variant="h6"
             color="textSecondary"
-            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+            sx={{
+              lineHeight: settings.lineHeight || 1.5,
+              textAlign: settings.textAlign || 'center', // Align based on setting
+            }}
           >
             A system designed to reward and incentivize truck drivers for safe and efficient driving.
           </Typography>
@@ -84,7 +94,8 @@ const About: React.FC = () => {
           sx={{
             padding: 3,
             mt: 4,
-            lineHeight: settings.lineHeight || 1.5, // Apply lineHeight to the Paper
+            lineHeight: settings.lineHeight || 1.5,
+            textAlign: settings.textAlign || 'left', // Align text in the paper
           }}
         >
           <Typography
@@ -92,34 +103,67 @@ const About: React.FC = () => {
             component="h2"
             gutterBottom
             align="center"
-            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+            sx={{
+              lineHeight: settings.lineHeight || 1.5,
+              textAlign: settings.textAlign || 'center', // Align based on setting
+            }}
           >
             Project Information
           </Typography>
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: settings.lineHeight || 1.5,
+                  textAlign: settings.textAlign || 'left', // Align based on setting
+                }}
+              >
                 <strong>Team Number:</strong> {aboutData?.team_number}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: settings.lineHeight || 1.5,
+                  textAlign: settings.textAlign || 'left', // Align based on setting
+                }}
+              >
                 <strong>Version (Sprint #):</strong> Sprint {aboutData?.sprint_number}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: settings.lineHeight || 1.5,
+                  textAlign: settings.textAlign || 'left', // Align based on setting
+                }}
+              >
                 <strong>Release Date:</strong> {aboutData?.release_date}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: settings.lineHeight || 1.5,
+                  textAlign: settings.textAlign || 'left', // Align based on setting
+                }}
+              >
                 <strong>Product Name:</strong> {aboutData?.product_name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: settings.lineHeight || 1.5,
+                  textAlign: settings.textAlign || 'left', // Align based on setting
+                }}
+              >
                 <strong>Product Description:</strong> {aboutData?.product_description}
               </Typography>
             </Grid>
