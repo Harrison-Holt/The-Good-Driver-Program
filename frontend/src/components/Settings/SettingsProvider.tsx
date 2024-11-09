@@ -39,7 +39,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         is_high_contrast: settings.isHighContrast ? 1 : 0,
         is_dark_mode: settings.isDarkMode ? 1 : 0,
         zoom_level: settings.zoomLevel,
-        text_height: settings.textHeight, // Include textHeight in the payload
+        text_height: settings.lineHeight, // Include textHeight in the payload
       };
 
       // Log the payload to see the contents

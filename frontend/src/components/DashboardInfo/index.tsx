@@ -34,7 +34,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     minHeight: '100vh',
     overflow: 'auto',
     transition: 'all 0.3s ease',
-    lineHeight: settings.textHeight || 1.5
+    lineHeight: settings.lineHeight || 1.5
   };
 
   // Paper component styles
