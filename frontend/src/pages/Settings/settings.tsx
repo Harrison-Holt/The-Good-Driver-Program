@@ -172,7 +172,7 @@ const Settings: React.FC = () => {
             value={settings.lineHeight || 1.5}
             onChange={handleLineHeightChange}
             min={1}
-            max={2}
+            max={3}
             step={0.1}
             aria-labelledby="line-height-slider"
           />
