@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Typography, List, ListItem, ListItemText, Grid, Divider, TextField, Button, Dialog, DialogTitle,
-  DialogContent, DialogActions, Alert, useTheme
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Grid,
+  Divider,
+  TextField,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
+  useTheme,
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
+import audioFeedbackFile from '../../assets/audio_feedback.mp3'; // Import the audio file
 
 interface ItunesItem {
   artworkUrl100: string;
@@ -37,20 +51,34 @@ const Cart: React.FC = () => {
 
   // Calculate total price
   useEffect(() => {
-    const calculatedTotal = cartItems.reduce((acc, item) => acc + (item.collectionPrice || item.trackPrice || 0), 0);
+    const calculatedTotal = cartItems.reduce(
+      (acc, item) => acc + (item.collectionPrice || item.trackPrice || 0),
+      0
+    );
     setTotal(calculatedTotal);
   }, [cartItems]);
 
   // Fetch user points (replace with your actual logic, e.g., API call)
   useEffect(() => {
-    // Simulate fetching user points
     const fetchUserPoints = async () => {
       setUserPoints(1000); // Example value
     };
     fetchUserPoints();
   }, []);
 
+  const playAudioFeedback = () => {
+    if (settings.audioFeedback) {
+      try {
+        const audio = new Audio(audioFeedbackFile);
+        audio.play();
+      } catch (error) {
+        console.error('Audio playback failed:', error);
+      }
+    }
+  };
+
   const handleCheckout = () => {
+    playAudioFeedback(); // Play sound when "Proceed to Checkout" is clicked
     if (userPoints !== null && userPoints >= total) {
       setShowConfirmationDialog(true);
     } else {
@@ -59,6 +87,7 @@ const Cart: React.FC = () => {
   };
 
   const confirmCheckout = () => {
+    playAudioFeedback(); // Play sound when "Confirm and Purchase" is clicked
     setCheckoutSuccess(true);
     setShowConfirmationDialog(false);
     setCartItems([]);
@@ -74,7 +103,7 @@ const Cart: React.FC = () => {
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
         filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-        lineHeight: settings.lineHeight || 1.5, 
+        lineHeight: settings.lineHeight || 1.5,
         textAlign: settings.textAlign || 'left',
       }}
     >
@@ -106,7 +135,14 @@ const Cart: React.FC = () => {
         </Typography>
       ) : (
         <>
-          <List sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '10px', padding: '20px', lineHeight: settings.lineHeight || 1.5 }}>
+          <List
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: '10px',
+              padding: '20px',
+              lineHeight: settings.lineHeight || 1.5,
+            }}
+          >
             {cartItems.map((item, index) => (
               <ListItem
                 key={index}
@@ -122,25 +158,51 @@ const Cart: React.FC = () => {
               >
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={3}>
-                    <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%', borderRadius: '4px' }} />
+                    <img
+                      src={item.artworkUrl100}
+                      alt={item.trackName || item.collectionName}
+                      style={{ width: '100%', borderRadius: '4px' }}
+                    />
                   </Grid>
                   <Grid item xs={7}>
                     <ListItemText
                       primary={
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary, lineHeight: settings.lineHeight || 1.5 }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 'bold',
+                            color: theme.palette.text.primary,
+                            lineHeight: settings.lineHeight || 1.5,
+                          }}
+                        >
                           {item.trackName || item.collectionName}
                         </Typography>
                       }
                       secondary={
-                        <Typography component="span" variant="body2" sx={{ color: theme.palette.text.secondary, lineHeight: settings.lineHeight || 1.5 }}>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            lineHeight: settings.lineHeight || 1.5,
+                          }}
+                        >
                           <strong>Artist:</strong> {item.artistName}
                         </Typography>
                       }
                     />
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="h6" sx={{ textAlign: 'right', color: theme.palette.text.primary, lineHeight: settings.lineHeight || 1.5 }}>
-                      {(item.collectionPrice || item.trackPrice)?.toFixed(2)} {item.currency || 'USD'}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        textAlign: 'right',
+                        color: theme.palette.text.primary,
+                        lineHeight: settings.lineHeight || 1.5,
+                      }}
+                    >
+                      {(item.collectionPrice || item.trackPrice)?.toFixed(2)}{' '}
+                      {item.currency || 'USD'}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -149,11 +211,17 @@ const Cart: React.FC = () => {
           </List>
 
           <Divider sx={{ my: 2 }} />
-          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ textAlign: 'right', marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}
+          >
             Total: {total.toFixed(2)} points
           </Typography>
 
-          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '10px', lineHeight: settings.lineHeight || 1.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ textAlign: 'right', marginBottom: '10px', lineHeight: settings.lineHeight || 1.5 }}
+          >
             Your Points: {userPoints !== null ? userPoints : 'Loading...'}
           </Typography>
 
@@ -186,7 +254,9 @@ const Cart: React.FC = () => {
               },
             }}
           >
-            <DialogTitle sx={{ lineHeight: settings.lineHeight || 1.5 }}>Email Confirmation</DialogTitle>
+            <DialogTitle sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              Email Confirmation
+            </DialogTitle>
             <DialogContent sx={{ lineHeight: settings.lineHeight || 1.5 }}>
               <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 Please confirm your email before proceeding with the purchase:
@@ -196,10 +266,18 @@ const Cart: React.FC = () => {
               </Typography>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Button
+                onClick={() => setShowConfirmationDialog(false)}
+                color="secondary"
+                sx={{ lineHeight: settings.lineHeight || 1.5 }}
+              >
                 Cancel
               </Button>
-              <Button onClick={confirmCheckout} color="primary" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Button
+                onClick={confirmCheckout}
+                color="primary"
+                sx={{ lineHeight: settings.lineHeight || 1.5 }}
+              >
                 Confirm and Purchase
               </Button>
             </DialogActions>

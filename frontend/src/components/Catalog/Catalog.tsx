@@ -13,7 +13,8 @@ import { useAppSelector } from "../../store/hooks"
 import { selectUserType } from "../../store/userSlice"
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
-import { useSettings } from '../Settings/settings_context';  // Import settings context
+import { useSettings } from '../Settings/settings_context';  
+import audioFeedbackFile from '../../assets/audio_feedback.mp3'; 
 
 interface ItunesItem {
   trackId?: string;
@@ -103,6 +104,18 @@ const Catalog = () => {
       if (option === 'lowest') return a.rating - b.rating;
       return b.rating - a.rating; // default to highest rating first
     });
+  };
+
+
+  const playAudioFeedback = () => {
+    if (settings.audioFeedback) {
+      try {
+        const audio = new Audio(audioFeedbackFile);
+        audio.play();
+      } catch (error) {
+        console.error('Audio playback failed:', error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -405,22 +418,56 @@ const Catalog = () => {
               <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%' }}>Submit Review</Button>
             </Box>
           </DialogContent>
-          <DialogActions sx={dialogContentStyles}>
-            {sponBtn}
-            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
-              Buy Now
-            </Button>
-            <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)} />
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
-              Add to Wish List
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
-              Add to Cart
-            </Button>
-            <Button onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-          </DialogActions>
+<DialogActions sx={dialogContentStyles}>
+  {sponBtn}
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={() => {
+      playAudioFeedback(); // Play sound
+      handleBuyNow(selectedItem);
+    }}
+  >
+    Buy Now
+  </Button>
+  <Button
+    startIcon={<FontAwesomeIcon icon={faStar} />}
+    onClick={() => {
+      playAudioFeedback(); // Play sound
+      handleSaveForLater(selectedItem);
+    }}
+  >
+    Save for Later
+  </Button>
+  <Button
+    variant="outlined"
+    color="secondary"
+    onClick={() => {
+      playAudioFeedback(); // Play sound
+      handleAddToWishList(selectedItem);
+    }}
+  >
+    Add to Wish List
+  </Button>
+  <Button
+    variant="outlined"
+    color="secondary"
+    onClick={() => {
+      playAudioFeedback(); // Play sound
+      handleAddToCart(selectedItem);
+    }}
+  >
+    Add to Cart
+  </Button>
+  <Button
+    onClick={() => {
+      playAudioFeedback(); // Play sound
+      setShowModal(false);
+    }}
+  >
+    Close
+  </Button>
+</DialogActions>
         </Dialog>
       )}
     </Box>
