@@ -25,7 +25,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
     // Filter out items not in the sponsor's catalog
     const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
 
-    for (let i in removedItems) {
+    for (const i in removedItems) {
         if(removedItems[i].trackId == item.trackId) {
             // Item removed, keep going...
             return;

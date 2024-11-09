@@ -8,6 +8,7 @@ export interface Settings {
   isHighContrast: boolean;
   isDarkMode: boolean;
   zoomLevel: number;
+  textHeight?: number; 
 }
 
 export interface SettingsContextType {
