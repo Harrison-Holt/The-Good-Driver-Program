@@ -28,16 +28,16 @@ const Confirmation = () => {
     <Box
       sx={{
         padding: '20px',
-        lineHeight: settings.textHeight || 1.5, // Apply lineHeight globally
+        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
         backgroundColor: settings.isHighContrast ? '#000' : '#fff',
         color: settings.isHighContrast ? '#fff' : '#000',
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         Purchase Confirmation
       </Typography>
 
-      <Typography variant="h6" gutterBottom sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="h6" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         Thank you for your purchase!
       </Typography>
 
@@ -54,7 +54,7 @@ const Confirmation = () => {
                 <ListItemText
                   primary={item.trackName || item.collectionName}
                   secondary={`Artist: ${item.artistName} - Price: ${item.collectionPrice || item.trackPrice} ${item.currency}`}
-                  sx={{ lineHeight: settings.textHeight || 1.5 }}
+                  sx={{ lineHeight: settings.lineHeight || 1.5 }}
                 />
               </ListItem>
               {index < cartItems.length - 1 && <Divider />}
@@ -62,7 +62,7 @@ const Confirmation = () => {
           ))}
         </List>
       ) : (
-        <Typography variant="body1" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+        <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
           No items in your purchase list.
         </Typography>
       )}
@@ -73,7 +73,7 @@ const Confirmation = () => {
         onClick={handleBackToCatalog}
         sx={{
           marginTop: '20px',
-          lineHeight: settings.textHeight || 1.5,
+          lineHeight: settings.lineHeight || 1.5,
           backgroundColor: settings.isHighContrast ? '#fff' : undefined,
           color: settings.isHighContrast ? '#000' : undefined,
         }}

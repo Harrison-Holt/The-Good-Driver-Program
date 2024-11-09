@@ -44,7 +44,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
         border: '1px solid #ccc',
         padding: '10px',
         borderRadius: '5px',
-        lineHeight: settings.textHeight || 1.5, // Apply lineHeight globally
+        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
       }}
     >
       <img
@@ -52,20 +52,20 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
         alt={item.trackName || item.collectionName}
         style={{ width: '100%', marginBottom: '10px' }}
       />
-      <Typography variant="h6" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="h6" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         {item.trackName || item.collectionName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         Artist: {item.artistName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         Points: {priceInPoints} Points
       </Typography>
       <Button
         variant="contained"
         color="primary"
         onClick={() => onViewDetails(item)}
-        sx={{ lineHeight: settings.textHeight || 1.5 }}
+        sx={{ lineHeight: settings.lineHeight || 1.5 }}
       >
         View Details
       </Button>

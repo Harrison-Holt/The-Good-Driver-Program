@@ -74,38 +74,38 @@ const Cart: React.FC = () => {
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
         filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
-        lineHeight: settings.textHeight || 1.5, // Apply lineHeight globally
+        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.textHeight || 1.5 }}>
+      <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>
         Your Cart
       </Typography>
 
       {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.textHeight || 1.5 }}>
+        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
           {errorMessage}
         </Alert>
       )}
 
       {checkoutSuccess && (
-        <Alert severity="success" sx={{ mb: 2, lineHeight: settings.textHeight || 1.5 }}>
+        <Alert severity="success" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
           Checkout successful! Thank you for your purchase.
         </Alert>
       )}
 
       {insufficientPoints && (
-        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.textHeight || 1.5 }}>
+        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
           You do not have enough points to complete the purchase.
         </Alert>
       )}
 
       {cartItems.length === 0 ? (
-        <Typography sx={{ lineHeight: settings.textHeight || 1.5 }}>
+        <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
           No items in the cart.
         </Typography>
       ) : (
         <>
-          <List sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '10px', padding: '20px', lineHeight: settings.textHeight || 1.5 }}>
+          <List sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '10px', padding: '20px', lineHeight: settings.lineHeight || 1.5 }}>
             {cartItems.map((item, index) => (
               <ListItem
                 key={index}
@@ -116,7 +116,7 @@ const Cart: React.FC = () => {
                   borderBottom: `1px solid ${theme.palette.divider}`,
                   backgroundColor: theme.palette.background.default,
                   color: theme.palette.text.primary,
-                  lineHeight: settings.textHeight || 1.5,
+                  lineHeight: settings.lineHeight || 1.5,
                 }}
               >
                 <Grid container spacing={2} alignItems="center">
@@ -126,19 +126,19 @@ const Cart: React.FC = () => {
                   <Grid item xs={7}>
                     <ListItemText
                       primary={
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary, lineHeight: settings.textHeight || 1.5 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary, lineHeight: settings.lineHeight || 1.5 }}>
                           {item.trackName || item.collectionName}
                         </Typography>
                       }
                       secondary={
-                        <Typography component="span" variant="body2" sx={{ color: theme.palette.text.secondary, lineHeight: settings.textHeight || 1.5 }}>
+                        <Typography component="span" variant="body2" sx={{ color: theme.palette.text.secondary, lineHeight: settings.lineHeight || 1.5 }}>
                           <strong>Artist:</strong> {item.artistName}
                         </Typography>
                       }
                     />
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="h6" sx={{ textAlign: 'right', color: theme.palette.text.primary, lineHeight: settings.textHeight || 1.5 }}>
+                    <Typography variant="h6" sx={{ textAlign: 'right', color: theme.palette.text.primary, lineHeight: settings.lineHeight || 1.5 }}>
                       {(item.collectionPrice || item.trackPrice)?.toFixed(2)} {item.currency || 'USD'}
                     </Typography>
                   </Grid>
@@ -148,11 +148,11 @@ const Cart: React.FC = () => {
           </List>
 
           <Divider sx={{ my: 2 }} />
-          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px', lineHeight: settings.textHeight || 1.5 }}>
+          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}>
             Total: {total.toFixed(2)} points
           </Typography>
 
-          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '10px', lineHeight: settings.textHeight || 1.5 }}>
+          <Typography variant="h6" sx={{ textAlign: 'right', marginBottom: '10px', lineHeight: settings.lineHeight || 1.5 }}>
             Your Points: {userPoints !== null ? userPoints : 'Loading...'}
           </Typography>
 
@@ -161,7 +161,7 @@ const Cart: React.FC = () => {
             label="Email for Order Confirmation"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
-            sx={{ marginBottom: '20px', lineHeight: settings.textHeight || 1.5 }}
+            sx={{ marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}
           />
 
           <Button
@@ -169,7 +169,7 @@ const Cart: React.FC = () => {
             color="primary"
             onClick={handleCheckout}
             disabled={userPoints === null || userPoints < total}
-            sx={{ mt: 2, width: '100%', padding: '12px', fontSize: '16px', lineHeight: settings.textHeight || 1.5 }}
+            sx={{ mt: 2, width: '100%', padding: '12px', fontSize: '16px', lineHeight: settings.lineHeight || 1.5 }}
           >
             Proceed to Checkout
           </Button>
@@ -181,24 +181,24 @@ const Cart: React.FC = () => {
               sx: {
                 backgroundColor: theme.palette.background.default,
                 color: theme.palette.text.primary,
-                lineHeight: settings.textHeight || 1.5,
+                lineHeight: settings.lineHeight || 1.5,
               },
             }}
           >
-            <DialogTitle sx={{ lineHeight: settings.textHeight || 1.5 }}>Email Confirmation</DialogTitle>
-            <DialogContent sx={{ lineHeight: settings.textHeight || 1.5 }}>
-              <Typography sx={{ lineHeight: settings.textHeight || 1.5 }}>
+            <DialogTitle sx={{ lineHeight: settings.lineHeight || 1.5 }}>Email Confirmation</DialogTitle>
+            <DialogContent sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 Please confirm your email before proceeding with the purchase:
               </Typography>
-              <Typography sx={{ lineHeight: settings.textHeight || 1.5 }}>
+              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>{userEmail}</strong>
               </Typography>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 Cancel
               </Button>
-              <Button onClick={confirmCheckout} color="primary" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+              <Button onClick={confirmCheckout} color="primary" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 Confirm and Purchase
               </Button>
             </DialogActions>
