@@ -11,11 +11,67 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import Navibar from '../../components/Navibar';
-import moment from 'moment-timezone';
 
-// Comprehensive list of time zones
-const timeZones: string[] = moment.tz.names();
-
+const timeZones: string[] = [
+    'UTC',
+    'America/New_York',
+    'America/Chicago',
+    'America/Denver',
+    'America/Los_Angeles',
+    'America/Phoenix',
+    'America/Anchorage',
+    'Pacific/Honolulu',
+    'Europe/London',
+    'Europe/Paris',
+    'Europe/Berlin',
+    'Europe/Madrid',
+    'Europe/Rome',
+    'Europe/Moscow',
+    'Asia/Tokyo',
+    'Asia/Seoul',
+    'Asia/Shanghai',
+    'Asia/Singapore',
+    'Asia/Kolkata',
+    'Asia/Dubai',
+    'Australia/Sydney',
+    'Australia/Melbourne',
+    'Australia/Brisbane',
+    'Australia/Perth',
+    'Australia/Adelaide',
+    'Pacific/Auckland',
+    'Pacific/Fiji',
+    'Pacific/Guam',
+    'Africa/Johannesburg',
+    'Africa/Cairo',
+    'Africa/Nairobi',
+    'Atlantic/Reykjavik',
+    'Atlantic/Azores',
+    'America/Toronto',
+    'America/Vancouver',
+    'America/Monterrey',
+    'America/Sao_Paulo',
+    'America/Argentina/Buenos_Aires',
+    'America/Santiago',
+    'America/Bogota',
+    'America/Lima',
+    'America/Mexico_City',
+    'Asia/Bangkok',
+    'Asia/Hong_Kong',
+    'Asia/Manila',
+    'Asia/Kuala_Lumpur',
+    'Asia/Jakarta',
+    'Asia/Karachi',
+    'Asia/Colombo',
+    'Asia/Riyadh',
+    'Europe/Istanbul',
+    'Europe/Warsaw',
+    'Europe/Prague',
+    'Europe/Helsinki',
+    'Europe/Vienna',
+    'Europe/Stockholm',
+    'Europe/Zurich',
+  ];
+  
 const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
 
