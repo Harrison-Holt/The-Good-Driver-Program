@@ -175,6 +175,15 @@ const Settings: React.FC = () => {
             aria-labelledby="text-height-slider"
           />
         </Box>
+        <Typography
+  variant="body1"
+  sx={{
+    lineHeight: settings.textHeight || 1.5,
+    marginTop: '20px',
+  }}
+>
+  Adjustable line height example: This text should reflect the selected line height.
+</Typography>
 
         {/* Timezone */}
         <Box sx={{ marginTop: '20px' }}>
