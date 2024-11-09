@@ -8,9 +8,10 @@ export interface Settings {
   isHighContrast: boolean;
   isDarkMode: boolean;
   zoomLevel: number;
-  lineHeight: number; 
-  textAlign: 'left' | 'center' | 'right'; 
+  lineHeight: number;
+  textAlign: "center" | "left" | "right"; 
 }
+
 
 export interface SettingsContextType {
   settings: Settings;

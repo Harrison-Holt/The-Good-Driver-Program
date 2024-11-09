@@ -99,8 +99,12 @@ const Settings: React.FC = () => {
     setSettings(prev => ({ ...prev, lineHeight: newValue as number }));
   };
 
-  const handleTextAlignmentChange = (event: SelectChangeEvent<string>) => {
-    setSettings(prev => ({ ...prev, textAlign: event.target.value }));
+  const handleTextAlignChange = (event: SelectChangeEvent<string>) => {
+    const newAlign = event.target.value as "center" | "left" | "right";
+    setSettings((prev) => ({
+      ...prev,
+      textAlign: newAlign,
+    }));
   };
 
   const handleSaveSettings = async () => {
@@ -112,8 +116,8 @@ const Settings: React.FC = () => {
     backgroundColor: settings.isHighContrast ? '#000' : '#fff',
     color: settings.isHighContrast ? '#fff' : '#000',
     minHeight: '100vh',
-    lineHeight: settings.lineHeight || 1.5, // Apply user-selected line height
-    textAlign: settings.textAlign || 'left', // Apply user-selected text alignment
+    lineHeight: settings.lineHeight || 1.5,
+    textAlign: settings.textAlign || 'left',
   };
 
   const buttonStyle = {
@@ -188,7 +192,7 @@ const Settings: React.FC = () => {
           <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Text Alignment</Typography>
           <Select
             value={settings.textAlign || 'left'}
-            onChange={handleTextAlignmentChange}
+            onChange={handleTextAlignChange}
             fullWidth
           >
             <MenuItem value="left">Left</MenuItem>
