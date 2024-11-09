@@ -18,7 +18,7 @@ const Confirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const cartItems: ItunesItem[] = location.state?.cartItems || [];
-  const { settings } = useSettings(); // Access user settings, including lineHeight
+  const { settings } = useSettings(); 
 
   const handleBackToCatalog = () => {
     navigate('/');
@@ -28,10 +28,9 @@ const Confirmation = () => {
     <Box
       sx={{
         padding: '20px',
-        lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
         backgroundColor: settings.isHighContrast ? '#000' : '#fff',
         color: settings.isHighContrast ? '#fff' : '#000',
-        lineHeight: settings.lineHeight || 1.5,
+        lineHeight: settings.lineHeight || 1.5, 
         textAlign: settings.textAlign || 'left',
       }}
     >
@@ -75,7 +74,6 @@ const Confirmation = () => {
         onClick={handleBackToCatalog}
         sx={{
           marginTop: '20px',
-          lineHeight: settings.lineHeight || 1.5,
           backgroundColor: settings.isHighContrast ? '#fff' : undefined,
           color: settings.isHighContrast ? '#000' : undefined,
         }}
