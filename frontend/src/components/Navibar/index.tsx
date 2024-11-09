@@ -54,14 +54,33 @@ const Navibar = () => {
         <AppBar position="static" color="primary">
             <Toolbar>
                 <Sidebar />
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography 
+                    variant="h6" 
+                    component="div" 
+                    sx={{ 
+                        flexGrow: 1, 
+                        lineHeight: settings.lineHeight || 1.5 // Apply dynamic line height 
+                    }}
+                >
                     Team 08
                 </Typography>
-                <Typography variant="body1" sx={{ mr: 2 }}>
+                <Typography 
+                    variant="body1" 
+                    sx={{ 
+                        mr: 2, 
+                        lineHeight: settings.lineHeight || 1.5 // Apply dynamic line height 
+                    }}
+                >
                     {currentTime} {/* Display the current time */}
                 </Typography>
                 <LoginButton />
-                <Button color="inherit" sx={{ ml: 2 }}>
+                <Button 
+                    color="inherit" 
+                    sx={{ 
+                        ml: 2, 
+                        lineHeight: settings.lineHeight || 1.5 // Apply dynamic line height 
+                    }}
+                >
                     Points: {points}
                 </Button>
             </Toolbar>
@@ -70,3 +89,4 @@ const Navibar = () => {
 };
 
 export default Navibar;
+

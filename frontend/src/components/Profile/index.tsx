@@ -36,7 +36,7 @@ const Profile: React.FC = () => {
     // Handle checkbox change
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
-        
+
         // Optimistically update the state
         setEmailNotifications(isChecked);
         console.log("Checkbox clicked, setting emailNotifications to:", isChecked); // Debug log
@@ -64,7 +64,7 @@ const Profile: React.FC = () => {
     if (userType === "driver") {
         profile = (
             <>
-                <Typography>Driver Profile</Typography>
+                <Typography variant="h5">Driver Profile</Typography>
                 <p>Welcome, {username}!</p>
                 <div>
                     <p>Name: {firstName} {lastName}</p>
@@ -86,7 +86,7 @@ const Profile: React.FC = () => {
     } else if (userType === "sponsor") {
         profile = (
             <>
-                <Typography>Sponsor Profile</Typography>
+                <Typography variant="h5">Sponsor Profile</Typography>
                 <p>Welcome, {username}!</p>
                 <div>
                     <p>Name: {firstName} {lastName}</p>
@@ -98,7 +98,7 @@ const Profile: React.FC = () => {
     } else if (userType === "admin") {
         profile = (
             <>
-                <Typography>Admin Profile</Typography>
+                <Typography variant="h5">Admin Profile</Typography>
                 <p>Welcome, {username}!</p>
                 <div>
                     <p>Name: {firstName} {lastName}</p>
@@ -110,9 +110,9 @@ const Profile: React.FC = () => {
     }
 
     return (
-        <>
+        <div>
             {profile}
-        </>
+        </div>
     );
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import { useSettings } from '../Settings/settings_context';
 
 interface ItunesItem {
   trackId?: string;
@@ -22,32 +23,54 @@ interface CatalogItemProps {
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversionRate }) => {
-    // Filter out items not in the sponsor's catalog
-    const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+  const { settings } = useSettings(); // Access settings for lineHeight
 
-    for (const i in removedItems) {
-        if(removedItems[i].trackId == item.trackId) {
-            // Item removed, keep going...
-            return;
-        }
+  // Filter out items not in the sponsor's catalog
+  const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+
+  for (const i in removedItems) {
+    if (removedItems[i].trackId === item.trackId) {
+      // Item removed, keep going...
+      return null; // Return null to avoid rendering
     }
+  }
 
-    // Calculate the price in points using the conversion rate
-    const priceInPoints = Math.round(((item.collectionPrice || item.trackPrice || 0) * conversionRate));
+  // Calculate the price in points using the conversion rate
+  const priceInPoints = Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate);
 
-    return (
-        <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
-            <img src={item.artworkUrl100} alt={item.trackName || item.collectionName} style={{ width: '100%' }} />
-            <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
-            <Typography variant="body1">Artist: {item.artistName}</Typography>
-            <Typography variant="body1">
-                Points: {priceInPoints} Points
-            </Typography>
-            <Button variant="contained" color="primary" onClick={() => onViewDetails(item)}>
-                View Details
-            </Button>
-        </Box>
-    );
+  return (
+    <Box
+      sx={{
+        border: '1px solid #ccc',
+        padding: '10px',
+        borderRadius: '5px',
+        lineHeight: settings.textHeight || 1.5, // Apply lineHeight globally
+      }}
+    >
+      <img
+        src={item.artworkUrl100}
+        alt={item.trackName || item.collectionName}
+        style={{ width: '100%', marginBottom: '10px' }}
+      />
+      <Typography variant="h6" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+        {item.trackName || item.collectionName}
+      </Typography>
+      <Typography variant="body1" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+        Artist: {item.artistName}
+      </Typography>
+      <Typography variant="body1" sx={{ lineHeight: settings.textHeight || 1.5 }}>
+        Points: {priceInPoints} Points
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => onViewDetails(item)}
+        sx={{ lineHeight: settings.textHeight || 1.5 }}
+      >
+        View Details
+      </Button>
+    </Box>
+  );
 };
 
 export default CatalogItem;
