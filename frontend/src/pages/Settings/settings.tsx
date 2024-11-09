@@ -92,22 +92,9 @@ const Settings: React.FC = () => {
     setSettings((prev) => ({ ...prev, isDarkMode: !prev.isDarkMode }));
   };
 
-  const handleSaveSettings = async () => {
+  const handleToggleAudioFeedback = () => {
     setSettings((prev) => ({ ...prev, audioFeedback: !prev.audioFeedback }));
-
-    await saveSettings();
-  
-    // Play audio feedback if the feature is enabled
-    if (settings.audioFeedback) {
-      try {
-        const audio = new Audio(audioFeedbackFile);
-        await audio.play(); // Play audio
-    } catch (error) {
-        console.error('Audio playback failed:', error);
-      }
-    }
   };
-  
 
   const handleZoomChange = (_event: Event, newValue: number | number[]) => {
     setSettings((prev) => ({ ...prev, zoomLevel: newValue as number }));
@@ -127,6 +114,16 @@ const Settings: React.FC = () => {
 
   const handleSaveSettings = async () => {
     await saveSettings();
+
+    // Play audio feedback if the feature is enabled
+    if (settings.audioFeedback) {
+      try {
+        const audio = new Audio(audioFeedbackFile);
+        await audio.play(); // Play audio
+      } catch (error) {
+        console.error('Audio playback failed:', error);
+      }
+    }
   };
 
   const containerStyle = {
