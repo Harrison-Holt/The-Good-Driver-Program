@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import Navibar from '../../components/Navibar';
-import audioFeedbackFile from '../../assets/audio_feedback.mp3';
+import audioFeedbackFile from '../../assets/audio_feedback.wav';
 
 const timeZones: string[] = [
   'UTC',
