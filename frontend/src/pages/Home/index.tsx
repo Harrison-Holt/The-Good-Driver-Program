@@ -29,7 +29,7 @@ const Home: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
-  const { settings } = useSettings();  // Access settings from context
+  const { settings } = useSettings(); // Access settings from context
 
   // Handle logout with redirect to Cognito
   const handleLogout = () => {
@@ -82,14 +82,22 @@ const Home: React.FC = () => {
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCartClick = () => setSelectedDisplay("cart");
   const cartItemCount = cartItems.length;
 
   const dashboardList = (
-    <Box sx={{ width: '250px', backgroundColor: settings.isHighContrast ? '#000' : theme.palette.background.paper, padding: '10px', color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary }}>
+    <Box
+      sx={{
+        width: '250px',
+        backgroundColor: settings.isHighContrast ? '#000' : theme.palette.background.paper,
+        padding: '10px',
+        color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
+        lineHeight: settings.lineHeight || 1.5,
+      }}
+    >
       <List>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("home")}>Home</ListItemButton>
@@ -134,6 +142,7 @@ const Home: React.FC = () => {
         color: settings.isHighContrast ? '#fff' : theme.palette.text.primary,
         minHeight: '100vh',
         filter: settings.isGreyscale ? 'grayscale(100%)' : 'none',
+        lineHeight: settings.lineHeight || 1.5, // Apply textHeight globally
         transition: 'all 0.3s ease',
       }}
     >
@@ -141,16 +150,33 @@ const Home: React.FC = () => {
       <Stack direction={"row"} spacing={5} sx={{ padding: '20px' }}>
         {dashboardList}
         <Divider orientation='vertical' variant='middle' flexItem />
-        <Box sx={{ flex: 1, padding: '20px', backgroundColor: settings.isHighContrast ? '#111' : theme.palette.background.paper }}>
+        <Box
+          sx={{
+            flex: 1,
+            padding: '20px',
+            backgroundColor: settings.isHighContrast ? '#111' : theme.palette.background.paper,
+            lineHeight: settings.lineHeight || 1.5, // Apply textHeight to the main content
+          }}
+        >
           <DashboardInfo setSearchTerm={() => {}} currentDisplay={selectedDisplay} />
         </Box>
         <Box>
-          {username && <Typography>Welcome, {username}!</Typography>}
+          {username && (
+            <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+              Welcome, {username}!
+            </Typography>
+          )}
           {userInfo && (
             <div>
-              <Typography>Name: {userInfo.first_name} {userInfo.last_name}</Typography>
-              <Typography>Email: {userInfo.email}</Typography>
-              <Typography>Role: {userInfo.role}</Typography>
+              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+                Name: {userInfo.first_name} {userInfo.last_name}
+              </Typography>
+              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+                Email: {userInfo.email}
+              </Typography>
+              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+                Role: {userInfo.role}
+              </Typography>
             </div>
           )}
         </Box>

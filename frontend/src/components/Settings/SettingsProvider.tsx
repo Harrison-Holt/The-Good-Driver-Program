@@ -15,7 +15,7 @@ const defaultSettings: Settings = {
   isDarkMode: false,
   zoomLevel: 1,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  textHeight: 1.5, // Default value for textHeight
+  lineHeight: 1.5, // Default value for textHeight
 };
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {

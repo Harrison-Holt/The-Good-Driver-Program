@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import Navibar from '../../components/Navibar';
+import { useSettings } from '../../components/Settings/settings_context';
 
 interface AboutData {
   team_number: number;
@@ -13,6 +14,8 @@ interface AboutData {
 const About: React.FC = () => {
   const [aboutData, setAboutData] = useState<AboutData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { settings } = useSettings(); // Access settings from context
 
   // Fetch the "About" page data from the API
   useEffect(() => {
@@ -33,7 +36,13 @@ const About: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        sx={{ lineHeight: settings.lineHeight || 1.5 }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -42,46 +51,75 @@ const About: React.FC = () => {
   return (
     <>
       <Navibar />
-      <Box sx={{ padding: 4, backgroundColor: 'background.default', color: 'text.primary' }}>
+      <Box
+        sx={{
+          padding: 4,
+          backgroundColor: 'background.default',
+          color: 'text.primary',
+          lineHeight: settings.lineHeight || 1.5, // Apply lineHeight globally
+        }}
+      >
         {/* Header Section */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+          >
             About Our {aboutData?.product_name}
           </Typography>
-          <Typography variant="h6" color="textSecondary">
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+          >
             A system designed to reward and incentivize truck drivers for safe and efficient driving.
           </Typography>
         </Box>
 
         {/* Project Information Section */}
-        <Paper elevation={3} sx={{ padding: 3, mt: 4 }}>
-          <Typography variant="h5" component="h2" gutterBottom align="center">
+        <Paper
+          elevation={3}
+          sx={{
+            padding: 3,
+            mt: 4,
+            lineHeight: settings.lineHeight || 1.5, // Apply lineHeight to the Paper
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h2"
+            gutterBottom
+            align="center"
+            sx={{ lineHeight: settings.lineHeight || 1.5 }}
+          >
             Project Information
           </Typography>
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>Team Number:</strong> {aboutData?.team_number}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>Version (Sprint #):</strong> Sprint {aboutData?.sprint_number}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>Release Date:</strong> {aboutData?.release_date}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>Product Name:</strong> {aboutData?.product_name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
                 <strong>Product Description:</strong> {aboutData?.product_description}
               </Typography>
             </Grid>
