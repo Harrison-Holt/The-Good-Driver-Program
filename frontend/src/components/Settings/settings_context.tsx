@@ -10,6 +10,7 @@ export interface Settings {
   zoomLevel: number;
   lineHeight: number;
   textAlign: "center" | "left" | "right"; 
+  audioFeedback: boolean;
 }
 
 

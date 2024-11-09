@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import Navibar from '../../components/Navibar';
+import audioFeedbackFile from '../../assets/audio_feedback.mp3';
 
 const timeZones: string[] = [
   'UTC',
@@ -76,31 +77,48 @@ const Settings: React.FC = () => {
   const { settings, setSettings, saveSettings } = useSettings();
 
   const handleTimezoneChange = (event: SelectChangeEvent<string>) => {
-    setSettings(prev => ({ ...prev, timezone: event.target.value }));
+    setSettings((prev) => ({ ...prev, timezone: event.target.value }));
   };
 
   const handleToggleGreyscale = () => {
-    setSettings(prev => ({ ...prev, isGreyscale: !prev.isGreyscale }));
+    setSettings((prev) => ({ ...prev, isGreyscale: !prev.isGreyscale }));
   };
 
   const handleToggleHighContrast = () => {
-    setSettings(prev => ({ ...prev, isHighContrast: !prev.isHighContrast }));
+    setSettings((prev) => ({ ...prev, isHighContrast: !prev.isHighContrast }));
   };
 
   const handleToggleDarkMode = () => {
-    setSettings(prev => ({ ...prev, isDarkMode: !prev.isDarkMode }));
+    setSettings((prev) => ({ ...prev, isDarkMode: !prev.isDarkMode }));
   };
 
+  const handleSaveSettings = async () => {
+    setSettings((prev) => ({ ...prev, audioFeedback: !prev.audioFeedback }));
+
+    await saveSettings();
+  
+    // Play audio feedback if the feature is enabled
+    if (settings.audioFeedback) {
+      try {
+        const audio = new Audio(audioFeedbackFile);
+        await audio.play(); // Play audio
+    } catch (error) {
+        console.error('Audio playback failed:', error);
+      }
+    }
+  };
+  
+
   const handleZoomChange = (_event: Event, newValue: number | number[]) => {
-    setSettings(prev => ({ ...prev, zoomLevel: newValue as number }));
+    setSettings((prev) => ({ ...prev, zoomLevel: newValue as number }));
   };
 
   const handleLineHeightChange = (_event: Event, newValue: number | number[]) => {
-    setSettings(prev => ({ ...prev, lineHeight: newValue as number }));
+    setSettings((prev) => ({ ...prev, lineHeight: newValue as number }));
   };
 
   const handleTextAlignChange = (event: SelectChangeEvent<string>) => {
-    const newAlign = event.target.value as "center" | "left" | "right";
+    const newAlign = event.target.value as 'center' | 'left' | 'right';
     setSettings((prev) => ({
       ...prev,
       textAlign: newAlign,
@@ -133,6 +151,15 @@ const Settings: React.FC = () => {
         <Typography variant="h6" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
           Settings
         </Typography>
+
+        {/* Audio Feedback */}
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Audio Feedback</Typography>
+          <Switch
+            checked={settings.audioFeedback}
+            onChange={handleToggleAudioFeedback}
+          />
+        </Box>
 
         {/* Greyscale Mode */}
         <Box sx={{ marginTop: '20px' }}>

@@ -17,6 +17,7 @@ const defaultSettings: Settings = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   lineHeight: 1.5, 
   textAlign: 'left', 
+  audioFeedback: false,
 };
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
