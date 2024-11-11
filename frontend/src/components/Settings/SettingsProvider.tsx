@@ -28,13 +28,42 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success'); // Snackbar severity
 
-  // Effect to load settings from local storage
+  // Effect to fetch settings from the database when the user logs in
   useEffect(() => {
-    const localStorageSettings = localStorage.getItem('userSettings');
-    if (localStorageSettings) {
-      setSettings(JSON.parse(localStorageSettings));
-    }
-  }, []);
+    const fetchSettings = async () => {
+      if (!username) return; // Skip if the user is not logged in
+
+      try {
+        const response = await axios.get(
+          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`
+        );
+
+        if (response.data) {
+          console.log('Fetched settings from DB:', response.data);
+          const dbSettings = {
+            isGreyscale: response.data.isGreyscale === 1,
+            isHighContrast: response.data.isHighContrast === 1,
+            isDarkMode: response.data.isDarkMode === 1,
+            zoomLevel: response.data.zoomLevel,
+            timezone: response.data.timezone,
+            lineHeight: response.data.lineHeight,
+            textAlign: response.data.textAlign,
+            audioFeedback: response.data.isAudioEnabled === 1,
+          };
+          setSettings(dbSettings); // Apply settings from the database
+        } else {
+          console.log('No settings found for user, using default settings.');
+        }
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+        setSnackbarMessage('Failed to load user settings. Using defaults.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    };
+
+    fetchSettings();
+  }, [username]);
 
   const saveSettings = async () => {
     try {
@@ -67,19 +96,12 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       console.log('Settings saved successfully:', response.data);
       setSnackbarMessage('Settings saved successfully!');
       setSnackbarSeverity('success');
-      setSnackbarOpen(true); // Open success message
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to save settings:', error);
       setSnackbarMessage('Failed to save settings. Please try again.');
       setSnackbarSeverity('error');
-      setSnackbarOpen(true); // Open error message
-
-      // Save settings to localStorage as a fallback
-      const localStorageSettings = {
-        ...settings,
-      };
-      localStorage.setItem('userSettings', JSON.stringify(localStorageSettings));
-      console.log('Settings saved to local storage:', localStorageSettings);
+      setSnackbarOpen(true);
     }
   };
 
