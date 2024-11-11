@@ -314,14 +314,23 @@ const Catalog = () => {
 
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
-      <Box sx={{ marginBottom: '20px' }}>
-        <Typography variant="h6" gutterBottom>Select Category:</Typography>
-        <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
-          {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
-          ))}
-        </Select>
-      </Box>
+            {usertype !== 'driver' && (
+        <Box sx={{ marginBottom: '20px' }}>
+          <Typography variant="h6" gutterBottom>Select Category:</Typography>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            fullWidth
+            variant="outlined"
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      )}
 
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
