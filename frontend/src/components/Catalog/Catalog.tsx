@@ -13,8 +13,7 @@ import { useAppSelector } from "../../store/hooks"
 import { selectUserType } from "../../store/userSlice"
 import SearchBar from '../SearchBar';
 import StarRating from './StarRating';
-import { useSettings } from '../Settings/settings_context';  
-import audioFeedbackFile from '../../assets/audio_feedback.wav'; 
+import { useSettings } from '../Settings/settings_context';  // Import settings context
 
 interface ItunesItem {
   trackId?: string;
@@ -51,8 +50,6 @@ const categories = [
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
-
-
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
@@ -106,18 +103,6 @@ const Catalog = () => {
       if (option === 'lowest') return a.rating - b.rating;
       return b.rating - a.rating; // default to highest rating first
     });
-  };
-
-
-  const playAudioFeedback = () => {
-    if (settings.audioFeedback) {
-      try {
-        const audio = new Audio(audioFeedbackFile);
-        audio.play();
-      } catch (error) {
-        console.error('Audio playback failed:', error);
-      }
-    }
   };
 
   useEffect(() => {
@@ -314,22 +299,16 @@ const Catalog = () => {
 
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
-            {usertype !== 'driver' && (
-        <Box sx={{ marginBottom: '20px' }}>
-          <Typography variant="h6" gutterBottom>Select Category:</Typography>
-          <Select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            fullWidth
-            variant="outlined"
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
+     
+      {usertype !== 'driver' && (
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="h6" gutterBottom>Select Category:</Typography>
+        <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
+          {categories.map((category) => (
+            <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+          ))}
+        </Select>
+      </Box>
       )}
 
       {loading && (
@@ -429,56 +408,22 @@ const Catalog = () => {
               <Button variant="contained" onClick={handleSubmitReview} sx={{ marginTop: '10px', width: '100%' }}>Submit Review</Button>
             </Box>
           </DialogContent>
-<DialogActions sx={dialogContentStyles}>
-  {sponBtn}
-  <Button
-    variant="contained"
-    color="primary"
-    onClick={() => {
-      playAudioFeedback(); // Play sound
-      handleBuyNow(selectedItem);
-    }}
-  >
-    Buy Now
-  </Button>
-  <Button
-    startIcon={<FontAwesomeIcon icon={faStar} />}
-    onClick={() => {
-      playAudioFeedback(); // Play sound
-      handleSaveForLater(selectedItem);
-    }}
-  >
-    Save for Later
-  </Button>
-  <Button
-    variant="outlined"
-    color="secondary"
-    onClick={() => {
-      playAudioFeedback(); // Play sound
-      handleAddToWishList(selectedItem);
-    }}
-  >
-    Add to Wish List
-  </Button>
-  <Button
-    variant="outlined"
-    color="secondary"
-    onClick={() => {
-      playAudioFeedback(); // Play sound
-      handleAddToCart(selectedItem);
-    }}
-  >
-    Add to Cart
-  </Button>
-  <Button
-    onClick={() => {
-      playAudioFeedback(); // Play sound
-      setShowModal(false);
-    }}
-  >
-    Close
-  </Button>
-</DialogActions>
+          <DialogActions sx={dialogContentStyles}>
+            {sponBtn}
+            <Button variant="contained" color="primary" onClick={() => handleBuyNow(selectedItem)}>
+              Buy Now
+            </Button>
+            <FontAwesomeIcon icon={faStar} onClick={() => handleSaveForLater(selectedItem)} />
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToWishList(selectedItem)}>
+              Add to Wish List
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddToCart(selectedItem)}>
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowModal(false)}>
+              Close
+            </Button>
+          </DialogActions>
         </Dialog>
       )}
     </Box>
