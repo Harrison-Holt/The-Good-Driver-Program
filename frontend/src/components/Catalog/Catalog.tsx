@@ -86,13 +86,12 @@ const Catalog = () => {
         backgroundColor: theme.palette.background.default,
       }}
     >
-      <Typography variant="h4" align="center" sx={{ marginBottom: "20px" }}>
-        {usertype === "sponsor"
-          ? "Select a Catalog" // Sponsor-specific text
-          : "Discover Media"}
-      </Typography>
+    <Typography variant="h4" align="center" sx={{ marginBottom: "20px" }}>
+  Select a Catalog
+</Typography>
 
-      {usertype === "sponsor" && (
+
+      
         <Box sx={{ marginBottom: "20px" }}>
           <Typography variant="h6">Choose a Catalog:</Typography>
           <Select
@@ -112,7 +111,7 @@ const Catalog = () => {
             </Typography>
           )}
         </Box>
-      )}
+      
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", margin: "20px" }}>
