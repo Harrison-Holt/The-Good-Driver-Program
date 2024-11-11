@@ -11,8 +11,6 @@ import {
   Button,
   useTheme,
 } from "@mui/material";
-import { useAppSelector } from "../../store/hooks";
-import { selectUserType } from "../../store/userSlice";
 
 interface Catalog {
   id: string;
@@ -47,7 +45,6 @@ const Catalog = () => {
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null); // Selected catalog for sponsors
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const usertype = useAppSelector(selectUserType); // Get user type (e.g., "sponsor") from the store
   const theme = useTheme();
 
   // Fetch items for the selected catalog
