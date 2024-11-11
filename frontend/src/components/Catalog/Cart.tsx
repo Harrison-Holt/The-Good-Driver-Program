@@ -5,7 +5,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Grid,
   Divider,
   TextField,
   Button,
@@ -39,9 +38,11 @@ const Cart: React.FC = () => {
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState<string>('');
   const [showConfirmationDialog, setShowConfirmationDialog] = useState<boolean>(false);
-  const [errorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [checkoutSuccess, setCheckoutSuccess] = useState<boolean>(false);
   const [insufficientPoints, setInsufficientPoints] = useState<boolean>(false);
+
+  const API_ENDPOINT = 'https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation';
 
   // Load cart items from localStorage
   useEffect(() => {
@@ -77,21 +78,57 @@ const Cart: React.FC = () => {
     }
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleCheckout = () => {
     playAudioFeedback(); // Play sound when "Proceed to Checkout" is clicked
     if (userPoints !== null && userPoints >= total) {
-      setShowConfirmationDialog(true);
+      if (validateEmail(userEmail)) {
+        setShowConfirmationDialog(true);
+        setErrorMessage(null);
+      } else {
+        setErrorMessage('Invalid email address. Please enter a valid email.');
+      }
     } else {
       setInsufficientPoints(true);
     }
   };
 
-  const confirmCheckout = () => {
+  const confirmCheckout = async () => {
     playAudioFeedback(); // Play sound when "Confirm and Purchase" is clicked
-    setCheckoutSuccess(true);
-    setShowConfirmationDialog(false);
-    setCartItems([]);
-    localStorage.removeItem('cartItems');
+    try {
+      const orderDetails = {
+        orderId: `ORD-${Date.now()}`,
+        items: cartItems.map((item) => item.trackName || item.collectionName),
+        total,
+      };
+
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          orderDetails,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send order confirmation email.');
+      }
+
+      setCheckoutSuccess(true);
+      setShowConfirmationDialog(false);
+      setCartItems([]);
+      localStorage.removeItem('cartItems');
+    } catch (error) {
+      console.error(error);
+      setErrorMessage('Error sending order confirmation email. Please try again.');
+    }
   };
 
   return (
@@ -130,154 +167,49 @@ const Cart: React.FC = () => {
       )}
 
       {cartItems.length === 0 ? (
-        <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-          No items in the cart.
-        </Typography>
+        <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>No items in the cart.</Typography>
       ) : (
         <>
-          <List
-            sx={{
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: '10px',
-              padding: '20px',
-              lineHeight: settings.lineHeight || 1.5,
-            }}
-          >
+          <List>
             {cartItems.map((item, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '15px',
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  backgroundColor: theme.palette.background.default,
-                  color: theme.palette.text.primary,
-                  lineHeight: settings.lineHeight || 1.5,
-                }}
-              >
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={3}>
-                    <img
-                      src={item.artworkUrl100}
-                      alt={item.trackName || item.collectionName}
-                      style={{ width: '100%', borderRadius: '4px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={7}>
-                    <ListItemText
-                      primary={
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                            fontWeight: 'bold',
-                            color: theme.palette.text.primary,
-                            lineHeight: settings.lineHeight || 1.5,
-                          }}
-                        >
-                          {item.trackName || item.collectionName}
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            lineHeight: settings.lineHeight || 1.5,
-                          }}
-                        >
-                          <strong>Artist:</strong> {item.artistName}
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        textAlign: 'right',
-                        color: theme.palette.text.primary,
-                        lineHeight: settings.lineHeight || 1.5,
-                      }}
-                    >
-                      {(item.collectionPrice || item.trackPrice)?.toFixed(2)}{' '}
-                      {item.currency || 'USD'}
-                    </Typography>
-                  </Grid>
-                </Grid>
+              <ListItem key={index}>
+                <ListItemText
+                  primary={item.trackName || item.collectionName}
+                  secondary={`Price: ${(item.collectionPrice || item.trackPrice)?.toFixed(2)} ${item.currency || 'USD'}`}
+                />
               </ListItem>
             ))}
           </List>
 
           <Divider sx={{ my: 2 }} />
-          <Typography
-            variant="h6"
-            sx={{ textAlign: 'right', marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}
-          >
-            Total: {total.toFixed(2)} points
-          </Typography>
-
-          <Typography
-            variant="h6"
-            sx={{ textAlign: 'right', marginBottom: '10px', lineHeight: settings.lineHeight || 1.5 }}
-          >
-            Your Points: {userPoints !== null ? userPoints : 'Loading...'}
-          </Typography>
+          <Typography variant="h6">Total: {total.toFixed(2)} points</Typography>
 
           <TextField
             fullWidth
             label="Email for Order Confirmation"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
-            sx={{ marginBottom: '20px', lineHeight: settings.lineHeight || 1.5 }}
+            sx={{ marginBottom: '20px' }}
           />
 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCheckout}
-            disabled={userPoints === null || userPoints < total}
-            sx={{ mt: 2, width: '100%', padding: '12px', fontSize: '16px', lineHeight: settings.lineHeight || 1.5 }}
-          >
+          <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
             Proceed to Checkout
           </Button>
 
           <Dialog
             open={showConfirmationDialog}
             onClose={() => setShowConfirmationDialog(false)}
-            PaperProps={{
-              sx: {
-                backgroundColor: theme.palette.background.default,
-                color: theme.palette.text.primary,
-                lineHeight: settings.lineHeight || 1.5,
-              },
-            }}
           >
-            <DialogTitle sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-              Email Confirmation
-            </DialogTitle>
-            <DialogContent sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-                Please confirm your email before proceeding with the purchase:
-              </Typography>
-              <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-                <strong>{userEmail}</strong>
-              </Typography>
+            <DialogTitle>Email Confirmation</DialogTitle>
+            <DialogContent>
+              <Typography>Please confirm your email before proceeding with the purchase:</Typography>
+              <Typography><strong>{userEmail}</strong></Typography>
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={() => setShowConfirmationDialog(false)}
-                color="secondary"
-                sx={{ lineHeight: settings.lineHeight || 1.5 }}
-              >
+              <Button onClick={() => setShowConfirmationDialog(false)} color="secondary">
                 Cancel
               </Button>
-              <Button
-                onClick={confirmCheckout}
-                color="primary"
-                sx={{ lineHeight: settings.lineHeight || 1.5 }}
-              >
+              <Button onClick={confirmCheckout} color="primary">
                 Confirm and Purchase
               </Button>
             </DialogActions>
@@ -289,4 +221,3 @@ const Cart: React.FC = () => {
 };
 
 export default Cart;
-
