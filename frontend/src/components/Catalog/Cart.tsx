@@ -6,7 +6,6 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  TextField,
   Button,
   Dialog,
   DialogTitle,
@@ -16,7 +15,9 @@ import {
   useTheme,
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
-import audioFeedbackFile from '../../assets/audio_feedback.wav'; // Import the audio file
+import { useAppSelector } from '../../store/hooks';
+import { selectEmail } from '../../store/userSlice'; // Import selectors
+import audioFeedbackFile from '../../assets/audio_feedback.wav';
 
 interface ItunesItem {
   artworkUrl100: string;
@@ -31,12 +32,12 @@ interface ItunesItem {
 const Cart: React.FC = () => {
   const { settings } = useSettings(); // Access settings from context
   const theme = useTheme();
+  const userEmail = useAppSelector(selectEmail); // Fetch email from store
 
   // Internal state management
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [userPoints, setUserPoints] = useState<number | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('');
   const [showConfirmationDialog, setShowConfirmationDialog] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [checkoutSuccess, setCheckoutSuccess] = useState<boolean>(false);
@@ -78,20 +79,11 @@ const Cart: React.FC = () => {
     }
   };
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleCheckout = () => {
     playAudioFeedback(); // Play sound when "Proceed to Checkout" is clicked
     if (userPoints !== null && userPoints >= total) {
-      if (validateEmail(userEmail)) {
-        setShowConfirmationDialog(true);
-        setErrorMessage(null);
-      } else {
-        setErrorMessage('Invalid email address. Please enter a valid email.');
-      }
+      setShowConfirmationDialog(true);
+      setErrorMessage(null);
     } else {
       setInsufficientPoints(true);
     }
@@ -184,26 +176,21 @@ const Cart: React.FC = () => {
           <Divider sx={{ my: 2 }} />
           <Typography variant="h6">Total: {total.toFixed(2)} points</Typography>
 
-          <TextField
-            fullWidth
-            label="Email for Order Confirmation"
-            value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}
-            sx={{ marginBottom: '20px' }}
-          />
+          <Typography variant="subtitle1" sx={{ mt: 2 }}>
+            Email: {userEmail || 'Loading...'}
+          </Typography>
 
           <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
             Proceed to Checkout
           </Button>
 
-          <Dialog
-            open={showConfirmationDialog}
-            onClose={() => setShowConfirmationDialog(false)}
-          >
+          <Dialog open={showConfirmationDialog} onClose={() => setShowConfirmationDialog(false)}>
             <DialogTitle>Email Confirmation</DialogTitle>
             <DialogContent>
               <Typography>Please confirm your email before proceeding with the purchase:</Typography>
-              <Typography><strong>{userEmail}</strong></Typography>
+              <Typography>
+                <strong>{userEmail}</strong>
+              </Typography>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowConfirmationDialog(false)} color="secondary">
