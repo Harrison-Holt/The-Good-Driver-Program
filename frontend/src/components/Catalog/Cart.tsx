@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
-import { selectEmail } from '../../store/userSlice'; // Import selectors
+import { selectEmail } from '../../store/userSlice'; 
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
 
 interface ItunesItem {

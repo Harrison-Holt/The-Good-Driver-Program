@@ -34,26 +34,35 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
   const saveSettings = async () => {
     try {
-      // Prepare the settings payload
-      const payload = {
-        username: username, // Use username instead of user ID
-        is_greyscale: settings.isGreyscale ? 1 : 0,
-        is_high_contrast: settings.isHighContrast ? 1 : 0,
-        is_dark_mode: settings.isDarkMode ? 1 : 0,
-        zoom_level: settings.zoomLevel,
-        line_height: settings.lineHeight, // Include line height in the payload
-        text_align: settings.textAlign, // Include text alignment in the payload
-      };
 
-      // Log the payload to see the contents
-      console.log('Payload to save:', payload);
-
-      // Send the settings payload to your API Gateway endpoint
+              // Log settings to ensure correct structure
+              console.log('Settings to save:', {
+                username,
+                timezone: settings.timezone,
+                isGreyscale: settings.isGreyscale ? 1 : 0,
+                isHighContrast: settings.isHighContrast ? 1 : 0,
+                isDarkMode: settings.isDarkMode ? 1 : 0,
+                zoomLevel: settings.zoomLevel,
+                lineHeight: settings.lineHeight,
+                isAudioEnabled: settings.audioFeedback ? 1 : 0,
+                textAlign: settings.textAlign,
+            });
+    
+      // Send settings directly to the API Gateway
       const response = await axios.post(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
-        payload
-      );
-
+        {
+            username,
+            timezone: settings.timezone,
+            isGreyscale: settings.isGreyscale ? 1 : 0,
+            isHighContrast: settings.isHighContrast ? 1 : 0,
+            isDarkMode: settings.isDarkMode ? 1 : 0,
+            zoomLevel: settings.zoomLevel,
+            lineHeight: settings.lineHeight,
+            isAudioEnabled: settings.audioFeedback ? 1 : 0,
+            textAlign: settings.textAlign,
+        }
+    );
       console.log('Settings saved successfully:', response.data);
     } catch (error) {
       console.error('Failed to save settings:', error);
