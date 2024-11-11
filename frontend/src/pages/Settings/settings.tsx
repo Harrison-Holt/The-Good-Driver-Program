@@ -211,35 +211,70 @@ const Settings: React.FC = () => {
           />
         </Box>
 
-        {/* Text Alignment */}
-        <Box sx={{ marginTop: '20px' }}>
-          <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Text Alignment</Typography>
-          <Select
-            value={settings.textAlign || 'left'}
-            onChange={handleTextAlignChange}
-            fullWidth
-          >
-            <MenuItem value="left">Left</MenuItem>
-            <MenuItem value="center">Center</MenuItem>
-            <MenuItem value="right">Right</MenuItem>
-          </Select>
-        </Box>
+    {/* Text Alignment */}
+<Box
+    sx={{
+        marginTop: '20px',
+        backgroundColor: settings.isHighContrast
+            ? "black"
+            : settings.isDarkMode || settings.isGreyscale
+            ? "gray"
+            : "#ffffff", // Match dark/greyscale logic
+        color: settings.isHighContrast
+            ? "white"
+            : settings.isDarkMode || settings.isGreyscale
+            ? "white"
+            : "black", // Match dark/greyscale logic
+        padding: '10px', // Add padding for better UI
+        borderRadius: '5px', // Optional: Round edges
+    }}
+>
+    <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+        Text Alignment
+    </Typography>
+    <Select
+        value={settings.textAlign || 'left'}
+        onChange={handleTextAlignChange}
+        fullWidth
+    >
+        <MenuItem value="left">Left</MenuItem>
+        <MenuItem value="center">Center</MenuItem>
+        <MenuItem value="right">Right</MenuItem>
+    </Select>
+</Box>
 
-        {/* Timezone */}
-        <Box sx={{ marginTop: '20px' }}>
-          <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Timezone</Typography>
-          <Select
-            value={settings.timezone || 'UTC'}
-            onChange={handleTimezoneChange}
-            fullWidth
-          >
-            {timeZones.map((zone: string) => (
-              <MenuItem key={zone} value={zone}>
+{/* Timezone */}
+<Box
+    sx={{
+        marginTop: '20px',
+        backgroundColor: settings.isHighContrast
+            ? "black"
+            : settings.isDarkMode || settings.isGreyscale
+            ? "gray"
+            : "#ffffff",
+        color: settings.isHighContrast
+            ? "white"
+            : settings.isDarkMode || settings.isGreyscale
+            ? "white"
+            : "black",
+        padding: '10px',
+        borderRadius: '5px',
+    }}
+>
+    <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Timezone</Typography>
+    <Select
+        value={settings.timezone || 'UTC'}
+        onChange={handleTimezoneChange}
+        fullWidth
+    >
+        {timeZones.map((zone: string) => (
+            <MenuItem key={zone} value={zone}>
                 {zone}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
+            </MenuItem>
+        ))}
+    </Select>
+</Box>
+
 
         {/* Save Settings Button */}
         <Button

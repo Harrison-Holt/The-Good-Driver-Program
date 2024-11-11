@@ -19,9 +19,13 @@ const Sidebar: React.FC = () => {
                 width: 250,
                 backgroundColor: settings.isHighContrast
                     ? "black" // High contrast background
+                    : settings.isDarkMode || settings.isGreyscale
+                    ? "gray" // Gray background for dark or greyscale mode
                     : "#ffffff", // Default solid white background
                 color: settings.isHighContrast
                     ? "white" // High contrast text color
+                    : settings.isDarkMode || settings.isGreyscale
+                    ? "white" // White text for dark or greyscale mode
                     : "black", // Default text color
             }}
             role="presentation"
@@ -29,54 +33,30 @@ const Sidebar: React.FC = () => {
         >
             <List>
                 <ListItem>
-                    <ListItemButton
-                        onClick={() => {
-                            nav("/");
-                        }}
-                    >
-                        Home
-                    </ListItemButton>
+                    <ListItemButton onClick={() => nav("/")}>Home</ListItemButton>
                 </ListItem>
                 {loggedIn && (
                     <ListItem>
-                        <ListItemButton
-                            onClick={() => {
-                                nav("/profile");
-                            }}
-                        >
-                            Profile
-                        </ListItemButton>
+                        <ListItemButton onClick={() => nav("/profile")}>Profile</ListItemButton>
                     </ListItem>
                 )}
                 {(usertype === "admin" || usertype === "sponsor") && (
                     <ListItem>
-                        <ListItemButton
-                            onClick={() => {
-                                nav("/user-management");
-                            }}
-                        >
+                        <ListItemButton onClick={() => nav("/user-management")}>
                             User Management
                         </ListItemButton>
                     </ListItem>
                 )}
                 <ListItem>
-                    <ListItemButton onClick={() => nav("/settings")}>
-                        Settings
-                    </ListItemButton>
+                    <ListItemButton onClick={() => nav("/settings")}>Settings</ListItemButton>
                 </ListItem>
                 <ListItem>
-                    <ListItemButton
-                        onClick={() => {
-                            nav("/about");
-                        }}
-                    >
-                        About
-                    </ListItemButton>
+                    <ListItemButton onClick={() => nav("/about")}>About</ListItemButton>
                 </ListItem>
             </List>
         </Box>
     );
-
+    
     return (
         <>
             <IconButton
@@ -93,8 +73,16 @@ const Sidebar: React.FC = () => {
                 onClose={() => setOpen(false)}
                 PaperProps={{
                     sx: {
-                        backgroundColor: settings.isHighContrast ? "black" : "#ffffff", // Ensure solid background for the drawer
-                        color: settings.isHighContrast ? "white" : "black",
+                        backgroundColor: settings.isHighContrast
+                            ? "black"
+                            : settings.isDarkMode || settings.isGreyscale
+                            ? "gray"
+                            : "#ffffff", // Same background logic as sidebarNavList
+                        color: settings.isHighContrast
+                            ? "white"
+                            : settings.isDarkMode || settings.isGreyscale
+                            ? "white"
+                            : "black",
                     },
                 }}
             >
@@ -102,6 +90,7 @@ const Sidebar: React.FC = () => {
             </Drawer>
         </>
     );
+    
 };
 
 export default Sidebar;
