@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
-import { selectEmail } from '../../store/userSlice'; 
+import { selectEmail } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
 
 interface ItunesItem {
@@ -34,7 +34,6 @@ const Cart: React.FC = () => {
   const theme = useTheme();
   const userEmail = useAppSelector(selectEmail); // Fetch email from store
 
-  // Internal state management
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [userPoints, setUserPoints] = useState<number | null>(null);
@@ -45,13 +44,11 @@ const Cart: React.FC = () => {
 
   const API_ENDPOINT = 'https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation';
 
-  // Load cart items from localStorage
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setCartItems(storedCartItems);
   }, []);
 
-  // Calculate total price
   useEffect(() => {
     const calculatedTotal = cartItems.reduce(
       (acc, item) => acc + (item.collectionPrice || item.trackPrice || 0),
@@ -60,7 +57,6 @@ const Cart: React.FC = () => {
     setTotal(calculatedTotal);
   }, [cartItems]);
 
-  // Fetch user points (replace with your actual logic, e.g., API call)
   useEffect(() => {
     const fetchUserPoints = async () => {
       setUserPoints(1000); // Example value
@@ -80,7 +76,7 @@ const Cart: React.FC = () => {
   };
 
   const handleCheckout = () => {
-    playAudioFeedback(); // Play sound when "Proceed to Checkout" is clicked
+    playAudioFeedback();
     if (userPoints !== null && userPoints >= total) {
       setShowConfirmationDialog(true);
       setErrorMessage(null);
@@ -90,7 +86,7 @@ const Cart: React.FC = () => {
   };
 
   const confirmCheckout = async () => {
-    playAudioFeedback(); // Play sound when "Confirm and Purchase" is clicked
+    playAudioFeedback();
     try {
       const orderDetails = {
         orderId: `ORD-${Date.now()}`,
@@ -184,7 +180,16 @@ const Cart: React.FC = () => {
             Proceed to Checkout
           </Button>
 
-          <Dialog open={showConfirmationDialog} onClose={() => setShowConfirmationDialog(false)}>
+          <Dialog
+            open={showConfirmationDialog}
+            onClose={() => setShowConfirmationDialog(false)}
+            PaperProps={{
+              sx: {
+                backgroundColor: theme.palette.background.default, // Match theme
+                color: theme.palette.text.primary, // Match text color
+              },
+            }}
+          >
             <DialogTitle>Email Confirmation</DialogTitle>
             <DialogContent>
               <Typography>Please confirm your email before proceeding with the purchase:</Typography>
