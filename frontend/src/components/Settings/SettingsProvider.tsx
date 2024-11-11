@@ -48,7 +48,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
                 textAlign: settings.textAlign,
             });
     
-      // Send settings directly to the API Gateway
       const response = await axios.post(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
         {
