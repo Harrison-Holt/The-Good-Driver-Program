@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { fetchPointChangeHistory, fetchUserInfo } from '../../utils/api';  // Import the helper function
+import { fetchPointChangeHistory, } from '../../utils/api';  // Import the helper function
 
 
 // Allows pdf generation
