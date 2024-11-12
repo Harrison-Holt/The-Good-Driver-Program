@@ -76,7 +76,7 @@ const Profile: React.FC = () => {
 
     //const printOrderHist = async () => {
         const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]')
-        console.log(orderHist.items);
+        console.log(orderHist);
         for (const i in orderHist) {
             console.log(i);
         };
