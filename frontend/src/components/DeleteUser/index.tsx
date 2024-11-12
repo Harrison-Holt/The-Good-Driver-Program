@@ -12,7 +12,7 @@ const DeleteUser: React.FC = () => {
 
     const DeleteUser = async () => {
         try {
-            axios.delete('url',
+            axios.delete('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/users',
                 {
                     data: {deleteUser}
                 }).then((response) => {
