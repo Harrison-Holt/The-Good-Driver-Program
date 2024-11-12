@@ -12,7 +12,7 @@ const ElevateAdmin: React.FC = () => {
 
     const ElevateUser = async () => {
         try {
-            axios.post('url', {
+            axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/admins', {
                     username: elevateUser
                 }).then((response) => {
                     console.log(response);
