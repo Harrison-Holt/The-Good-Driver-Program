@@ -55,7 +55,13 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
   };
   return (
     <Box sx={{ padding: '16px' }}>
-      <Typography variant="h6">Point Change History for {driverUsername}</Typography>
+      if(user == 'driver'){
+        <Typography variant="h6">Point Change History for {driverUsername}</Typography>
+      }
+      else if(user == 'sponsor'){
+        <Typography variant="h6">Point Change History for all Drivers</Typography>
+      }
+      
       <Button 
         variant="contained" 
         color="primary" 
