@@ -109,6 +109,10 @@ const Cart: React.FC = () => {
         throw new Error('Failed to send order confirmation email.');
       }
 
+      const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      const updatedHist = [...currentHist, orderDetails];
+      localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
+
       setCheckoutSuccess(true);
       setShowConfirmationDialog(false);
       setCartItems([]);
