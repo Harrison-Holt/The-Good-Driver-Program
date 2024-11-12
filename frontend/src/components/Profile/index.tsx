@@ -75,13 +75,14 @@ const Profile: React.FC = () => {
 
 
     //const printOrderHist = async () => {
-        const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]')
-        console.log(orderHist);
-        for (const i in orderHist) {
-            console.log(i);
-        };
-        console.log("Done listing orders!");
-        
+    
+    const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+    console.log(orderHist);
+    for (const i of orderHist) {
+        console.log(i.items);
+    };
+    console.log("Done listing orders!");
+
     //}
 
     return (
