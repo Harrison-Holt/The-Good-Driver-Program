@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { fetchPointChangeHistory } from '../../utils/api';  // Import the helper function
-
+// Allows pdf generation
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 interface PointHistoryEntry {
   change_date: string;
   points_changed: number;
@@ -26,9 +33,37 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
     loadPointHistory();
   }, [driverUsername]);
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Point Change History for ${driverUsername}`, 10, 10);
+
+    const tableData = history.map(entry => [
+      new Date(entry.change_date).toLocaleDateString(),
+      entry.points_changed,
+      entry.reason,
+    ]);
+
+    // Add table to PDF
+    doc.autoTable({
+      head: [['Date', 'Points Changed', 'Reason']],
+      body: tableData,
+      startY: 20,
+    });
+
+    // Save the PDF
+    doc.save(`Point_History_${driverUsername}.pdf`);
+  };
   return (
     <Box sx={{ padding: '16px' }}>
       <Typography variant="h6">Point Change History for {driverUsername}</Typography>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={generatePDF} 
+        sx={{ position: 'absolute', top: 16, right: 16 }}
+      >
+        Generate Report
+      </Button>
       {error ? (
         <Typography color="error">{error}</Typography>
       ) : (
