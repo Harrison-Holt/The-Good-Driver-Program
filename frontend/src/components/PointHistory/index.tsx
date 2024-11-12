@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { fetchPointChangeHistory } from '../../utils/api';  // Import the helper function
+import { fetchPointChangeHistory, fetchUserInfo } from '../../utils/api';  // Import the helper function
+
+
 // Allows pdf generation
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useAppSelector } from "../../store/hooks";
+import { selectUserType } from "../../store/userSlice";
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
@@ -14,7 +18,7 @@ interface PointHistoryEntry {
   points_changed: number;
   reason: string;
 }
-
+const userType = useAppSelector(selectUserType);
 const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) => {
   const [history, setHistory] = useState<PointHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +39,10 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text(`Point Change History for ${driverUsername}`, 10, 10);
+    const title = userType === 'sponsor'
+      ? 'Point Change History for All Drivers'
+      : `Point Change History for ${driverUsername}`;
+    doc.text(title, 10, 10);
 
     const tableData = history.map(entry => [
       new Date(entry.change_date).toLocaleDateString(),
@@ -55,13 +62,11 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
   };
   return (
     <Box sx={{ padding: '16px' }}>
-      if(user == 'driver'){
-        <Typography variant="h6">Point Change History for {driverUsername}</Typography>
-      }
-      else if(user == 'sponsor'){
-        <Typography variant="h6">Point Change History for all Drivers</Typography>
-      }
-      
+      <Typography variant="h6">
+      {userType  === "sponsor"
+          ? 'Point Change History for All Drivers'
+          : `Point Change History for ${driverUsername}`}
+      </Typography>
       <Button 
         variant="contained" 
         color="primary" 
