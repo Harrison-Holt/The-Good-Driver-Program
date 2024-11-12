@@ -10,6 +10,7 @@ const Profile: React.FC = () => {
     const firstName = useAppSelector(selectFirstName);
     const lastName = useAppSelector(selectLastName);
     const email = useAppSelector(selectEmail);
+    const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]')
 
     const [newFirstName, setNewFirstName] = useState<string>(firstName || '');
     const [newLastName, setNewLastName] = useState<string>(lastName || '');
@@ -91,6 +92,11 @@ const Profile: React.FC = () => {
                 }
                 label="Receive notifications for point changes"
             />
+
+            <div>
+                <Typography>Order History</Typography>
+                <Typography>{orderHist.items}</Typography>
+            </div>
 
             {isEditing ? (
                 <>
