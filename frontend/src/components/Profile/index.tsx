@@ -104,7 +104,6 @@ const Profile: React.FC = () => {
 
             <div>
                 <Typography>Order History</Typography>
-                <Typography>{orderHist}</Typography>
             </div>
 
             {isEditing ? (
