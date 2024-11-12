@@ -13,10 +13,10 @@ const Profile: React.FC = () => {
 
     const [newFirstName, setNewFirstName] = useState<string>(firstName || '');
     const [newLastName, setNewLastName] = useState<string>(lastName || '');
+    const [newEmail, setNewEmail] = useState<string>(email || '');
     const [emailNotifications, setEmailNotifications] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
-    // Fetch the initial notification preference only once
     useEffect(() => {
         const fetchNotificationPreference = async () => {
             if (username) {
@@ -34,7 +34,6 @@ const Profile: React.FC = () => {
         fetchNotificationPreference();
     }, [username]);
 
-    // Handle checkbox change for email notifications
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
         setEmailNotifications(isChecked);
@@ -50,16 +49,13 @@ const Profile: React.FC = () => {
                 console.error("Error updating notification preference:", error);
                 setEmailNotifications(!isChecked);
             }
-        } else {
-            console.error("Username is null, cannot update notification preference");
         }
     };
 
-    // Handle the profile update
     const handleProfileUpdate = async () => {
-        if (username) { // Ensure username is not null
+        if (username) {
             try {
-                const response = await updateUserName(username, newFirstName, newLastName);
+                const response = await updateUserName(username, newFirstName, newLastName, newEmail);
                 if (response) {
                     alert("Profile updated successfully");
                 } else {
@@ -111,6 +107,14 @@ const Profile: React.FC = () => {
                         variant="outlined"
                         value={newLastName}
                         onChange={(e) => setNewLastName(e.target.value)}
+                        fullWidth
+                        sx={{ marginTop: 2 }}
+                    />
+                    <TextField
+                        label="Email"
+                        variant="outlined"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
                         fullWidth
                         sx={{ marginTop: 2 }}
                     />
