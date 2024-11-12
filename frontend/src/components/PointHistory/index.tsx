@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { fetchPointChangeHistory } from '../../utils/api';  // Import the helper function
-// Allows pdf generation
+import { fetchPointChangeHistory } from '../../utils/api';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useAppSelector } from "../../store/hooks";
+import { selectUserType } from "../../store/userSlice";
+
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
   }
 }
+
 interface PointHistoryEntry {
   change_date: string;
   points_changed: number;
@@ -18,6 +21,9 @@ interface PointHistoryEntry {
 const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) => {
   const [history, setHistory] = useState<PointHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Get user type from Redux store inside the component
+  const userType = useAppSelector(selectUserType);
 
   useEffect(() => {
     const loadPointHistory = async () => {
@@ -35,7 +41,10 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text(`Point Change History for ${driverUsername}`, 10, 10);
+    const title = userType === 'sponsor'
+      ? 'Point Change History for All Drivers'
+      : `Point Change History for ${driverUsername}`;
+    doc.text(title, 10, 10);
 
     const tableData = history.map(entry => [
       new Date(entry.change_date).toLocaleDateString(),
@@ -43,19 +52,22 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
       entry.reason,
     ]);
 
-    // Add table to PDF
     doc.autoTable({
       head: [['Date', 'Points Changed', 'Reason']],
       body: tableData,
       startY: 20,
     });
 
-    // Save the PDF
     doc.save(`Point_History_${driverUsername}.pdf`);
   };
+
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Typography variant="h6">Point Change History for {driverUsername}</Typography>
+    <Box sx={{ padding: '16px', position: 'relative' }}>
+      <Typography variant="h6">
+        {userType === "sponsor"
+          ? 'Point Change History for All Drivers'
+          : `Point Change History for ${driverUsername}`}
+      </Typography>
       <Button 
         variant="contained" 
         color="primary" 
