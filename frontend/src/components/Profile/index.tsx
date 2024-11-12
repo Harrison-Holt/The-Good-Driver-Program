@@ -77,12 +77,13 @@ const Profile: React.FC = () => {
     //const printOrderHist = async () => {
     
     const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+    var oHist:string = "";
     for (const i of orderHist) {
         for (const j of i.items) {
-            console.log(i.orderId + ": " + j);
+            oHist += "<Typography>" + i.orderId + ": " + j + "</Typography>";
         }
     };
-    console.log("Done listing orders!");
+    console.log(oHist);
 
     //}
 
@@ -107,6 +108,7 @@ const Profile: React.FC = () => {
 
             <div>
                 <Typography>Order History</Typography>
+                {oHist}
             </div>
 
             {isEditing ? (
