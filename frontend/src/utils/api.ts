@@ -66,6 +66,36 @@ export const fetchPointChangeHistory = async (username: string): Promise<PointHi
   }
 };
 
+export const updateUserName = async (username:string, firstName:string, lastName:string, email:string) => {
+  try {
+    const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`, {
+      username,
+      firstName,
+      lastName,
+      email
+    });
+    return response;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+};
+
+
+// export const updateUserName = async (username: string, firstName: string, lastName: string) => {
+//   try {
+//     const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`, {
+//       username,
+//       firstName,
+//       lastName
+//     });
+//     return response;
+//   } catch (error) {
+//     console.error('Error updating user name:', error);
+//     throw error;
+//   }
+// };
+
 /** example of how to call one of these functions in another file:
  
     import { fetchUserPoints } from '../utils/api'; //change as needed
