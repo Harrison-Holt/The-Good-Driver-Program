@@ -76,7 +76,6 @@ const Profile: React.FC = () => {
     return (
         <div>
             <Typography variant="h5">{userType === "driver" ? "Driver Profile" : userType === "sponsor" ? "Sponsor Profile" : "Admin Profile"}</Typography>
-            <Typography>Welcome, {username}!</Typography>
             <Typography>Name: {firstName} {lastName}</Typography>
             <Typography>Email: {email}</Typography>
             <Typography>Role: {userType}</Typography>

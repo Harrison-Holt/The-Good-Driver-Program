@@ -129,6 +129,9 @@ const Home: React.FC = () => {
           <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
         </ListItem>
         <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("faq")}>FAQ</ListItemButton>
+        </ListItem>
+        <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("profile")}>Profile</ListItemButton>
         </ListItem>
         <ListItem>

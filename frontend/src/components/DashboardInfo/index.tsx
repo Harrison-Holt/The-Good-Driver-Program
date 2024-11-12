@@ -11,6 +11,7 @@ import Profile from '../Profile';
 import PointHistory from '../PointHistory';
 import { useSettings } from '../../components/Settings/settings_context';
 import { selectUserName } from '../../store/userSlice';
+import FAQ from '../FAQ';
 
 interface Props {
   currentDisplay: string;
@@ -95,7 +96,6 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "pointChange":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Point Change</Typography>
           <PointChange />
         </Paper>
       );
@@ -104,7 +104,6 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "pointHistory":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Point History</Typography>
           {username && <PointHistory driverUsername={username} />}
         </Paper>
       );
@@ -113,8 +112,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "profile":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Profile</Typography>
           <Profile />
+        </Paper>
+      );
+      break;
+
+    case "faq":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <FAQ />
         </Paper>
       );
       break;
