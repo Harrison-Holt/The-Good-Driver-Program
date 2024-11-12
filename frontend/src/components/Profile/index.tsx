@@ -79,6 +79,7 @@ const Profile: React.FC = () => {
         for (const i in orderHist) {
             console.log(i);
         };
+        console.log("Done listing orders!");
         
     //}
 
