@@ -5,6 +5,7 @@ import { useAppSelector } from "../../store/hooks";
 import { selectUserType } from "../../store/userSlice";
 import AddSponsorUser from "../../components/AddSponsorUser";
 import DeleteUser from "../../components/DeleteUser";
+import ElevateAdmin from "../../components/ElevateAdmin";
 
 const UserManagement: React.FC = () => {
 
@@ -16,6 +17,7 @@ const UserManagement: React.FC = () => {
             <Box>
                 {(usertype === "admin") && <CreateSponsorOrg/>}
                 {(usertype === "admin") && <DeleteUser/>}
+                {(usertype === "admin") && <ElevateAdmin/>}
                 {(usertype === "sponsor") && <AddSponsorUser/>}
             </Box>
         </>
