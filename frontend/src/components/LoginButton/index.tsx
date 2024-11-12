@@ -30,7 +30,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   if (!isAuthenticated) {
     const handleLogin = () => {
-      window.location.href = cognitoUrl;  // Redirect to Cognito login URL
+      window.location.href = cognitoUrl;
     };
 
     return (
@@ -41,7 +41,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(false);
     );
   } else {
     const handleLogin = () => {
-      window.location.href = "/";  // Redirect to Cognito login URL
+      window.location.href = "/";
     };
 
     return (
