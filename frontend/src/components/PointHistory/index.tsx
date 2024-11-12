@@ -4,6 +4,11 @@ import { fetchPointChangeHistory } from '../../utils/api';  // Import the helper
 // Allows pdf generation
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 interface PointHistoryEntry {
   change_date: string;
   points_changed: number;
