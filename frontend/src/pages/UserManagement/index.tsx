@@ -17,9 +17,9 @@ const UserManagement: React.FC = () => {
             <Navibar/>
             <Box>
                 {(usertype === "admin") && <CreateSponsorOrg/>}
-                {(usertype === "admin") && <AdminDriverManagement/>}
                 {(usertype === "admin") && <DeleteUser/>}
                 {(usertype === "admin") && <ElevateAdmin/>}
+                {(usertype === "admin") && <AdminDriverManagement/>}
                 {(usertype === "sponsor") && <AddSponsorUser/>}
             </Box>
         </>
