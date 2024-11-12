@@ -1,11 +1,8 @@
 import React from 'react';
 import { Typography, Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useAppSelector } from '../../store/hooks';
-import { selectUserType } from '../../store/userSlice';
 
 const FAQ: React.FC = () => {
-    const userType = useAppSelector(selectUserType);
 
     const faqs = [
         {
@@ -29,10 +26,6 @@ const FAQ: React.FC = () => {
         answer: "This platform allows sponsors and drivers to track their performance and rewards, providing a view of points and achievements and the ability to purchase products with those points."
         }
     ];
-
-    if (userType !== "driver"){
-        return null;
-    }
 
     return (
         <Box sx={{ padding: '20px' }}>
