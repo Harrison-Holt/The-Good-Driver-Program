@@ -80,7 +80,7 @@ const Profile: React.FC = () => {
     var oHist:string = "";
     for (const i of orderHist) {
         for (const j of i.items) {
-            oHist += "<Typography>" + i.orderId + ": " + j + "</Typography>";
+            oHist += (<Typography>{i.orderId}: {j}</Typography>);
         }
     };
     console.log(oHist);
