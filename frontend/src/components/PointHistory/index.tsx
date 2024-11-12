@@ -26,9 +26,21 @@ const PointHistory: React.FC<{ driverUsername: string }> = ({ driverUsername }) 
     loadPointHistory();
   }, [driverUsername]);
 
+  const handleGenerateReport = () => {
+    // Logic for generating the report can go here
+    console.log("Generate report button clicked");
+  };
   return (
     <Box sx={{ padding: '16px' }}>
       <Typography variant="h6">Point Change History for {driverUsername}</Typography>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={handleGenerateReport} 
+        sx={{ position: 'absolute', top: 16, right: 16 }}
+      >
+        Generate Report
+      </Button>
       {error ? (
         <Typography color="error">{error}</Typography>
       ) : (
