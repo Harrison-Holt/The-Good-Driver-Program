@@ -10,7 +10,6 @@ const Profile: React.FC = () => {
     const firstName = useAppSelector(selectFirstName);
     const lastName = useAppSelector(selectLastName);
     const email = useAppSelector(selectEmail);
-    const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]')
 
     const [newFirstName, setNewFirstName] = useState<string>(firstName || '');
     const [newLastName, setNewLastName] = useState<string>(lastName || '');
@@ -74,6 +73,15 @@ const Profile: React.FC = () => {
         }
     };
 
+
+    //const printOrderHist = async () => {
+        const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]')
+        for (const i in orderHist) {
+            console.log(i);
+        };
+        
+    //}
+
     return (
         <div>
             <Typography variant="h5">{userType === "driver" ? "Driver Profile" : userType === "sponsor" ? "Sponsor Profile" : "Admin Profile"}</Typography>
@@ -95,7 +103,7 @@ const Profile: React.FC = () => {
 
             <div>
                 <Typography>Order History</Typography>
-                <Typography>{orderHist.items}</Typography>
+                <Typography>{orderHist}</Typography>
             </div>
 
             {isEditing ? (
