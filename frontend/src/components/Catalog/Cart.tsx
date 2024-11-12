@@ -110,7 +110,7 @@ const Cart: React.FC = () => {
       }
 
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-      const updatedHist = [...currentHist, orderDetails.items];
+      const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
 
       setCheckoutSuccess(true);
