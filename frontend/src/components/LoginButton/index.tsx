@@ -4,7 +4,7 @@ import { getSession } from '../../utils/cognitoAuth';  // Import session checker
 
 const LoginButton: React.FC = () => {
 
-  const cognitoUrl = "https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%harrsion-test-branch.d3ggpwrnl4m4is.amplifyapp.com%2Fauth-callback";
+  const cognitoUrl = "https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%harrison-test-branch.d3ggpwrnl4m4is.amplifyapp.com%2Fauth-callback";
 
  
  
