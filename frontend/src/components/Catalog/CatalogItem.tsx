@@ -20,9 +20,19 @@ interface CatalogItemProps {
   item: ItunesItem;
   onViewDetails: (item: ItunesItem) => void;
   conversionRate: number; // Add the conversion rate prop
+  userRole: 'sponsor' | 'driver'; // Role of the user
+  onAddToDriverCatalog?: (item: ItunesItem) => void; // Callback for sponsor to add item to driver catalog
+  onAddPromotion?: (item: ItunesItem) => void; // Callback for sponsor to add promotion/discount
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversionRate }) => {
+const CatalogItem: React.FC<CatalogItemProps> = ({
+  item,
+  onViewDetails,
+  conversionRate,
+  userRole,
+  onAddToDriverCatalog,
+  onAddPromotion,
+}) => {
   const { settings } = useSettings(); // Access settings for lineHeight
 
   // Filter out items not in the sponsor's catalog
@@ -70,6 +80,27 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
       >
         View Details
       </Button>
+
+      {/* Sponsor-only Actions */}
+      {userRole === 'sponsor' && (
+        <Box sx={{ marginTop: '10px' }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => onAddToDriverCatalog?.(item)}
+            sx={{ marginRight: '10px' }}
+          >
+            Add to Driver Catalog
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => onAddPromotion?.(item)}
+          >
+            Add Discount/Promotion
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };
