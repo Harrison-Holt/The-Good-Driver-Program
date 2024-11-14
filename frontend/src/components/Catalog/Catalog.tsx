@@ -246,17 +246,18 @@ const Catalog = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
+  
   let sponBtn = (<><Button variant="contained" color="primary">Catalog</Button></>);
   console.log("\"" + usertype + "\"");
   // Check User Role
   if (usertype === "sponsor") {
-    //console.log("Setting sponBtn");
+    console.log("Setting sponBtn");
     sponBtn = (<>
       <Button variant="contained" color="primary" onClick={() => selectedItem ? handleRemFromCatalog(selectedItem) : console.log("NULL")}>
         Unlist from Catalog
       </Button>
     </>)
-    //console.log("Set sponBtn");
+    console.log("Set sponBtn");
   } else {
     console.log("\""+usertype+"\"" + ",\"sponsor\"")
   }
@@ -280,6 +281,11 @@ const Catalog = () => {
       <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: '40px' }}>
         Discover Your Favorite Media
       </Typography>
+      {loading && (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+    <CircularProgress />
+  </Box>
+)}
 
       {/* Conversion Rate */}
       <Box sx={{ marginBottom: '20px' }}>
@@ -299,6 +305,8 @@ const Catalog = () => {
 
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
+     
+      {usertype !== 'driver' && (
       <Box sx={{ marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>
         <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
@@ -307,6 +315,7 @@ const Catalog = () => {
           ))}
         </Select>
       </Box>
+      )}
 
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
@@ -320,7 +329,7 @@ const Catalog = () => {
       <Grid container spacing={4}>
         {filteredItems.map((item: ItunesItem) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} />
+            <CatalogItem item={item} onViewDetails={handleViewDetails} conversionRate={conversionRate} userRole={'sponsor'} />
           </Grid>
         ))}
       </Grid>
