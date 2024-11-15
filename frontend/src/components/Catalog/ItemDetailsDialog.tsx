@@ -131,12 +131,28 @@ const ItemDetailsDialog: React.FC<ItemDetailsDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{item.trackName || item.collectionName}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ textAlign: 'center' }}>
+      <DialogContent
+        sx={{
+          backgroundColor: 'white', // Set a solid background color
+          color: 'black', // Ensure text is visible
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            backgroundColor: 'white', // Match background to avoid transparency
+            padding: '20px',
+            borderRadius: '8px',
+          }}
+        >
           <img
             src={item.artworkUrl100}
             alt={item.trackName || item.collectionName}
-            style={{ width: '200px', marginBottom: '20px' }}
+            style={{
+              width: '200px',
+              marginBottom: '20px',
+              borderRadius: '8px',
+            }}
           />
           <Typography>
             <strong>Artist:</strong> {item.artistName}
@@ -148,7 +164,11 @@ const ItemDetailsDialog: React.FC<ItemDetailsDialogProps> = ({
         <ReviewList reviews={reviews} />
         <ReviewForm onSubmit={onSubmitReview} />
       </DialogContent>
-      <DialogActions>
+      <DialogActions
+        sx={{
+          backgroundColor: 'white', // Ensure dialog actions have the same background
+        }}
+      >
         <Button onClick={onRemoveFromCatalog} color="error">
           Unlist
         </Button>
