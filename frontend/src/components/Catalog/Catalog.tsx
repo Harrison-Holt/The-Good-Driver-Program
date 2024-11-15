@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Alert, Grid } from '@mui/material';
 import CatalogItem from './CatalogItem'; // Adjust the path based on your project structure
 import CatalogControls from './CatalogControls'; // Adjust the path
