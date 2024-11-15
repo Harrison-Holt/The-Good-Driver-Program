@@ -14,15 +14,17 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  isPublished?: boolean; // New property to track publication status
 }
 
 interface CatalogItemProps {
   item: ItunesItem;
   onViewDetails: (item: ItunesItem) => void;
   conversionRate: number;
-  userRole: string; // Add userRole prop to handle role-specific actions
-  onAddToCatalog?: (item: ItunesItem) => void; // Optional for sponsors
-  onRemoveFromCatalog?: (item: ItunesItem) => void; // Optional for sponsors
+  userRole: string;
+  onAddToCatalog?: (item: ItunesItem) => void;
+  onRemoveFromCatalog?: (item: ItunesItem) => void;
+  onPublish?: (item: ItunesItem) => void; // New function for publishing items
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({
@@ -32,14 +34,9 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
   userRole,
   onAddToCatalog,
   onRemoveFromCatalog,
+  onPublish,
 }) => {
   const { settings } = useSettings();
-
-  // Filter out items not in the catalog if they are in the "removed" list
-  const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
-  const isRemoved = removedItems.some((removedItem: ItunesItem) => removedItem.trackId === item.trackId);
-
-  if (isRemoved) return null; // Skip rendering if the item is marked as removed
 
   // Calculate the price in points using the conversion rate
   const priceInPoints = Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate);
@@ -101,6 +98,16 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
               Remove
             </Button>
           )}
+          {onPublish && (
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => onPublish(item)}
+              sx={{ lineHeight: settings.lineHeight || 1.5 }}
+            >
+              {item.isPublished ? 'Unpublish' : 'Publish'}
+            </Button>
+          )}
         </Box>
       )}
     </Box>
@@ -108,4 +115,5 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
 };
 
 export default CatalogItem;
+
 
