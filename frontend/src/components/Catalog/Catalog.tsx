@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import CatalogControls from './CatalogControls';
@@ -20,20 +20,21 @@ const PUBLISH_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
-  const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Items added by the sponsor
+  const [catalog, setCatalog] = useState<ItunesItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
+  const [conversionRate, setConversionRate] = useState(100); // Declare conversionRate with default value
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dynamically filter items based on the search term
+  // Filter items dynamically
   const filteredItems = items.filter(
     (item) =>
       item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Fetch items from the iTunes API
+  // Fetch items from API
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -69,7 +70,6 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Handle adding an item to the catalog
   const handleAddToCatalog = (item: ItunesItem) => {
     if (catalog.find((catalogItem) => catalogItem.trackId === item.trackId)) {
       alert(`${item.trackName || item.collectionName} is already in the catalog.`);
@@ -79,7 +79,6 @@ const Catalog = () => {
     alert(`${item.trackName || item.collectionName} added to the catalog.`);
   };
 
-  // Handle publishing the catalog
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
       alert('No items to publish.');
@@ -98,7 +97,7 @@ const Catalog = () => {
       }
 
       alert('Catalog published successfully!');
-      setCatalog([]); // Clear the catalog after publishing
+      setCatalog([]);
     } catch (error) {
       console.error('Error publishing catalog:', error);
       alert('Error publishing catalog. Please try again.');
@@ -121,16 +120,21 @@ const Catalog = () => {
       <CatalogControls
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
-        setSearchTerm={setSearchTerm} conversionRate={0} setConversionRate={function (): void {
-          throw new Error('Function not implemented.');
-        } }      />
+        setSearchTerm={setSearchTerm}
+        conversionRate={conversionRate}
+        setConversionRate={setConversionRate}
+      />
 
       <Grid container spacing={4}>
         {filteredItems.map((item) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem item={item} onAddToCatalog={handleAddToCatalog} onViewDetails={function (): void {
-              throw new Error('Function not implemented.');
-            } } conversionRate={0} userRole={''} />
+            <CatalogItem
+              item={item}
+              onViewDetails={() => console.log('View details clicked')}
+              conversionRate={conversionRate}
+              userRole="sponsor"
+              onAddToCatalog={handleAddToCatalog}
+            />
           </Grid>
         ))}
       </Grid>
@@ -148,4 +152,5 @@ const Catalog = () => {
 };
 
 export default Catalog;
+
 
