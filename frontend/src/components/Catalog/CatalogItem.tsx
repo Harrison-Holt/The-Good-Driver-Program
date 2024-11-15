@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { useSettings } from '../Settings/settings_context';
 
 interface ItunesItem {
   trackId?: string;
@@ -9,46 +8,26 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;
-  collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
-  isPublished?: boolean; // New property to track publication status
 }
 
 interface CatalogItemProps {
   item: ItunesItem;
-  onViewDetails: (item: ItunesItem) => void;
+  onViewDetails: (item: ItunesItem) => void; // Add this property
   conversionRate: number;
-  userRole: string;
-  onAddToCatalog?: (item: ItunesItem) => void;
-  onRemoveFromCatalog?: (item: ItunesItem) => void;
-  onPublish?: (item: ItunesItem) => void; // New function for publishing items
+  userRole: string, 
+  onAddToCatalog?: (item: ItunesItem) => void; // Added this property
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({
-  item,
-  onViewDetails,
-  conversionRate,
-  userRole,
-  onAddToCatalog,
-  onRemoveFromCatalog,
-  onPublish,
-}) => {
-  const { settings } = useSettings();
-
-  // Calculate the price in points using the conversion rate
-  const priceInPoints = Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate);
-
+const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
   return (
     <Box
       sx={{
         border: '1px solid #ccc',
         padding: '10px',
         borderRadius: '5px',
-        lineHeight: settings.lineHeight || 1.5,
-        textAlign: settings.textAlign || 'left',
         marginBottom: '15px',
       }}
     >
@@ -57,63 +36,29 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
         alt={item.trackName || item.collectionName}
         style={{ width: '100%', marginBottom: '10px' }}
       />
-      <Typography variant="h6" sx={{ lineHeight: settings.lineHeight || 1.5, marginBottom: '8px' }}>
+      <Typography variant="h6" sx={{ marginBottom: '8px' }}>
         {item.trackName || item.collectionName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5, marginBottom: '5px' }}>
+      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
         <strong>Artist:</strong> {item.artistName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5, marginBottom: '10px' }}>
-        <strong>Points:</strong> {priceInPoints} Points
+      <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+        <strong>Price:</strong> {item.collectionPrice} {item.currency}
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => onViewDetails(item)}
-        sx={{ lineHeight: settings.lineHeight || 1.5, marginBottom: '8px' }}
-      >
-        View Details
-      </Button>
-
-      {/* Role-specific actions */}
-      {userRole === 'sponsor' && (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-          {onAddToCatalog && (
-            <Button
-              variant="outlined"
-              color="success"
-              onClick={() => onAddToCatalog(item)}
-              sx={{ lineHeight: settings.lineHeight || 1.5 }}
-            >
-              Add to Catalog
-            </Button>
-          )}
-          {onRemoveFromCatalog && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => onRemoveFromCatalog(item)}
-              sx={{ lineHeight: settings.lineHeight || 1.5 }}
-            >
-              Remove
-            </Button>
-          )}
-          {onPublish && (
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => onPublish(item)}
-              sx={{ lineHeight: settings.lineHeight || 1.5 }}
-            >
-              {item.isPublished ? 'Unpublish' : 'Publish'}
-            </Button>
-          )}
-        </Box>
+      {onAddToCatalog && (
+        <Button
+          variant="outlined"
+          color="success"
+          onClick={() => onAddToCatalog(item)}
+        >
+          Add to Catalog
+        </Button>
       )}
     </Box>
   );
 };
 
 export default CatalogItem;
+
 
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid } from '@mui/material';
-import CatalogItem from './CatalogItem'; // Adjust the path based on your project structure
-import CatalogControls from './CatalogControls'; // Adjust the path
-import ItemDetailsDialog from './ItemDetailsDialog'; // Adjust the path
+import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
+import CatalogItem from './CatalogItem';
+import CatalogControls from './CatalogControls';
 
 interface ItunesItem {
   trackId?: string;
@@ -11,23 +10,21 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;
-  collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
+const PUBLISH_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor-catalog';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
+  const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Items added by the sponsor
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [conversionRate, setConversionRate] = useState(100);
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
 
   // Dynamically filter items based on the search term
   const filteredItems = items.filter(
@@ -57,19 +54,13 @@ const Catalog = () => {
         }
 
         const data = await response.json();
-
-        // Filter valid items directly
         const fetchedItems = data.results.filter(
           (item: ItunesItem) => item.collectionPrice && item.collectionPrice > 0
         );
 
         setItems(fetchedItems);
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('An unknown error occurred.');
-        }
+        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setLoading(false);
       }
@@ -78,9 +69,40 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Handle item selection
-  const handleViewDetails = (item: ItunesItem) => {
-    setSelectedItem(item);
+  // Handle adding an item to the catalog
+  const handleAddToCatalog = (item: ItunesItem) => {
+    if (catalog.find((catalogItem) => catalogItem.trackId === item.trackId)) {
+      alert(`${item.trackName || item.collectionName} is already in the catalog.`);
+      return;
+    }
+    setCatalog((prev) => [...prev, item]);
+    alert(`${item.trackName || item.collectionName} added to the catalog.`);
+  };
+
+  // Handle publishing the catalog
+  const handlePublishCatalog = async () => {
+    if (catalog.length === 0) {
+      alert('No items to publish.');
+      return;
+    }
+
+    try {
+      const response = await fetch(PUBLISH_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: catalog }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to publish catalog.');
+      }
+
+      alert('Catalog published successfully!');
+      setCatalog([]); // Clear the catalog after publishing
+    } catch (error) {
+      console.error('Error publishing catalog:', error);
+      alert('Error publishing catalog. Please try again.');
+    }
   };
 
   return (
@@ -99,37 +121,31 @@ const Catalog = () => {
       <CatalogControls
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
-        conversionRate={conversionRate}
-        setConversionRate={setConversionRate}
-        setSearchTerm={setSearchTerm}
-      />
+        setSearchTerm={setSearchTerm} conversionRate={0} setConversionRate={function (): void {
+          throw new Error('Function not implemented.');
+        } }      />
 
       <Grid container spacing={4}>
         {filteredItems.map((item) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem
-              item={item}
-              onViewDetails={handleViewDetails}
-              conversionRate={conversionRate}
-              userRole="sponsor"
-            />
+            <CatalogItem item={item} onAddToCatalog={handleAddToCatalog} onViewDetails={function (): void {
+              throw new Error('Function not implemented.');
+            } } conversionRate={0} userRole={''} />
           </Grid>
         ))}
       </Grid>
 
-      {selectedItem && (
-        <ItemDetailsDialog
-          open={!!selectedItem}
-          onClose={() => setSelectedItem(null)}
-          item={selectedItem}
-          reviews={[]} // Fetch and pass reviews if required
-          onSubmitReview={() => {}}
-          onRemoveFromCatalog={() => {}}
-          onBuyNow={() => {}}
-        />
-      )}
+      <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
+        <Typography variant="h6" gutterBottom>
+          Items in Catalog: {catalog.length}
+        </Typography>
+        <Button variant="contained" color="primary" onClick={handlePublishCatalog}>
+          Publish Catalog
+        </Button>
+      </Box>
     </Box>
   );
 };
 
 export default Catalog;
+

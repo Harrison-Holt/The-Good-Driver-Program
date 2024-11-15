@@ -2,7 +2,6 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import CatalogItem from './CatalogItem';
 
-// Define the type for a catalog item
 interface ItunesItem {
   trackId?: string;
   collectionId?: string;
@@ -15,7 +14,6 @@ interface ItunesItem {
   currency?: string;
 }
 
-// Define the props for the CatalogGrid component
 interface CatalogGridProps {
   items: ItunesItem[];
   onViewDetails: (item: ItunesItem) => void;
@@ -37,7 +35,7 @@ const CatalogGrid: React.FC<CatalogGridProps> = ({
             item={item}
             onViewDetails={onViewDetails}
             conversionRate={conversionRate}
-            userRole={userRole}
+            userRole={userRole} // Pass userRole here
           />
         </Grid>
       ))}
@@ -46,4 +44,3 @@ const CatalogGrid: React.FC<CatalogGridProps> = ({
 };
 
 export default CatalogGrid;
-
