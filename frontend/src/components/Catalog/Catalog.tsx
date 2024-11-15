@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import CatalogControls from './CatalogControls';
