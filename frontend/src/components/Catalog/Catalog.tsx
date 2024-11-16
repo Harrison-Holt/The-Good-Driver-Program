@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import CatalogControls from './CatalogControls';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store'; // Adjust based on your file structure
+import { useAppSelector } from "../../store/hooks";
+import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -29,7 +29,7 @@ const Catalog = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const username = useSelector((state: RootState) => state.currentUser.userName); // Get the username from Redux
+  const username = useAppSelector(selectUserName);
 
   // Filter items dynamically
   const filteredItems = items.filter(
