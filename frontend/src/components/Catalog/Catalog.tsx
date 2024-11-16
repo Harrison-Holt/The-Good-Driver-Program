@@ -30,6 +30,7 @@ const Catalog = () => {
   const [error, setError] = useState<string | null>(null);
 
   const username = useAppSelector(selectUserName);
+  console.log('Username from Redux:', username);
 
   // Filter items dynamically
   const filteredItems = items.filter(
