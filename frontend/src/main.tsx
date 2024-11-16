@@ -36,6 +36,7 @@ const router = createBrowserRouter([
 ]);
 
 // Main App component with applied global theme and settings
+// eslint-disable-next-line react-refresh/only-export-components
 const AppContent: React.FC = () => {
   const { settings } = useSettings();
 
