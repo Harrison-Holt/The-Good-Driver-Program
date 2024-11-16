@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import CatalogControls from './CatalogControls';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store'; // Adjust the import path based on your file structure
+import { RootState } from '../../store/store'; // Adjust based on your file structure
 
 interface ItunesItem {
   trackId?: string;
@@ -18,17 +18,25 @@ interface ItunesItem {
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
+const PUBLISH_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
 
 const Catalog = () => {
   const [items, setItems] = useState<ItunesItem[]>([]);
+  const [catalog, setCatalog] = useState<ItunesItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [conversionRate, setConversionRate] = useState(100); // Default conversion rate
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Access userType from Redux store
-  const userType = useSelector((state: RootState) => state.currentUser.userType);
+  const username = useSelector((state: RootState) => state.currentUser.userName); // Get the username from Redux
+
+  // Filter items dynamically
+  const filteredItems = items.filter(
+    (item) =>
+      item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Fetch items from API
   useEffect(() => {
@@ -66,47 +74,47 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  // Render different messages based on user type
-  if (userType !== 'sponsor') {
-    return (
-      <Box sx={{ textAlign: 'center', marginTop: '50px', padding: '20px' }}>
-        {userType === 'driver' ? (
-          <>
-            <Typography variant="h4" gutterBottom>
-              Access Restricted
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Drivers cannot view the catalog. Please apply to become a sponsor to gain access.
-            </Typography>
-          </>
-        ) : userType === 'admin' ? (
-          <>
-            <Typography variant="h4" gutterBottom>
-              Action Required
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Admins need to select a sponsor to view the catalog.
-            </Typography>
-          </>
-        ) : (
-          <>
-            <Typography variant="h4" gutterBottom>
-              Access Denied
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              You do not have permission to view this catalog.
-            </Typography>
-          </>
-        )}
-      </Box>
-    );
-  }
+  const handleAddToCatalog = (item: ItunesItem) => {
+    if (catalog.find((catalogItem) => catalogItem.trackId === item.trackId)) {
+      alert(`${item.trackName || item.collectionName} is already in the catalog.`);
+      return;
+    }
+    setCatalog((prev) => [...prev, item]);
+    alert(`${item.trackName || item.collectionName} added to the catalog.`);
+  };
 
-  // If user is a sponsor, render the catalog
+  const handlePublishCatalog = async () => {
+    if (catalog.length === 0) {
+      alert('No items to publish.');
+      return;
+    }
+
+    try {
+      const response = await fetch(PUBLISH_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username, // Send the username with the API request
+          items: catalog,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to publish catalog.');
+      }
+
+      alert('Catalog published successfully!');
+      setCatalog([]);
+    } catch (error) {
+      console.error('Error publishing catalog:', error);
+      alert('Error publishing catalog. Please try again.');
+    }
+  };
+
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Sponsor Catalog View
+        Sponsor Catalog Management
       </Typography>
 
       {error && <Alert severity="error">{error}</Alert>}
@@ -125,17 +133,32 @@ const Catalog = () => {
       />
 
       <Grid container spacing={4}>
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
             <CatalogItem
               item={item}
               onViewDetails={() => console.log('View details clicked')}
               conversionRate={conversionRate}
-              userRole="sponsor" // Ensures role-based behavior for CatalogItem
+              userRole="sponsor"
+              onAddToCatalog={() => handleAddToCatalog(item)} // Add item to catalog
             />
           </Grid>
         ))}
       </Grid>
+
+      <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
+        <Typography variant="h6" gutterBottom>
+          Items in Catalog: {catalog.length}
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePublishCatalog}
+          disabled={catalog.length === 0 || !username} // Disable if no catalog items or no username
+        >
+          Publish Catalog
+        </Button>
+      </Box>
     </Box>
   );
 };
