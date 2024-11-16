@@ -85,25 +85,45 @@ const Catalog = () => {
   };
 
   const handlePublishCatalog = async () => {
+    if (!username) {
+      alert('Username is required to publish the catalog.');
+      return;
+    }
+  
     if (catalog.length === 0) {
       alert('No items to publish.');
       return;
     }
-
+  
+    const payload = {
+      username: username,
+      items: catalog.map((item) => ({
+        item_id: item.trackId || item.collectionId, // Will return undefined if both are missing
+        item_name: item.trackName || item.collectionName,
+        artist_name: item.artistName,
+        price: item.trackPrice || item.collectionPrice,
+        currency: item.currency,
+        points: Math.round((item.trackPrice || item.collectionPrice || 0) * conversionRate),
+        image_url: item.artworkUrl100,
+      })),
+    };
+    
+    console.log('Payload being sent:', payload);
+  
     try {
       const response = await fetch(PUBLISH_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username, // Send the username with the API request
-          items: catalog,
-        }),
+        body: JSON.stringify(payload),
       });
-
+  
+      const responseData = await response.json();
+      console.log('Response from API:', responseData);
+  
       if (!response.ok) {
-        throw new Error('Failed to publish catalog.');
+        throw new Error(responseData.message || 'Failed to publish catalog.');
       }
-
+  
       alert('Catalog published successfully!');
       setCatalog([]);
     } catch (error) {
@@ -111,6 +131,7 @@ const Catalog = () => {
       alert('Error publishing catalog. Please try again.');
     }
   };
+  
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
