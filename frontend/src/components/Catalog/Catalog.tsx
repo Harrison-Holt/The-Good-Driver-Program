@@ -4,7 +4,6 @@ import CatalogItem from './CatalogItem';
 import CatalogControls from './CatalogControls';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store'; // Adjust the import path based on your file structure
-import { useNavigate } from 'react-router-dom';
 
 interface ItunesItem {
   trackId?: string;
@@ -28,15 +27,8 @@ const Catalog = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Access userType from Redux store
   const userType = useSelector((state: RootState) => state.currentUser.userType);
-  const navigate = useNavigate();
-
-  // Redirect if user is not a sponsor
-  useEffect(() => {
-    if (userType !== 'sponsor') {
-      navigate('/not-authorized'); // Redirect to a "Not Authorized" page or another route
-    }
-  }, [userType, navigate]);
 
   // Fetch items from API
   useEffect(() => {
@@ -74,6 +66,43 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
+  // Render different messages based on user type
+  if (userType !== 'sponsor') {
+    return (
+      <Box sx={{ textAlign: 'center', marginTop: '50px', padding: '20px' }}>
+        {userType === 'driver' ? (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Access Restricted
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Drivers cannot view the catalog. Please apply to become a sponsor to gain access.
+            </Typography>
+          </>
+        ) : userType === 'admin' ? (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Action Required
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Admins need to select a sponsor to view the catalog.
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Access Denied
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              You do not have permission to view this catalog.
+            </Typography>
+          </>
+        )}
+      </Box>
+    );
+  }
+
+  // If user is a sponsor, render the catalog
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -102,7 +131,7 @@ const Catalog = () => {
               item={item}
               onViewDetails={() => console.log('View details clicked')}
               conversionRate={conversionRate}
-              userRole="sponsor" // This can also be checked against Redux state
+              userRole="sponsor" // Ensures role-based behavior for CatalogItem
             />
           </Grid>
         ))}
@@ -112,5 +141,4 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
 
