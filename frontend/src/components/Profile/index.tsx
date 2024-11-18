@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, FormControlLabel, Checkbox } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { selectEmail, selectFirstName, selectLastName, selectUserName, selectUserType } from "../../store/userSlice";
-import { fetchPointChangeNotification, updatePointChangeNotification, updateUserName } from "../../utils/api";
+import { fetchPointChangeHistory, fetchPointChangeNotification, updatePointChangeNotification, updateUserName } from "../../utils/api";
+
+// Copied from PointHistory
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
+// Copied from PointHistory
+interface PointHistoryEntry {
+  change_date: string;
+  points_changed: number;
+  reason: string;
+}
 
 const Profile: React.FC = () => {
     const userType = useAppSelector(selectUserType);
@@ -17,6 +32,7 @@ const Profile: React.FC = () => {
     const [emailNotifications, setEmailNotifications] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
+    const [history, setHistory] = useState<PointHistoryEntry[]>([]);
     useEffect(() => {
         const fetchNotificationPreference = async () => {
             if (username) {
@@ -32,7 +48,60 @@ const Profile: React.FC = () => {
         };
 
         fetchNotificationPreference();
+
+        const loadPointHistory = async () => {
+            var pointHistory;
+            if (username) {
+                pointHistory = await fetchPointChangeHistory(username);
+            }
+            if (pointHistory) {
+              setHistory(pointHistory);
+            }
+          };
+      
+          loadPointHistory();
     }, [username]);
+
+    const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+    const oHist = [];
+    const oIDs = [""];
+    const oItems = [""];
+    for (const i of orderHist) {
+        for (const j of i.items) {
+            oHist.push(<Typography>{i.orderId}: {j}</Typography>);
+            oIDs.push(i.orderId);
+            oItems.push(j)
+        }
+    };
+    console.log(oHist);
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        const title = userType === 'sponsor'
+          ? 'Point Change History for All Drivers'
+          : `Point Change History for ${username}`;
+        doc.text(title, 10, 10);
+    
+        const tableData = history.map(entry => [
+          new Date(entry.change_date).toLocaleDateString(),
+          entry.points_changed,
+          entry.reason,
+        ]);
+    
+        doc.autoTable({
+          head: [['Date', 'Points Changed', 'Reason']],
+          body: tableData,
+          startY: 20,
+        });
+
+        doc.autoTable({
+            head: [['Order ID', 'Item(s)']],
+            body: [oIDs,oItems],
+            startY: 40,
+        });
+    
+        doc.save(`Point_History_${username}.pdf`);
+      };
 
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
@@ -73,20 +142,6 @@ const Profile: React.FC = () => {
         }
     };
 
-
-    //const printOrderHist = async () => {
-    
-    const orderHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-    const oHist = [];
-    for (const i of orderHist) {
-        for (const j of i.items) {
-            oHist.push(<Typography>{i.orderId}: {j}</Typography>);
-        }
-    };
-    console.log(oHist);
-
-    //}
-
     return (
         <div>
             <Typography variant="h5">{userType === "driver" ? "Driver Profile" : userType === "sponsor" ? "Sponsor Profile" : "Admin Profile"}</Typography>
@@ -109,6 +164,12 @@ const Profile: React.FC = () => {
             <div>
                 <Typography>Order History</Typography>
                 {oHist}
+            </div>
+
+            <div>
+                <Button variant="contained" color="primary" onClick={generatePDF}>
+                    Generate Report 
+                </Button>
             </div>
 
             {isEditing ? (
