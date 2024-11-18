@@ -75,6 +75,12 @@ const Cart: React.FC = () => {
     }
   };
 
+  const handleCancel = () => {
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+    setErrorMessage(`This order has been cancelled`);
+  }
+
   const handleCheckout = () => {
     playAudioFeedback();
     if (userPoints !== null && userPoints >= total) {
@@ -180,6 +186,9 @@ const Cart: React.FC = () => {
             Email: {userEmail || 'Loading...'}
           </Typography>
 
+          <Button variant="contained" color="secondary" onClick={handleCancel} sx={{ mt: 2 }}>
+            Cancel Order
+          </Button>
           <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
             Proceed to Checkout
           </Button>
