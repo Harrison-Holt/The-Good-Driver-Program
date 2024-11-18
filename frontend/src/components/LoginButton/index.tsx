@@ -7,7 +7,6 @@ const LoginButton: React.FC = () => {
   
 // tradd branch
 const cognitoUrl = "https://team08-domain.auth.us-east-1.amazoncognito.com/login?client_id=ff8qau87sidn42svsuj51v4l4&response_type=code&scope=email+openid+phone&redirect_uri=https%3A%2F%2Ftradd.d3ggpwrnl4m4is.amplifyapp.com%2Fauth-callback";
-
 const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
