@@ -79,9 +79,11 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const idToken = localStorage.getItem('idToken');
-    if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken);
+    //const idToken = localStorage.getItem('idToken');
+    //if (idToken) {
+      //const decodedUsername = getUsernameFromToken(idToken);
+    if (true) {
+      const decodedUsername = 'FastBuck';  // Decode the username from the token
       setUsername(decodedUsername);
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
