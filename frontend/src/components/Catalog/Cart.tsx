@@ -78,6 +78,7 @@ const Cart: React.FC = () => {
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
+    window.dispatchEvent(new Event('storage'));
     setErrorMessage(`This order has been cancelled`);
   }
 
