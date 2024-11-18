@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { getUsernameFromToken } from '../../utils/tokenUtils';
+//import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
