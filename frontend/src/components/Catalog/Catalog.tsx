@@ -169,7 +169,7 @@ const Catalog = () => {
         </Box>
       )}
 
-      <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)} centered>
+      <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)} centered>
         <Tab label="Manage Catalog" />
         <Tab label="Search and Add Items" />
       </Tabs>
