@@ -368,7 +368,13 @@ const Catalog = () => {
             ))}
           </Grid>
                 {/* Discount Dialog */}
-      <Dialog open={discountDialogOpen} onClose={handleCloseDiscountDialog}>
+      <Dialog open={discountDialogOpen} onClose={handleCloseDiscountDialog}    sx={{
+        '& .MuiPaper-root': {
+          backgroundColor: 'white', // Apply white background to the dialog
+          borderRadius: '8px',
+        },
+      }}
+    >
         <DialogTitle>Apply Discount</DialogTitle>
         <DialogContent>
           <TextField
