@@ -107,32 +107,36 @@ const Catalog = () => {
   const handleAddToCatalog = async (item: ItunesItem) => {
     setOperationLoading(true);
     try {
+      const payload = {
+        username,
+        items: [
+          {
+            item_id: item.collectionId,
+            item_name: item.trackName || item.collectionName,
+            artist_name: item.artistName,
+            price: item.collectionPrice || item.trackPrice,
+            discounted_price: item.discountedPrice,
+            discount: item.discount,
+            currency: item.currency,
+            points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
+            image_url: item.artworkUrl100,
+          },
+        ],
+      };
+    
+      console.log('Payload being sent to backend:', payload); // Log the payload
+    
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          items: [
-            {
-              item_id: item.collectionId,
-              item_name: item.trackName || item.collectionName,
-              artist_name: item.artistName,
-              price: item.collectionPrice || item.trackPrice,
-              discounted_price: item.discountedPrice,
-              discount: item.discount,
-              currency: item.currency,
-              points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
-              image_url: item.artworkUrl100,
-            },
-          ],
-        }),
+        body: JSON.stringify(payload),
       });
-
+    
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
-
+    
       setCatalog((prev) => [...prev, item]);
       alert('Item added to catalog successfully.');
     } catch (error) {
@@ -141,7 +145,8 @@ const Catalog = () => {
     } finally {
       setOperationLoading(false);
     }
-  };
+  }
+    
 
   const handleDeleteItem = async (collectionId: string) => {
     setOperationLoading(true);
