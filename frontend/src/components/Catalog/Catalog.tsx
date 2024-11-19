@@ -11,6 +11,11 @@ import {
   TextField,
   Select,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+
 } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import { useAppSelector } from '../../store/hooks';
@@ -27,8 +32,9 @@ interface ItunesItem {
   collectionPrice?: number;
   currency?: string;
   discount?: number;
-  discountedPrice?: number;
+  discountedPrice?: number; 
 }
+
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
 const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
@@ -43,8 +49,81 @@ const Catalog = () => {
   const [loading, setLoading] = useState(false);
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [discountValue, setDiscountValue] = useState<number | ''>('');
+  const [discountDialogOpen, setDiscountDialogOpen] = useState(false);
 
   const username = useAppSelector(selectUserName);
+
+  const handleOpenDiscountDialog = (item: ItunesItem) => {
+    setSelectedItem(item);
+    setDiscountValue(item.discount || '');
+    setDiscountDialogOpen(true);
+  };
+
+  const handleCloseDiscountDialog = () => {
+    setDiscountDialogOpen(false);
+    setSelectedItem(null);
+    setDiscountValue('');
+  };
+  const handleApplyDiscount = async () => {
+    if (!selectedItem || discountValue === '') {
+      alert('Please enter a valid discount value.');
+      return;
+    }
+  
+    const updatedDiscount = Number(discountValue);
+  
+    // Calculate discountedPrice
+    const discountedPrice: number = selectedItem.collectionPrice
+      ? parseFloat(((selectedItem.collectionPrice * (100 - updatedDiscount)) / 100).toFixed(2))
+      : 0;
+  
+    // Create updated item with the new discount and discounted price
+    const updatedItem: ItunesItem = {
+      ...selectedItem,
+      discount: updatedDiscount,
+      discountedPrice,
+    };
+  
+    try {
+      setOperationLoading(true);
+  
+      const payload = {
+        username,
+        items: [updatedItem],
+      };
+  
+      console.log('Payload being sent to backend:', payload); // Debugging
+  
+      const response = await fetch(SPONSOR_CATALOG_URL, {
+        method: 'PUT', // Ensure your backend supports this
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update discount.');
+      }
+  
+      // Update the catalog state
+      setCatalog((prev) =>
+        prev.map((item) =>
+          item.collectionId === selectedItem.collectionId ? updatedItem : item
+        )
+      );
+  
+      alert('Discount applied successfully.');
+      handleCloseDiscountDialog();
+    } catch (error) {
+      console.error('Error applying discount:', error);
+      alert('Failed to apply discount.');
+    } finally {
+      setOperationLoading(false);
+    }
+  };
+  
 
   // Fetch sponsor's catalog
   useEffect(() => {
@@ -229,6 +308,14 @@ const Catalog = () => {
                 </Typography>
                 <Button
                   variant="contained"
+                  color="primary"
+                  onClick={() => handleOpenDiscountDialog(item)}
+                  sx={{ marginTop: '10px' }}
+                >
+                  Apply Discount
+                </Button>
+                <Button
+                  variant="contained"
                   color="secondary"
                   onClick={() => handleDeleteItem(item.collectionId)}
                   disabled={operationLoading}
@@ -280,6 +367,26 @@ const Catalog = () => {
               </Grid>
             ))}
           </Grid>
+                {/* Discount Dialog */}
+      <Dialog open={discountDialogOpen} onClose={handleCloseDiscountDialog}>
+        <DialogTitle>Apply Discount</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Discount (%)"
+            type="number"
+            value={discountValue}
+            onChange={(e) => setDiscountValue(Number(e.target.value))}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDiscountDialog}>Cancel</Button>
+          <Button onClick={handleApplyDiscount} disabled={operationLoading}>
+            {operationLoading ? 'Applying...' : 'Apply'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
         </Box>
       )}
     </Box>
