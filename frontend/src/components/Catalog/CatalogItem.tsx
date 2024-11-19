@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 
 interface ItunesItem {
-  collectionId: string; // Primary identifier
-  trackId?: string; // Optional, for individual tracks
+  collectionId: string; // Always required
+  trackId?: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
@@ -11,9 +11,10 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
-  discount?: number; // Discount in percentage
-  discountedPrice?: number; // Final price after discount
+  discount?: number;
+  discountedPrice?: number;
 }
+
 
 interface CatalogItemProps {
   item: ItunesItem;

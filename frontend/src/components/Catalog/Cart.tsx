@@ -20,13 +20,17 @@ import { selectEmail } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
 
 interface ItunesItem {
-  artworkUrl100: string;
+  collectionId: string; // Always required
+  trackId?: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
+  artworkUrl100: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number;
+  discountedPrice?: number;
 }
 
 const Cart: React.FC = () => {

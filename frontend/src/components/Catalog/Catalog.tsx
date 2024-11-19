@@ -17,8 +17,8 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
+  collectionId: string; // Always required
   trackId?: string;
-  collectionId: string; // Primary identifier
   trackName?: string;
   collectionName?: string;
   artistName: string;
@@ -29,6 +29,7 @@ interface ItunesItem {
   discount?: number;
   discountedPrice?: number;
 }
+
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
 const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
