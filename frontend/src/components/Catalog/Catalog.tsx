@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid, Button, Tabs, Tab } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Grid, Button, Tabs, Tab, TextField, Select, MenuItem } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import { useAppSelector } from "../../store/hooks";
 import { selectUserName } from '../../store/userSlice';
@@ -27,8 +27,8 @@ const Catalog = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [items, setItems] = useState<ItunesItem[]>([]); // Items from external API
   const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Sponsor's catalog
-  const [searchTerm] = useState('');
-  const [selectedCategory] = useState('music');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,10 +96,15 @@ const Catalog = () => {
   }, [selectedCategory, searchTerm]);
 
   const handleAddToCatalog = async (item: ItunesItem) => {
+
+    const discount = item.discount || 0; // Use provided discount or default to 0
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    const discountedPrice = originalPrice * (1 - discount / 100);
+  
     const newItem = {
       ...item,
-      discountedPrice: item.collectionPrice || item.trackPrice,
-      discount: 0,
+      discountedPrice: parseFloat(discountedPrice.toFixed(2)), // Ensure proper calculation
+      discount, // Keep the existing discount value if it exists
     };
 
     try {
@@ -156,6 +161,16 @@ const Catalog = () => {
     }
   };
 
+  const handlePublishCatalog = async () => {
+    if (catalog.length === 0) {
+      alert('No items to publish.');
+      return;
+    }
+
+    // Implement the publish functionality based on your requirements.
+    alert('Catalog published successfully!');
+  };
+
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -197,21 +212,47 @@ const Catalog = () => {
               </Box>
             </Grid>
           ))}
+          <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePublishCatalog}
+              disabled={catalog.length === 0}
+            >
+              Publish Catalog
+            </Button>
+          </Box>
         </Grid>
       )}
 
       {currentTab === 1 && (
         <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <TextField
+              label="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ marginRight: '10px' }}
+            />
+            <Select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <MenuItem value="music">Music</MenuItem>
+              <MenuItem value="movie">Movies</MenuItem>
+              <MenuItem value="podcast">Podcasts</MenuItem>
+            </Select>
+          </Box>
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
               <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-               <CatalogItem
-        item={item}
-        onAddToCatalog={() => handleAddToCatalog(item)}
-        onViewDetails={() => console.log(`View details for ${item.trackName || item.collectionName}`)} // Placeholder
-        conversionRate={conversionRate} // Pass the conversionRate from state
-        userRole="sponsor" // Specify the user role
-      />
+                <CatalogItem
+                  item={item}
+                  onAddToCatalog={() => handleAddToCatalog(item)}
+                  onViewDetails={() => console.log(`View details for ${item.trackName || item.collectionName}`)}
+                  conversionRate={conversionRate}
+                  userRole="sponsor"
+                />
               </Grid>
             ))}
           </Grid>
@@ -220,6 +261,5 @@ const Catalog = () => {
     </Box>
   );
 };
-
 
 export default Catalog;
