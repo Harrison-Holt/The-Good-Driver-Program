@@ -15,6 +15,7 @@ import {
 import CatalogItem from './CatalogItem';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
+import { selectUserType } from '../../store/userSlice';
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -34,6 +35,8 @@ const API_BASE_URL = 'https://itunes.apple.com/search';
 const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
 
 const Catalog = () => {
+  const userType = useAppSelector(selectUserType); // Get the userType from Redux
+
   const [conversionRate] = useState(100); // Default conversion rate
   const [currentTab, setCurrentTab] = useState(0);
   const [items, setItems] = useState<ItunesItem[]>([]); // Items from external API
@@ -193,6 +196,17 @@ const Catalog = () => {
 
     alert('Catalog published successfully!');
   };
+
+    // Check access and show appropriate message
+    if (userType !== 'sponsor') {
+      return (
+        <Box sx={{ padding: '20px', textAlign: 'center' }}>
+          <Typography variant="h6" color="error">
+            Access Denied. Only sponsors can view this catalog.
+          </Typography>
+        </Box>
+      );
+    }
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
