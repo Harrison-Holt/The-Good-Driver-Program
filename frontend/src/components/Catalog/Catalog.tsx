@@ -104,10 +104,23 @@ const Catalog = () => {
 
     fetchItems();
   }, [selectedCategory, searchTerm]);
-
   const handleAddToCatalog = async (item: ItunesItem) => {
     setOperationLoading(true);
+  
     try {
+      // Calculate discount and discounted price
+      const discount = item.discount || 0; // Default to 0 if no discount is provided
+      const originalPrice = item.collectionPrice || item.trackPrice || 0;
+      const discountedPrice = originalPrice * (1 - discount / 100);
+  
+      // Prepare the item with updated discount and discounted price
+      const newItem = {
+        ...item,
+        discount, // Store the discount value
+        discountedPrice: parseFloat(discountedPrice.toFixed(2)), // Ensure proper formatting
+      };
+  
+      // Send the item to the backend
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,26 +128,27 @@ const Catalog = () => {
           username,
           items: [
             {
-              item_id: item.collectionId,
-              item_name: item.trackName || item.collectionName,
-              artist_name: item.artistName,
-              price: item.collectionPrice || item.trackPrice,
-              discounted_price: item.discountedPrice,
-              discount: item.discount,
-              currency: item.currency,
-              points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
-              image_url: item.artworkUrl100,
+              item_id: newItem.collectionId,
+              item_name: newItem.trackName || newItem.collectionName,
+              artist_name: newItem.artistName,
+              price: originalPrice,
+              discounted_price: newItem.discountedPrice,
+              discount: newItem.discount,
+              currency: newItem.currency,
+              points: Math.round(originalPrice * conversionRate),
+              image_url: newItem.artworkUrl100,
             },
           ],
         }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
-
-      setCatalog((prev) => [...prev, item]);
+  
+      // Update the local catalog state
+      setCatalog((prev) => [...prev, newItem]);
       alert('Item added to catalog successfully.');
     } catch (error) {
       console.error('Error adding item to catalog:', error);
