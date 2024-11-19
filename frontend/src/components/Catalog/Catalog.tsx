@@ -16,7 +16,7 @@ interface ItunesItem {
   currency?: string;
   discount?: number;
   discountedPrice?: number;
-  id?: string;
+  id?: number;
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
@@ -141,14 +141,14 @@ const Catalog = () => {
     }
   };
 
-  const handleDeleteItem = async (itemId: string) => {
+  const handleDeleteItem = async (id: number) => { // Accept `id` as a parameter
     try {
-      console.log('Delete Payload:', { username, item_id: String(itemId) });
+      console.log('Delete Payload:', { username, id }); // Log for debugging
   
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, item_id: String(itemId) }), // Ensure item_id is a string
+        body: JSON.stringify({ username, id }), // Send `id` instead of `item_id`
       });
   
       if (!response.ok) {
@@ -157,7 +157,7 @@ const Catalog = () => {
         throw new Error(errorData.message || 'Failed to delete item.');
       }
   
-      setCatalog((prev) => prev.filter((item) => item.id !== itemId));
+      setCatalog((prev) => prev.filter((item) => item.id !== id)); // Filter using `id`
       alert('Item deleted successfully.');
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -209,7 +209,7 @@ const Catalog = () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleDeleteItem(item.id || '')}
+                  onClick={() => handleDeleteItem(item.id || 0)}
                   sx={{ marginTop: '10px' }}
                 >
                   Delete Item
