@@ -175,16 +175,15 @@ const Catalog = () => {
       setCatalog((prev) => prev.filter((item) => item.collectionId !== collectionId));
       alert('Item deleted successfully.');
     } catch (error) {
-        if (error instanceof Error) {
-          console.error('Error deleting item:', error.message);
-          alert(error.message || 'Failed to delete item.');
-        } else {
-          console.error('Unknown error:', error);
-          alert('An unknown error occurred.');
-        }
+      if (error instanceof Error) {
+        console.error('Error deleting item:', error.message);
+        alert(error.message || 'Failed to delete item.');
+      } else {
+        console.error('Unknown error:', error);
+        alert('An unknown error occurred.');
       }
-      
-  };
+    }
+  }    
   
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
