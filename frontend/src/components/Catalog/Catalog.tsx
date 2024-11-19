@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Grid, Button, Tabs, Tab } from '@mui/material';
 import CatalogItem from './CatalogItem';
-import CatalogControls from './CatalogControls';
 import { useAppSelector } from "../../store/hooks";
 import { selectUserName } from '../../store/userSlice';
 
@@ -15,40 +14,61 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number;
+  discountedPrice?: number;
+  id?: string;
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
-const PUBLISH_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
+const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
 
 const Catalog = () => {
-  const [items, setItems] = useState<ItunesItem[]>([]);
-  const [catalog, setCatalog] = useState<ItunesItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('music');
-  const [conversionRate, setConversionRate] = useState(100); // Default conversion rate
+  const [conversionRate] = useState(100); // Default conversion rate
+  const [currentTab, setCurrentTab] = useState(0);
+  const [items, setItems] = useState<ItunesItem[]>([]); // Items from external API
+  const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Sponsor's catalog
+  const [searchTerm] = useState('');
+  const [selectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const username = useAppSelector(selectUserName);
-  console.log('Username from Redux:', username);
 
-  // Filter items dynamically
-  const filteredItems = items.filter(
-    (item) =>
-      item.trackName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.collectionName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Fetch sponsor's catalog
+  useEffect(() => {
+    if (!username) return;
 
-  // Fetch items from API
+    const fetchCatalog = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${SPONSOR_CATALOG_URL}?username=${username}`, { method: 'GET' });
+
+        if (!response.ok) {
+          throw new Error(`Error fetching catalog: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setCatalog(data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCatalog();
+  }, [username]);
+
+  // Fetch items from external API
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const url = `${API_BASE_URL}?term=${encodeURIComponent(
-          searchTerm || 'music'
-        )}&media=${selectedCategory}&limit=50`;
+        const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
 
         const response = await fetch(url, {
           method: 'GET',
@@ -75,63 +95,66 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  const handleAddToCatalog = (item: ItunesItem) => {
-    if (catalog.find((catalogItem) => catalogItem.trackId === item.trackId)) {
-      alert(`${item.trackName || item.collectionName} is already in the catalog.`);
-      return;
-    }
-    setCatalog((prev) => [...prev, item]);
-    alert(`${item.trackName || item.collectionName} added to the catalog.`);
-  };
-
-  const handlePublishCatalog = async () => {
-    if (!username) {
-      alert('Username is required to publish the catalog.');
-      return;
-    }
-  
-    if (catalog.length === 0) {
-      alert('No items to publish.');
-      return;
-    }
-  
-    const payload = {
-      username: username,
-      items: catalog.map((item) => ({
-        item_id: item.trackId || item.collectionId, // Will return undefined if both are missing
-        item_name: item.trackName || item.collectionName,
-        artist_name: item.artistName,
-        price: item.trackPrice || item.collectionPrice,
-        currency: item.currency,
-        points: Math.round((item.trackPrice || item.collectionPrice || 0) * conversionRate),
-        image_url: item.artworkUrl100,
-      })),
+  const handleAddToCatalog = async (item: ItunesItem) => {
+    const newItem = {
+      ...item,
+      discountedPrice: item.collectionPrice || item.trackPrice,
+      discount: 0,
     };
-    
-    console.log('Payload being sent:', payload);
-  
+
     try {
-      const response = await fetch(PUBLISH_API_URL, {
+      const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          username,
+          items: [
+            {
+              item_id: item.trackId || item.collectionId,
+              item_name: item.trackName || item.collectionName,
+              artist_name: item.artistName,
+              price: item.collectionPrice || item.trackPrice,
+              discounted_price: newItem.discountedPrice,
+              discount: newItem.discount,
+              currency: item.currency,
+              points: Math.round((item.collectionPrice || item.trackPrice || 0) * 100),
+              image_url: item.artworkUrl100,
+            },
+          ],
+        }),
       });
-  
-      const responseData = await response.json();
-      console.log('Response from API:', responseData);
-  
+
       if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to publish catalog.');
+        throw new Error('Failed to add item to catalog.');
       }
-  
-      alert('Catalog published successfully!');
-      setCatalog([]);
+
+      setCatalog((prev) => [...prev, newItem]);
+      alert('Item added to catalog successfully.');
     } catch (error) {
-      console.error('Error publishing catalog:', error);
-      alert('Error publishing catalog. Please try again.');
+      console.error('Error adding item to catalog:', error);
+      alert('Failed to add item to catalog.');
     }
   };
-  
+
+  const handleDeleteItem = async (itemId: string) => {
+    try {
+      const response = await fetch(SPONSOR_CATALOG_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, item_id: itemId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete item.');
+      }
+
+      setCatalog((prev) => prev.filter((item) => item.id !== itemId));
+      alert('Item deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      alert('Failed to delete item.');
+    }
+  };
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -146,44 +169,56 @@ const Catalog = () => {
         </Box>
       )}
 
-      <CatalogControls
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        setSearchTerm={setSearchTerm}
-        conversionRate={conversionRate}
-        setConversionRate={setConversionRate}
+      <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)} centered>
+        <Tab label="Manage Catalog" />
+        <Tab label="Search and Add Items" />
+      </Tabs>
+
+      {currentTab === 0 && (
+        <Grid container spacing={4} sx={{ marginTop: '20px' }}>
+          {catalog.map((item) => (
+            <Grid item key={item.id} xs={12} sm={6} md={4}>
+              <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
+                <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
+                <Typography variant="body2">Artist: {item.artistName}</Typography>
+                <Typography variant="body2">Price: ${item.trackPrice || item.collectionPrice}</Typography>
+                <Typography variant="body2">Discount: {item.discount || 0}%</Typography>
+                <Typography variant="body2">
+                  Discounted Price: ${item.discountedPrice?.toFixed(2) || 'N/A'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleDeleteItem(item.id || '')}
+                  sx={{ marginTop: '10px' }}
+                >
+                  Delete Item
+                </Button>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      {currentTab === 1 && (
+        <Box>
+          <Grid container spacing={4} sx={{ marginTop: '20px' }}>
+            {items.map((item) => (
+              <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
+               <CatalogItem
+        item={item}
+        onAddToCatalog={() => handleAddToCatalog(item)}
+        onViewDetails={() => console.log(`View details for ${item.trackName || item.collectionName}`)} // Placeholder
+        conversionRate={conversionRate} // Pass the conversionRate from state
+        userRole="sponsor" // Specify the user role
       />
-
-      <Grid container spacing={4}>
-        {filteredItems.map((item) => (
-          <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem
-              item={item}
-              onViewDetails={() => console.log('View details clicked')}
-              conversionRate={conversionRate}
-              userRole="sponsor"
-              onAddToCatalog={() => handleAddToCatalog(item)} // Add item to catalog
-            />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
-
-      <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
-        <Typography variant="h6" gutterBottom>
-          Items in Catalog: {catalog.length}
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePublishCatalog}
-          disabled={catalog.length === 0 || !username} // Disable if no catalog items or no username
-        >
-          Publish Catalog
-        </Button>
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 };
 
 export default Catalog;
-

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Button, TextField } from '@mui/material';
 
 interface ItunesItem {
   trackId?: string;
@@ -11,17 +11,38 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number; // Discount in percentage
+  discountedPrice?: number; // Final price after discount
 }
 
 interface CatalogItemProps {
   item: ItunesItem;
-  onViewDetails: (item: ItunesItem) => void; // Add this property
+  onViewDetails: (item: ItunesItem) => void; // To handle "View Details"
   conversionRate: number;
-  userRole: string, 
-  onAddToCatalog?: (item: ItunesItem) => void; // Added this property
+  userRole: string;
+  onAddToCatalog?: (item: ItunesItem) => void; // Handles adding to catalog
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
+  const [discount, setDiscount] = useState<number>(0);
+
+  const calculateDiscountedPrice = () => {
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    const discountedPrice = originalPrice * (1 - discount / 100);
+    return discountedPrice.toFixed(2);
+  };
+
+  const handleAddWithDiscount = () => {
+    if (onAddToCatalog) {
+      const updatedItem = {
+        ...item,
+        discount,
+        discountedPrice: parseFloat(calculateDiscountedPrice()),
+      };
+      onAddToCatalog(updatedItem);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -42,14 +63,25 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
       <Typography variant="body1" sx={{ marginBottom: '5px' }}>
         <strong>Artist:</strong> {item.artistName}
       </Typography>
-      <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
         <strong>Price:</strong> {item.collectionPrice} {item.currency}
+      </Typography>
+      <TextField
+        type="number"
+        label="Discount (%)"
+        value={discount}
+        onChange={(e) => setDiscount(Number(e.target.value))}
+        fullWidth
+        sx={{ marginBottom: '10px' }}
+      />
+      <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+        <strong>Discounted Price:</strong> {calculateDiscountedPrice()} {item.currency}
       </Typography>
       {onAddToCatalog && (
         <Button
           variant="outlined"
           color="success"
-          onClick={() => onAddToCatalog(item)}
+          onClick={handleAddWithDiscount}
         >
           Add to Catalog
         </Button>
@@ -59,6 +91,3 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
 };
 
 export default CatalogItem;
-
-
-
