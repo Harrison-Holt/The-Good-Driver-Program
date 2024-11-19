@@ -143,18 +143,20 @@ const Catalog = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      console.log('Delete payload:', { username, item_id: itemId });
-
+      console.log('Delete Payload:', { username, item_id: String(itemId) });
+  
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, item_id: itemId }),
+        body: JSON.stringify({ username, item_id: String(itemId) }), // Ensure item_id is a string
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to delete item.');
+        const errorData = await response.json();
+        console.error('Delete Error Response:', errorData);
+        throw new Error(errorData.message || 'Failed to delete item.');
       }
-
+  
       setCatalog((prev) => prev.filter((item) => item.id !== itemId));
       alert('Item deleted successfully.');
     } catch (error) {
@@ -162,6 +164,7 @@ const Catalog = () => {
       alert('Failed to delete item.');
     }
   };
+  
 
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
