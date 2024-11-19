@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-//import { getUsernameFromToken } from '../../utils/tokenUtils';
+import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
@@ -79,11 +79,12 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    //const idToken = localStorage.getItem('idToken');
-    //if (idToken) {
-      //const decodedUsername = getUsernameFromToken(idToken);
-    if (true) {
-      const decodedUsername = 'FastBuck';  // Decode the username from the token
+    const idToken = localStorage.getItem('idToken');
+    if (idToken) {
+      const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
+    //Tradd Login Hack - Don't uncomment
+    //if (true) {
+      //const decodedUsername = 'FastBuck';  
       setUsername(decodedUsername);
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
