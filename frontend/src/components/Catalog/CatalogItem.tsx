@@ -23,7 +23,11 @@ interface CatalogItemProps {
   onAddToCatalog?: (item: ItunesItem) => void; // Handles adding to catalog
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
+const CatalogItem: React.FC<CatalogItemProps> = ({
+  item,
+  onAddToCatalog,
+  onViewDetails,
+}) => {
   const [discount, setDiscount] = useState<number>(0);
 
   const calculateDiscountedPrice = () => {
@@ -77,6 +81,14 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onAddToCatalog }) => {
       <Typography variant="body1" sx={{ marginBottom: '10px' }}>
         <strong>Discounted Price:</strong> {calculateDiscountedPrice()} {item.currency}
       </Typography>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => onViewDetails(item)} // Use `onViewDetails` here
+        sx={{ marginBottom: '10px' }}
+      >
+        View Details
+      </Button>
       {onAddToCatalog && (
         <Button
           variant="outlined"

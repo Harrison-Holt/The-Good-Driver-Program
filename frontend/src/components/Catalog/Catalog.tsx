@@ -41,6 +41,7 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
+  const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
 
   const username = useAppSelector(selectUserName);
@@ -104,16 +105,7 @@ const Catalog = () => {
   }, [selectedCategory, searchTerm]);
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    const discount = item.discount || 0;
-    const originalPrice = item.collectionPrice || item.trackPrice || 0;
-    const discountedPrice = originalPrice * (1 - discount / 100);
-
-    const newItem = {
-      ...item,
-      discountedPrice: parseFloat(discountedPrice.toFixed(2)),
-      discount,
-    };
-
+    setOperationLoading(true);
     try {
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
@@ -126,10 +118,10 @@ const Catalog = () => {
               item_name: item.trackName || item.collectionName,
               artist_name: item.artistName,
               price: item.collectionPrice || item.trackPrice,
-              discounted_price: newItem.discountedPrice,
-              discount: newItem.discount,
+              discounted_price: item.discountedPrice,
+              discount: item.discount,
               currency: item.currency,
-              points: Math.round((item.collectionPrice || item.trackPrice || 0) * 100),
+              points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
               image_url: item.artworkUrl100,
             },
           ],
@@ -137,21 +129,23 @@ const Catalog = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add item to catalog.');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
 
-      setCatalog((prev) => [...prev, newItem]);
+      setCatalog((prev) => [...prev, item]);
       alert('Item added to catalog successfully.');
     } catch (error) {
       console.error('Error adding item to catalog:', error);
       alert('Failed to add item to catalog.');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
   const handleDeleteItem = async (collectionId: string) => {
+    setOperationLoading(true);
     try {
-      console.log('Delete Payload:', { username, item_id: collectionId });
-
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -160,7 +154,6 @@ const Catalog = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Delete Error Response:', errorData);
         throw new Error(errorData.message || 'Failed to delete item.');
       }
 
@@ -169,6 +162,8 @@ const Catalog = () => {
     } catch (error) {
       console.error('Error deleting item:', error);
       alert('Failed to delete item.');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
@@ -194,7 +189,7 @@ const Catalog = () => {
         </Box>
       )}
 
-      <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)} centered>
+      <Tabs value={currentTab} onChange={(_, newValue) => setCurrentTab(newValue)} centered>
         <Tab label="Manage Catalog" />
         <Tab label="Search and Add Items" />
       </Tabs>
@@ -215,9 +210,10 @@ const Catalog = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => handleDeleteItem(item.collectionId)}
+                  disabled={operationLoading}
                   sx={{ marginTop: '10px' }}
                 >
-                  Delete Item
+                  {operationLoading ? 'Deleting...' : 'Delete Item'}
                 </Button>
               </Box>
             </Grid>
@@ -227,7 +223,7 @@ const Catalog = () => {
               variant="contained"
               color="primary"
               onClick={handlePublishCatalog}
-              disabled={catalog.length === 0}
+              disabled={catalog.length === 0 || operationLoading}
             >
               Publish Catalog
             </Button>
@@ -253,13 +249,14 @@ const Catalog = () => {
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-                <CatalogItem
-                  item={item}
-                  onAddToCatalog={() => handleAddToCatalog(item)}
-                  onViewDetails={() => console.log(`View details for ${item.trackName || item.collectionName}`)}
-                  conversionRate={conversionRate}
-                  userRole="sponsor"
-                />
+           <CatalogItem
+  item={item}
+  onAddToCatalog={() => handleAddToCatalog(item)}
+  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} // Properly implement onViewDetails
+  conversionRate={conversionRate}
+  userRole="sponsor"
+/>
+
               </Grid>
             ))}
           </Grid>
