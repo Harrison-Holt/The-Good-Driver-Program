@@ -1,12 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid, Button, Tabs, Tab, TextField, Select, MenuItem } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Alert,
+  Grid,
+  Button,
+  Tabs,
+  Tab,
+  TextField,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import CatalogItem from './CatalogItem';
-import { useAppSelector } from "../../store/hooks";
+import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
-  collectionId?: string;
+  collectionId: string; // Primary identifier
   trackName?: string;
   collectionName?: string;
   artistName: string;
@@ -16,7 +28,6 @@ interface ItunesItem {
   currency?: string;
   discount?: number;
   discountedPrice?: number;
-  id?: number;
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
@@ -51,7 +62,7 @@ const Catalog = () => {
 
         const data = await response.json();
         setCatalog(data);
-      } catch (err: unknown) {
+      } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setLoading(false);
@@ -70,10 +81,7 @@ const Catalog = () => {
       try {
         const url = `${API_BASE_URL}?term=${encodeURIComponent(searchTerm || 'music')}&media=${selectedCategory}&limit=50`;
 
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`Error fetching items: ${response.statusText}`);
@@ -85,7 +93,7 @@ const Catalog = () => {
         );
 
         setItems(fetchedItems);
-      } catch (err: unknown) {
+      } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setLoading(false);
@@ -96,15 +104,14 @@ const Catalog = () => {
   }, [selectedCategory, searchTerm]);
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-
-    const discount = item.discount || 0; // Use provided discount or default to 0
+    const discount = item.discount || 0;
     const originalPrice = item.collectionPrice || item.trackPrice || 0;
     const discountedPrice = originalPrice * (1 - discount / 100);
-  
+
     const newItem = {
       ...item,
-      discountedPrice: parseFloat(discountedPrice.toFixed(2)), // Ensure proper calculation
-      discount, // Keep the existing discount value if it exists
+      discountedPrice: parseFloat(discountedPrice.toFixed(2)),
+      discount,
     };
 
     try {
@@ -115,7 +122,7 @@ const Catalog = () => {
           username,
           items: [
             {
-              item_id: item.trackId || item.collectionId,
+              item_id: item.collectionId,
               item_name: item.trackName || item.collectionName,
               artist_name: item.artistName,
               price: item.collectionPrice || item.trackPrice,
@@ -141,30 +148,29 @@ const Catalog = () => {
     }
   };
 
-  const handleDeleteItem = async (id: number) => { // Accept `id` as a parameter
+  const handleDeleteItem = async (collectionId: string) => {
     try {
-      console.log('Delete Payload:', { username, id }); // Log for debugging
-  
+      console.log('Delete Payload:', { username, item_id: collectionId });
+
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, id }), // Send `id` instead of `item_id`
+        body: JSON.stringify({ username, item_id: collectionId }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Delete Error Response:', errorData);
         throw new Error(errorData.message || 'Failed to delete item.');
       }
-  
-      setCatalog((prev) => prev.filter((item) => item.id !== id)); // Filter using `id`
+
+      setCatalog((prev) => prev.filter((item) => item.collectionId !== collectionId));
       alert('Item deleted successfully.');
     } catch (error) {
       console.error('Error deleting item:', error);
       alert('Failed to delete item.');
     }
   };
-  
 
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
@@ -172,7 +178,6 @@ const Catalog = () => {
       return;
     }
 
-    // Implement the publish functionality based on your requirements.
     alert('Catalog published successfully!');
   };
 
@@ -197,7 +202,7 @@ const Catalog = () => {
       {currentTab === 0 && (
         <Grid container spacing={4} sx={{ marginTop: '20px' }}>
           {catalog.map((item) => (
-            <Grid item key={item.id} xs={12} sm={6} md={4}>
+            <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
               <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
                 <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
                 <Typography variant="body2">Artist: {item.artistName}</Typography>
@@ -209,7 +214,7 @@ const Catalog = () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleDeleteItem(item.id || 0)}
+                  onClick={() => handleDeleteItem(item.collectionId)}
                   sx={{ marginTop: '10px' }}
                 >
                   Delete Item
@@ -239,10 +244,7 @@ const Catalog = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ marginRight: '10px' }}
             />
-            <Select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
+            <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
               <MenuItem value="music">Music</MenuItem>
               <MenuItem value="movie">Movies</MenuItem>
               <MenuItem value="podcast">Podcasts</MenuItem>
@@ -250,7 +252,7 @@ const Catalog = () => {
           </Box>
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
-              <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
+              <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
                 <CatalogItem
                   item={item}
                   onAddToCatalog={() => handleAddToCatalog(item)}

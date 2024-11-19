@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 
 interface ItunesItem {
-  trackId?: string;
-  collectionId?: string;
+  collectionId: string; // Primary identifier
+  trackId?: string; // Optional, for individual tracks
   trackName?: string;
   collectionName?: string;
   artistName: string;
