@@ -149,29 +149,42 @@ const Catalog = () => {
     
 
   const handleDeleteItem = async (collectionId: string) => {
+    if (!username || !collectionId) {
+      console.error('Username or collectionId is missing:', { username, collectionId });
+      alert('Username and valid collectionId are required.');
+      return;
+    }
+  
     setOperationLoading(true);
     try {
+      const payload = { username, item_id: collectionId };
+      console.log('Payload being sent to delete item:', payload);
+  
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, item_id: collectionId }),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to delete item.');
       }
-
+  
       setCatalog((prev) => prev.filter((item) => item.collectionId !== collectionId));
       alert('Item deleted successfully.');
     } catch (error) {
-      console.error('Error deleting item:', error);
-      alert('Failed to delete item.');
-    } finally {
-      setOperationLoading(false);
-    }
+        if (error instanceof Error) {
+          console.error('Error deleting item:', error.message);
+          alert(error.message || 'Failed to delete item.');
+        } else {
+          console.error('Unknown error:', error);
+          alert('An unknown error occurred.');
+        }
+      }
+      
   };
-
+  
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
       alert('No items to publish.');
