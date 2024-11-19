@@ -143,6 +143,8 @@ const Catalog = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
+      console.log('Delete payload:', { username, item_id: itemId });
+
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
