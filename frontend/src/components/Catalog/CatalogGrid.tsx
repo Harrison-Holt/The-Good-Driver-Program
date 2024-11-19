@@ -3,8 +3,8 @@ import { Grid } from '@mui/material';
 import CatalogItem from './CatalogItem';
 
 interface ItunesItem {
+  collectionId: string; // Always required
   trackId?: string;
-  collectionId?: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
@@ -12,6 +12,8 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number;
+  discountedPrice?: number;
 }
 
 interface CatalogGridProps {
