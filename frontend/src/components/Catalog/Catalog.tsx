@@ -30,7 +30,6 @@ interface ItunesItem {
   discountedPrice?: number;
 }
 
-
 const API_BASE_URL = 'https://itunes.apple.com/search';
 const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsor_catalog';
 
@@ -205,7 +204,10 @@ const Catalog = () => {
                 <Typography variant="body2">Price: ${item.trackPrice || item.collectionPrice}</Typography>
                 <Typography variant="body2">Discount: {item.discount || 0}%</Typography>
                 <Typography variant="body2">
-                  Discounted Price: ${item.discountedPrice?.toFixed(2) || 'N/A'}
+                  Discounted Price: $
+                  {(item.discountedPrice && !isNaN(Number(item.discountedPrice))
+                    ? Number(item.discountedPrice).toFixed(2)
+                    : 'N/A')}
                 </Typography>
                 <Button
                   variant="contained"
@@ -250,14 +252,13 @@ const Catalog = () => {
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-           <CatalogItem
-  item={item}
-  onAddToCatalog={() => handleAddToCatalog(item)}
-  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} // Properly implement onViewDetails
-  conversionRate={conversionRate}
-  userRole="sponsor"
-/>
-
+                <CatalogItem
+                  item={item}
+                  onAddToCatalog={() => handleAddToCatalog(item)}
+                  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} // Properly implement onViewDetails
+                  conversionRate={conversionRate}
+                  userRole="sponsor"
+                />
               </Grid>
             ))}
           </Grid>
