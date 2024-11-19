@@ -47,33 +47,49 @@ const Catalog = () => {
 
   const username = useAppSelector(selectUserName);
 
-  // Fetch sponsor's catalog
   useEffect(() => {
-    if (!username) return;
-
     const fetchCatalog = async () => {
       setLoading(true);
       setError(null);
-
+  
       try {
-        const response = await fetch(`${SPONSOR_CATALOG_URL}?username=${username}`, { method: 'GET' });
-
+        const response = await fetch(`${SPONSOR_CATALOG_URL}?username=${username}`, {
+          method: 'GET',
+        });
+  
         if (!response.ok) {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
-
+  
         const data = await response.json();
-        setCatalog(data);
+  
+        // Transform API response to ensure required fields are present
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedCatalog = data.map((item: any) => ({
+          id: item.id || 0,
+          item_name: item.item_name || 'Unknown Item',
+          artist_name: item.artist_name || 'Unknown Artist',
+          price: item.price ? parseFloat(item.price).toFixed(2) : '0.00',
+          currency: item.currency || 'USD',
+          discount: item.discount || 0,
+          discounted_price: item.discounted_price
+            ? parseFloat(item.discounted_price).toFixed(2)
+            : parseFloat(item.price || '0').toFixed(2), // Fallback to original price
+          image_url: item.image_url || '', // Provide an empty string if no URL
+        }));
+  
+        setCatalog(transformedCatalog);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setLoading(false);
       }
     };
-
-    fetchCatalog();
+  
+    if (username) {
+      fetchCatalog();
+    }
   }, [username]);
-
   // Fetch items from external API
   useEffect(() => {
     const fetchItems = async () => {
