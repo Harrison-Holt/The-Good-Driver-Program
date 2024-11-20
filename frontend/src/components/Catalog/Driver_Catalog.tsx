@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Grid, Button, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText } from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
@@ -17,14 +17,31 @@ interface ItunesItem {
   rating?: number; // Optional rating field for the star rating
 }
 
-// API endpoint for fetching the driver catalog
+interface APIResponseItem {
+  catalog_id: string;
+  item_name: string;
+  artist: string;
+  artwork: string;
+  price: string;
+  currency: string;
+  rating?: number;
+}
+
+interface Review {
+  user_name: string;
+  rating: number;
+  comment: string;
+}
+
 const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
+const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const DriverCatalog = () => {
   const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Driver's catalog
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
+  const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
 
   const username = useAppSelector(selectUserName);
 
@@ -40,8 +57,19 @@ const DriverCatalog = () => {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
-        const data: ItunesItem[] = await response.json(); // Typed response
-        setCatalog(data);
+        const data: APIResponseItem[] = await response.json();
+        const mappedData: ItunesItem[] = data.map((item) => ({
+          collectionId: item.catalog_id,
+          trackName: item.item_name,
+          collectionName: item.item_name,
+          artistName: item.artist,
+          artworkUrl100: item.artwork,
+          collectionPrice: parseFloat(item.price),
+          trackPrice: parseFloat(item.price),
+          currency: item.currency,
+          rating: item.rating || 0,
+        }));
+        setCatalog(mappedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -64,10 +92,25 @@ const DriverCatalog = () => {
 
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
+
+    // Fetch reviews for the selected item
+    try {
+      const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
+      if (response.ok) {
+        const data: Review[] = await response.json();
+        setReviews(data);
+      } else {
+        setReviews([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+      setReviews([]);
+    }
   };
 
   const handleDialogClose = () => {
     setSelectedItem(null);
+    setReviews([]); // Clear reviews when dialog closes
   };
 
   return (
@@ -143,19 +186,48 @@ const DriverCatalog = () => {
       </Grid>
 
       {selectedItem && (
-        <Box sx={{ marginTop: '20px' }}>
-          <Typography variant="h6">Item Details</Typography>
-          <Typography>
-            <strong>Name:</strong> {selectedItem.trackName || selectedItem.collectionName}
-          </Typography>
-          <Typography>
-            <strong>Artist:</strong> {selectedItem.artistName}
-          </Typography>
-          <Typography>
-            <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
-          </Typography>
-          <Button onClick={handleDialogClose}>Close</Button>
-        </Box>
+        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogContent>
+            <Box sx={{ textAlign: 'center' }}>
+              <img
+                src={selectedItem.artworkUrl100}
+                alt={selectedItem.trackName || selectedItem.collectionName}
+                style={{ width: '200px', marginBottom: '20px' }}
+              />
+              <Typography>
+                <strong>Artist:</strong> {selectedItem.artistName}
+              </Typography>
+              <Typography>
+                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
+              </Typography>
+            </Box>
+            <Typography variant="h6" sx={{ marginTop: '20px' }}>
+              Reviews
+            </Typography>
+            <List>
+              {reviews.length > 0 ? (
+                reviews.map((review, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={<StarRating rating={review.rating} />}
+                      secondary={`${review.user_name}: ${review.comment}`}
+                    />
+                  </ListItem>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No reviews yet." />
+                </ListItem>
+              )}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
     </Box>
   );
