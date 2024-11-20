@@ -19,6 +19,21 @@ interface ItunesItem {
   discountedPrice?: number;
 }
 
+interface DriverCatalogItem {
+  catalog_id: number;
+  sponsor_username: string;
+  item_name: string;
+  artist: string;
+  price: string;
+  currency: string;
+  points: number;
+  artwork: string;
+  addedAt: string;
+  published: number;
+  discounted_price?: string;
+  discount?: number;
+}
+
 interface Review {
   user_name: string;
   rating: number;
@@ -37,6 +52,19 @@ const DriverCatalog = () => {
 
   const username = useAppSelector(selectUserName);
 
+  // Map API response to ItunesItem interface
+  const mapToItunesItem = (item: DriverCatalogItem): ItunesItem => ({
+    collectionId: item.catalog_id.toString(),
+    trackName: item.item_name,
+    collectionName: item.item_name,
+    artistName: item.artist,
+    artworkUrl100: item.artwork,
+    collectionPrice: parseFloat(item.price),
+    currency: item.currency,
+    discountedPrice: item.discounted_price ? parseFloat(item.discounted_price) : undefined,
+    discount: item.discount || undefined,
+  });
+
   // Fetch the driver's catalog
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -44,13 +72,14 @@ const DriverCatalog = () => {
       setError(null);
 
       try {
-        const response = await fetch(`${DRIVER_CATALOG_URL}?username=${username}`); 
+        const response = await fetch(`${DRIVER_CATALOG_URL}?username=${username}`);
         if (!response.ok) {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        setCatalog(data);
+        const data: DriverCatalogItem[] = await response.json(); // Typed response
+        const mappedData = data.map(mapToItunesItem); // Map response to ItunesItem[]
+        setCatalog(mappedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -65,7 +94,9 @@ const DriverCatalog = () => {
     setSelectedItem(item);
     // Fetch reviews for the selected item (optional)
     try {
-      const response = await fetch(`https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews?itemId=${item.collectionId}`);
+      const response = await fetch(
+        `https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews?itemId=${item.collectionId}`
+      );
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -120,7 +151,7 @@ const DriverCatalog = () => {
           onClose={handleDialogClose}
           item={selectedItem}
           reviews={reviews}
-          onSubmitReview={(review) => setReviews((prev: Review[]) => [...prev, review])}
+          onSubmitReview={(review) => setReviews((prev) => [...prev, review])}
           onRemoveFromCatalog={() => alert('Drivers cannot remove items.')}
           onBuyNow={handleBuyNow}
         />
