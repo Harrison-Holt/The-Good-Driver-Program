@@ -7,7 +7,6 @@ import {
   ListItemText,
   Divider,
   Button,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -15,7 +14,6 @@ import {
   Alert,
   useTheme,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete'; // Import delete icon
 import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
 import { selectEmail } from '../../store/userSlice';
@@ -66,12 +64,6 @@ const Cart: React.FC = () => {
     fetchUserPoints();
   }, []);
 
-  useEffect(() => {
-    if (cartItems.length === 0) {
-      setTotal(0);
-    }
-  }, [cartItems]);
-  
   const playAudioFeedback = () => {
     if (settings.audioFeedback) {
       try {
@@ -88,6 +80,13 @@ const Cart: React.FC = () => {
     setCartItems(updatedCartItems);
     localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
   };
+  
+  const handleCancel = () => {
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+    window.dispatchEvent(new Event('storage'));
+    setErrorMessage(`This order has been cancelled`);
+  }
 
   const handleCheckout = () => {
     playAudioFeedback();
@@ -178,14 +177,7 @@ const Cart: React.FC = () => {
         <>
           <List>
             {cartItems.map((item, index) => (
-              <ListItem
-                key={index}
-                secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveItem(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
+              <ListItem key={index}>
                 <ListItemText
                   primary={item.trackName || item.collectionName}
                   secondary={`Price: ${(item.collectionPrice || item.trackPrice)?.toFixed(2)} ${item.currency || 'USD'}`}
@@ -201,6 +193,9 @@ const Cart: React.FC = () => {
             Email: {userEmail || 'Loading...'}
           </Typography>
 
+          <Button variant="contained" color="secondary" onClick={handleCancel} sx={{ mt: 2 }}>
+            Cancel Order
+          </Button>
           <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
             Proceed to Checkout
           </Button>
