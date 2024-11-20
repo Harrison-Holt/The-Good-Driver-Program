@@ -187,8 +187,14 @@ const DriverCatalog = () => {
 
       {selectedItem && (
         <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
-          <DialogContent>
+          <DialogTitle sx={{
+          backgroundColor: '#ffffff', // Set the background color to white
+          color: '#000000', // Ensure the text color is black
+        }}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogContent sx={{
+      backgroundColor: '#ffffff', // Set the background color to white
+      color: '#000000', // Ensure the text color is black
+    }}>
             <Box sx={{ textAlign: 'center' }}>
               <img
                 src={selectedItem.artworkUrl100}
@@ -222,7 +228,9 @@ const DriverCatalog = () => {
               )}
             </List>
           </DialogContent>
-          <DialogActions>
+          <DialogActions  sx={{
+      backgroundColor: '#ffffff', // Set the background color to white
+    }}>
             <Button onClick={handleDialogClose} color="primary">
               Close
             </Button>
