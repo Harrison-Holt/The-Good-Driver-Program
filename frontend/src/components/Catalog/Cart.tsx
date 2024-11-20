@@ -83,11 +83,13 @@ const Cart: React.FC = () => {
     }
   };
 
-  const handleRemoveItem = (index: number) => {
-    const updatedCartItems = cartItems.filter((_, i) => i !== index);
-    setCartItems(updatedCartItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  };
+
+  const handleCancel = () => {
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+    window.dispatchEvent(new Event('storage'));
+    setErrorMessage(`This order has been cancelled`);
+  }
 
   const handleCheckout = () => {
     playAudioFeedback();
@@ -201,6 +203,9 @@ const Cart: React.FC = () => {
             Email: {userEmail || 'Loading...'}
           </Typography>
 
+          <Button variant="contained" color="secondary" onClick={handleCancel} sx={{ mt: 2 }}>
+            Cancel Order
+          </Button>
           <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
             Proceed to Checkout
           </Button>
