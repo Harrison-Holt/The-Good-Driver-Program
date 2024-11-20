@@ -75,6 +75,12 @@ const Cart: React.FC = () => {
     }
   };
 
+  const handleRemoveItem = (index: number) => {
+    const updatedCartItems = cartItems.filter((_, i) => i !== index);
+    setCartItems(updatedCartItems);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+  };
+  
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
