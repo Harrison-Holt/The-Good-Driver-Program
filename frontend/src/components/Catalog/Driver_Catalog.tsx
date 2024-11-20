@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid } from '@mui/material';
-import CatalogGrid from './CatalogGrid';
-import ItemDetailsDialog from './ItemDetailsDialog';
+import { Box, Typography, CircularProgress, Alert, Grid, Button } from '@mui/material';
+import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
@@ -15,29 +14,7 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
-  discount?: number;
-  discountedPrice?: number;
-}
-
-interface DriverCatalogItem {
-  catalog_id: number;
-  sponsor_username: string;
-  item_name: string;
-  artist: string;
-  price: string;
-  currency: string;
-  points: number;
-  artwork: string;
-  addedAt: string;
-  published: number;
-  discounted_price?: string;
-  discount?: number;
-}
-
-interface Review {
-  user_name: string;
-  rating: number;
-  comment: string;
+  rating?: number; // Optional rating field for the star rating
 }
 
 // API endpoint for fetching the driver catalog
@@ -48,22 +25,8 @@ const DriverCatalog = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
-  const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
 
   const username = useAppSelector(selectUserName);
-
-  // Map API response to ItunesItem interface
-  const mapToItunesItem = (item: DriverCatalogItem): ItunesItem => ({
-    collectionId: item.catalog_id.toString(),
-    trackName: item.item_name,
-    collectionName: item.item_name,
-    artistName: item.artist,
-    artworkUrl100: item.artwork,
-    collectionPrice: parseFloat(item.price),
-    currency: item.currency,
-    discountedPrice: item.discounted_price ? parseFloat(item.discounted_price) : undefined,
-    discount: item.discount || undefined,
-  });
 
   // Fetch the driver's catalog
   useEffect(() => {
@@ -77,9 +40,8 @@ const DriverCatalog = () => {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
-        const data: DriverCatalogItem[] = await response.json(); // Typed response
-        const mappedData = data.map(mapToItunesItem); // Map response to ItunesItem[]
-        setCatalog(mappedData);
+        const data: ItunesItem[] = await response.json(); // Typed response
+        setCatalog(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -90,29 +52,22 @@ const DriverCatalog = () => {
     fetchCatalog();
   }, [username]);
 
+  const handleAddToCart = (item: ItunesItem) => {
+    const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const updatedCart = [...currentCart, item];
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+
+    // Trigger cart update
+    window.dispatchEvent(new Event('storage'));
+    alert(`${item.trackName || item.collectionName} added to cart!`);
+  };
+
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
-    // Fetch reviews for the selected item (optional)
-    try {
-      const response = await fetch(
-        `https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews?itemId=${item.collectionId}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch reviews:', error);
-    }
   };
 
   const handleDialogClose = () => {
     setSelectedItem(null);
-    setReviews([]); // Clear reviews when dialog closes
-  };
-
-  const handleBuyNow = () => {
-    alert('Buy Now functionality will be implemented here!');
   };
 
   return (
@@ -136,25 +91,71 @@ const DriverCatalog = () => {
         )}
 
         {!loading && catalog.length > 0 && (
-          <CatalogGrid
-            items={catalog}
-            onViewDetails={handleViewDetails}
-            conversionRate={100} // Adjust as necessary
-            userRole="driver"
-          />
+          <Grid container spacing={4}>
+            {catalog.map((item) => (
+              <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
+                <Box
+                  sx={{
+                    border: '1px solid #ccc',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    marginBottom: '15px',
+                  }}
+                >
+                  <img
+                    src={item.artworkUrl100}
+                    alt={item.trackName || item.collectionName}
+                    style={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <Typography variant="h6" sx={{ marginBottom: '8px' }}>
+                    {item.trackName || item.collectionName}
+                  </Typography>
+                  <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+                    <strong>Artist:</strong> {item.artistName}
+                  </Typography>
+                  <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+                    <strong>Price:</strong> {item.collectionPrice} {item.currency}
+                  </Typography>
+                  {item.rating !== undefined && (
+                    <StarRating rating={item.rating || 0} />
+                  )}
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleViewDetails(item)}
+                    sx={{ marginTop: '10px', marginRight: '10px' }}
+                  >
+                    View Details
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => handleAddToCart(item)}
+                    sx={{ marginTop: '10px' }}
+                  >
+                    Add to Cart
+                  </Button>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Grid>
 
       {selectedItem && (
-        <ItemDetailsDialog
-          open={!!selectedItem}
-          onClose={handleDialogClose}
-          item={selectedItem}
-          reviews={reviews}
-          onSubmitReview={(review) => setReviews((prev) => [...prev, review])}
-          onRemoveFromCatalog={() => alert('Drivers cannot remove items.')}
-          onBuyNow={handleBuyNow}
-        />
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography variant="h6">Item Details</Typography>
+          <Typography>
+            <strong>Name:</strong> {selectedItem.trackName || selectedItem.collectionName}
+          </Typography>
+          <Typography>
+            <strong>Artist:</strong> {selectedItem.artistName}
+          </Typography>
+          <Typography>
+            <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
+          </Typography>
+          <Button onClick={handleDialogClose}>Close</Button>
+        </Box>
       )}
     </Box>
   );
