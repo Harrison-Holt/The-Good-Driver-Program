@@ -8,7 +8,6 @@ import {
   Divider,
   Button,
   Dialog,
-  IconButton,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -19,7 +18,7 @@ import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
 import { selectEmail } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
-import DeleteIcon from '@mui/icons-material/Delete';
+//import DeleteIcon from '@mui/icons-material/Delete';
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -77,11 +76,11 @@ const Cart: React.FC = () => {
     }
   };
 
-  const handleRemoveItem = (index: number) => {
-    const updatedCartItems = cartItems.filter((_, i) => i !== index);
-    setCartItems(updatedCartItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  };
+  // const handleRemoveItem = (index: number) => {
+  //   const updatedCartItems = cartItems.filter((_, i) => i !== index);
+  //   setCartItems(updatedCartItems);
+  //   localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+  // };
 
   const handleCancel = () => {
     setCartItems([]);
