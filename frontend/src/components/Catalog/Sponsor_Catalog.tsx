@@ -99,6 +99,7 @@ const handleExportToPDF = async () => {
     doc.text('Sales Report', 10, 10);
     doc.text('-----------------------------', 10, 20);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     salesData.forEach((sale: any, index: number) => {
       doc.text(
         `${index + 1}. Product: ${sale.item_name} | Sold: ${sale.quantity} | Points: ${

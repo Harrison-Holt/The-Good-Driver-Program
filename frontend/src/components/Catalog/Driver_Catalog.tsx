@@ -1,5 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Grid, Button, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Alert,
+  Grid,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+} from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
@@ -11,11 +26,9 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackPrice?: number;
   collectionPrice?: number;
-  currency?: string;
-  rating?: number;
   points?: number; // Points for the item
+  rating?: number; // Optional rating field for the star rating
 }
 
 interface APIResponseItem {
@@ -24,12 +37,12 @@ interface APIResponseItem {
   artist: string;
   artwork: string;
   price: string;
-  currency: string;
+  points: number;
   rating?: number;
 }
 
 interface Review {
-  user_name: string;
+    username: string;
   rating: number;
   comment: string;
 }
@@ -43,8 +56,10 @@ const DriverCatalog = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
   const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
-
   const username = useAppSelector(selectUserName);
+
+  const [newReview, setNewReview] = useState<Review>({ username:  username || 'Unkown', comment: '', rating: 5 });
+
 
   // Fetch the driver's catalog
   useEffect(() => {
@@ -66,8 +81,7 @@ const DriverCatalog = () => {
           artistName: item.artist,
           artworkUrl100: item.artwork,
           collectionPrice: parseFloat(item.price),
-          trackPrice: parseFloat(item.price),
-          currency: item.currency,
+          points: item.points,
           rating: item.rating || 0,
         }));
         setCatalog(mappedData);
@@ -85,9 +99,6 @@ const DriverCatalog = () => {
     const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedCart = [...currentCart, item];
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-
-    // Trigger cart update
-    window.dispatchEvent(new Event('storage'));
     alert(`${item.trackName || item.collectionName} added to cart!`);
   };
 
@@ -114,6 +125,37 @@ const DriverCatalog = () => {
     setReviews([]); // Clear reviews when dialog closes
   };
 
+  const handleSubmitReview = async () => {
+    if (selectedItem) {
+      try {
+        const payload = {
+          itemId: selectedItem.collectionId,
+          user_name: newReview.username,
+          rating: newReview.rating,
+          comment: newReview.comment,
+        };
+
+        const response = await fetch(REVIEW_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit review');
+        }
+
+        // Add the new review to the list
+        setReviews((prev) => [...prev, newReview]);
+        setNewReview({ username: '', comment: '', rating: 5 });
+        alert('Review submitted successfully!');
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review.');
+      }
+    }
+  };
+
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -138,14 +180,7 @@ const DriverCatalog = () => {
           <Grid container spacing={4}>
             {catalog.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-                <Box
-                  sx={{
-                    border: '1px solid #ccc',
-                    padding: '10px',
-                    borderRadius: '5px',
-                    marginBottom: '15px',
-                  }}
-                >
+                <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
                   <img
                     src={item.artworkUrl100}
                     alt={item.trackName || item.collectionName}
@@ -157,12 +192,8 @@ const DriverCatalog = () => {
                   <Typography variant="body1" sx={{ marginBottom: '5px' }}>
                     <strong>Artist:</strong> {item.artistName}
                   </Typography>
-                  <Typography variant="body1" sx={{ marginBottom: '5px' }}>
                   <Typography variant="body2">Points: {item.points || 0}</Typography>
-                  </Typography>
-                  {item.rating !== undefined && (
-                    <StarRating rating={item.rating || 0} />
-                  )}
+                  <StarRating rating={item.rating || 0} />
                   <Button
                     variant="outlined"
                     color="primary"
@@ -188,14 +219,8 @@ const DriverCatalog = () => {
 
       {selectedItem && (
         <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
-          <DialogTitle sx={{
-          backgroundColor: '#ffffff', // Set the background color to white
-          color: '#000000', // Ensure the text color is black
-        }}>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
-          <DialogContent sx={{
-      backgroundColor: '#ffffff', // Set the background color to white
-      color: '#000000', // Ensure the text color is black
-    }}>
+          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+          <DialogContent>
             <Box sx={{ textAlign: 'center' }}>
               <img
                 src={selectedItem.artworkUrl100}
@@ -205,9 +230,7 @@ const DriverCatalog = () => {
               <Typography>
                 <strong>Artist:</strong> {selectedItem.artistName}
               </Typography>
-              <Typography>
               <Typography variant="body2">Points: {selectedItem.points || 0}</Typography>
-              </Typography>
             </Box>
             <Typography variant="h6" sx={{ marginTop: '20px' }}>
               Reviews
@@ -218,7 +241,7 @@ const DriverCatalog = () => {
                   <ListItem key={index}>
                     <ListItemText
                       primary={<StarRating rating={review.rating} />}
-                      secondary={`${review.user_name}: ${review.comment}`}
+                      secondary={`${review.username}: ${review.comment}`}
                     />
                   </ListItem>
                 ))
@@ -228,10 +251,32 @@ const DriverCatalog = () => {
                 </ListItem>
               )}
             </List>
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography variant="h6">Submit a Review</Typography>
+              <TextField
+                fullWidth
+                label="Your Name"
+                value={newReview.username}
+                onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+              <TextField
+                fullWidth
+                label="Comment"
+                value={newReview.comment}
+                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+              <StarRating
+                rating={newReview.rating}
+                onChange={(rating) => setNewReview({ ...newReview, rating })}
+              />
+              <Button variant="contained" color="primary" onClick={handleSubmitReview}>
+                Submit Review
+              </Button>
+            </Box>
           </DialogContent>
-          <DialogActions  sx={{
-      backgroundColor: '#ffffff', // Set the background color to white
-    }}>
+          <DialogActions>
             <Button onClick={handleDialogClose} color="primary">
               Close
             </Button>

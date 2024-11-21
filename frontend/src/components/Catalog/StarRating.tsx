@@ -1,22 +1,23 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Rating } from '@mui/material';
 
 interface StarRatingProps {
   rating: number;
+  onChange?: (newValue: number) => void; // Define optional onChange callback
 }
 
-const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
-  const stars = [];
-
-  for (let i = 0; i < 5; i++) {
-    stars.push(
-      <span key={i} style={{ color: i < rating ? 'gold' : 'lightgray' }}>
-        ★
-      </span>
-    );
-  }
-
-  return <Box>{stars}</Box>;
+const StarRating: React.FC<StarRatingProps> = ({ rating, onChange }) => {
+  return (
+    <Rating
+      name="star-rating"
+      value={rating}
+      onChange={(_, newValue) => {
+        if (newValue !== null) {
+          onChange?.(newValue);
+        }
+      }}
+    />
+  );
 };
 
 export default StarRating;
