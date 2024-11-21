@@ -8,6 +8,7 @@ import {
   Divider,
   Button,
   Dialog,
+  IconButton,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -18,6 +19,7 @@ import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
 import { selectEmail } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface ItunesItem {
   artworkUrl100: string;
@@ -73,6 +75,12 @@ const Cart: React.FC = () => {
         console.error('Audio playback failed:', error);
       }
     }
+  };
+
+  const handleRemoveItem = (index: number) => {
+    const updatedCartItems = cartItems.filter((_, i) => i !== index);
+    setCartItems(updatedCartItems);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
   };
 
   const handleCancel = () => {
@@ -171,14 +179,21 @@ const Cart: React.FC = () => {
         <>
           <List>
             {cartItems.map((item, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={item.trackName || item.collectionName}
-                  secondary={`Price: ${(item.collectionPrice || item.trackPrice)?.toFixed(2)} ${item.currency || 'USD'}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+              <ListItem
+              key={index}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveItem(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText
+                primary={item.trackName || item.collectionName}
+                secondary={`Price: ${(item.collectionPrice || item.trackPrice)?.toFixed(2)} ${item.currency || 'USD'}`}
+              />
+            </ListItem>
+          ))}
+        </List>
 
           <Divider sx={{ my: 2 }} />
           <Typography variant="h6">Total: {total.toFixed(2)} points</Typography>
