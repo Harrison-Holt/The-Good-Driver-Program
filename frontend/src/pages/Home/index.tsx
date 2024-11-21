@@ -81,10 +81,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const idToken = localStorage.getItem('idToken');
     if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
-    //Tradd Login Hack - Don't uncomment
-    //if (true) {
-      //const decodedUsername = 'FastBuck';  
+      const decodedUsername = getUsernameFromToken(idToken);
       setUsername(decodedUsername);
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);
