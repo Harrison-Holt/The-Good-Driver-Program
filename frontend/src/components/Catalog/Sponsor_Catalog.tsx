@@ -28,8 +28,6 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
-  discount?: number;
-  discountedPrice?: number;
   points?: number;
 }
 
@@ -45,14 +43,12 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
-  const [discountValue, setDiscountValue] = useState<number | null>(null);
   const [conversionRate, setConversionRate] = useState(100); // Points system
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
 
   const username = useAppSelector(selectUserName);
 
-  
   // Fetch sponsor's catalog
   useEffect(() => {
     if (!username) return;
@@ -116,10 +112,8 @@ const Catalog = () => {
   };
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    const discountedPrice =
-      (item.collectionPrice || item.trackPrice || 0) * (1 - (item.discount || 0) / 100);
-    const points = calculatePoints(discountedPrice);
-  
+    const points = calculatePoints(item.collectionPrice || item.trackPrice);
+
     const payload = {
       username,
       items: [
@@ -127,28 +121,26 @@ const Catalog = () => {
           item_id: item.collectionId,
           item_name: item.trackName || item.collectionName,
           artist_name: item.artistName,
-          discounted_price: discountedPrice,
-          discount: item.discount || 0,
           points,
           image_url: item.artworkUrl100,
         },
       ],
     };
-  
+
     console.log('Payload being sent to backend:', payload); // Debug log
-  
+
     try {
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
-  
+
       setCatalog((prev) => [...prev, item]); // Update the frontend
       alert('Item added to catalog successfully.');
     } catch (error) {
@@ -156,31 +148,30 @@ const Catalog = () => {
       alert('Failed to add item to catalog.');
     }
   };
-  
-  
+
   const handleDeleteItem = async (collectionId: string) => {
     if (!username || !collectionId) {
       console.error('Username or collectionId is missing:', { username, collectionId });
       alert('Username and valid collectionId are required.');
       return;
     }
-  
+
     setOperationLoading(true);
     try {
       const payload = { username, item_id: collectionId };
       console.log('Payload being sent to delete item:', payload);
-  
+
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to delete item.');
       }
-  
+
       setCatalog((prev) => prev.filter((item) => item.collectionId !== collectionId));
       alert('Item deleted successfully.');
     } catch (error) {
@@ -192,8 +183,8 @@ const Catalog = () => {
         alert('An unknown error occurred.');
       }
     }
-  }    
-  
+  };
+
   const handlePublishCatalog = async () => {
     if (catalog.length === 0) {
       alert('No items to publish.');
@@ -203,16 +194,16 @@ const Catalog = () => {
     alert('Catalog published successfully!');
   };
 
-    // Check access and show appropriate message
-    if (userType !== 'sponsor') {
-      return (
-        <Box sx={{ padding: '20px', textAlign: 'center' }}>
-          <Typography variant="h6" color="error">
-            Access Denied. Only sponsors can view this catalog.
-          </Typography>
-        </Box>
-      );
-    }
+  // Check access and show appropriate message
+  if (userType !== 'sponsor') {
+    return (
+      <Box sx={{ padding: '20px', textAlign: 'center' }}>
+        <Typography variant="h6" color="error">
+          Access Denied. Only sponsors can view this catalog.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -226,20 +217,32 @@ const Catalog = () => {
           <CircularProgress />
         </Box>
       )}
-         <Box sx={{ marginBottom: '20px' }}>
-        <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
-        <TextField
-          label="1 Dollar = X Points"
-          type="number"
-          value={conversionRate}
-          onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
-          InputProps={{
-            startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
-            endAdornment: <InputAdornment position="end">Points</InputAdornment>
-          }}
-          fullWidth
-        />
-      </Box>
+     <Box sx={{ marginBottom: '20px' }}>
+  <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
+  <TextField
+    label="1 Dollar = X Points"
+    type="number"
+    value={conversionRate}
+    onChange={(e) => {
+      const newRate = parseInt(e.target.value, 10);
+      setConversionRate(newRate);
+
+      // Recalculate points for all catalog items
+      setCatalog((prevCatalog) =>
+        prevCatalog.map((item) => ({
+          ...item,
+          points: Math.round((item.collectionPrice || item.trackPrice || 0) * newRate),
+        }))
+      );
+    }}
+    InputProps={{
+      startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+      endAdornment: <InputAdornment position="end">Points</InputAdornment>,
+    }}
+    fullWidth
+  />
+</Box>
+
       <Tabs value={currentTab} onChange={(_, newValue) => setCurrentTab(newValue)} centered>
         <Tab label="Manage Catalog" />
         <Tab label="Search and Add Items" />
@@ -253,17 +256,6 @@ const Catalog = () => {
                 <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
                 <Typography variant="body2">Artist: {item.artistName}</Typography>
                 <Typography variant="body2">Points: {item.points || 0}</Typography>
-                <TextField
-                  label="Discount (%)"
-                  type="number"
-                  value={discountValue || ''}
-                  onChange={(e) => setDiscountValue(Number(e.target.value))}
-/>                <Typography variant="body2">
-                  Discounted Price: $
-                  {(item.discountedPrice && !isNaN(Number(item.discountedPrice))
-                    ? Number(item.discountedPrice).toFixed(2)
-                    : 'N/A')}
-                </Typography>
                 <Button
                   variant="contained"
                   color="secondary"
@@ -307,9 +299,9 @@ const Catalog = () => {
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-            <CatalogItem
+              <CatalogItem
                   item={item}
-                  onAddToCatalog={(itemWithDiscount) => handleAddToCatalog(itemWithDiscount)}
+                  onAddToCatalog={(itemToAdd) => handleAddToCatalog(itemToAdd)}
                   onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)}
                   conversionRate={conversionRate}
                   userRole="sponsor"
