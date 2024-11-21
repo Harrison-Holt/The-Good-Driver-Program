@@ -42,6 +42,7 @@ const Home: React.FC = () => {
     // anthony's branch 
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
     dispatch(resetCart());
+    localStorage.removeItem('cartItems'); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
