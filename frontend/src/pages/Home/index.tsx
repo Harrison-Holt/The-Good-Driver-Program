@@ -8,6 +8,7 @@ import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { login, logout, selectUserType, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
+import { resetCart } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -42,7 +43,8 @@ const Home: React.FC = () => {
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://conner-working.d3ggpwrnl4m4is.amplifyapp.com`;
     // anthony's branch 
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
-
+    dispatch(resetCart());
+    localStorage.removeItem('cartItems'); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -117,6 +119,9 @@ const Home: React.FC = () => {
           <ListItemButton onClick={() => setSelectedDisplay("applications")}>Applications</ListItemButton>
         </ListItem>
         <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("driverManagement")}>Driver Management</ListItemButton>
+        </ListItem>
+        <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
         <ListItem>
@@ -132,6 +137,9 @@ const Home: React.FC = () => {
         </ListItem>}
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("faq")}>FAQ</ListItemButton>
         </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("profile")}>Profile</ListItemButton>

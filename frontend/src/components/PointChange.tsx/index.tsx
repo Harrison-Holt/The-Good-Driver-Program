@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Alert } from '@mui/material';
-import { fetchUserInfo } from '../../utils/api'; // Import your fetchUserInfo function
+import { fetchUserInfo } from '../../utils/api'; 
 import audioFeedbackFile from '../../assets/audio_feedback.wav'; // Import audio file
 
 const PointChange: React.FC = () => {
@@ -39,14 +39,12 @@ const PointChange: React.FC = () => {
     }
 
     try {
-      // Fetch the user info for validation (optional)
       const userInfo = await fetchUserInfo(driverUsername);
       if (!userInfo) {
         setErrorMessage(`User with username ${driverUsername} not found.`);
         return;
       }
 
-      // API call to update points
       const response = await fetch(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection',
         {

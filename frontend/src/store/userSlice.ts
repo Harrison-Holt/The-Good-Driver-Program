@@ -10,8 +10,14 @@ interface UserState {
   lastName: string | null
   email: string | null
   userType: string
+  
 }
-
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
 // Define the initial state using that type
 const initialState: UserState = {
   loggedIn: false,
@@ -54,6 +60,20 @@ export const userSlice = createSlice({
   },
 })
 
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState: {
+      items: [] as CartItem[],
+  },
+  reducers: {
+      addToCart: (state, action: PayloadAction<CartItem>) => {
+          state.items.push(action.payload);
+      },
+      resetCart: (state) => {
+          state.items = [];
+      },
+  },
+});
 export const {login, logout, setUserType, setFirstName, setLastName, setEmail} = userSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
@@ -63,5 +83,6 @@ export const selectUserName = (state: RootState) => state.currentUser.userName
 export const selectEmail = (state: RootState) => state.currentUser.email
 export const selectFirstName = (state: RootState) => state.currentUser.firstName
 export const selectLastName = (state: RootState) => state.currentUser.lastName
+export const { addToCart, resetCart } = cartSlice.actions;
 
 export default userSlice.reducer
