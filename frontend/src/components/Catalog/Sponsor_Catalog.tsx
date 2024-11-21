@@ -44,6 +44,8 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
+  const [discountValue, setDiscountValue] = useState<number | null>(null);
+
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
 
@@ -237,8 +239,12 @@ const Catalog = () => {
                 <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
                 <Typography variant="body2">Artist: {item.artistName}</Typography>
                 <Typography variant="body2">Price: ${item.trackPrice || item.collectionPrice}</Typography>
-                <Typography variant="body2">Discount: {item.discount || 0}%</Typography>
-                <Typography variant="body2">
+                <TextField
+                  label="Discount (%)"
+                  type="number"
+                  value={discountValue || ''}
+                  onChange={(e) => setDiscountValue(Number(e.target.value))}
+/>                <Typography variant="body2">
                   Discounted Price: $
                   {(item.discountedPrice && !isNaN(Number(item.discountedPrice))
                     ? Number(item.discountedPrice).toFixed(2)
