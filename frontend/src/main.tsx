@@ -8,7 +8,7 @@ import { store } from './store/store';
 
 import Home from './pages/Home';
 import About from './pages/About';
-import Catalog from './components/Catalog/Catalog';
+import Catalog from './components/Catalog/Sponsor_Catalog.tsx';
 import Cart from './components/Catalog/Cart';
 import Confirmation from './components/Catalog/Confirmation';
 import Profile from './pages/Profile';
@@ -36,6 +36,7 @@ const router = createBrowserRouter([
 ]);
 
 // Main App component with applied global theme and settings
+// eslint-disable-next-line react-refresh/only-export-components
 const AppContent: React.FC = () => {
   const { settings } = useSettings();
 

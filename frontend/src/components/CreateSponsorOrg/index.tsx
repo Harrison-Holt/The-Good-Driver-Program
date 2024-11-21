@@ -1,4 +1,4 @@
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { Button, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import SearchBar from "../../components/SearchBar";
 import axios from "axios";
@@ -8,6 +8,8 @@ const CreateSponsorOrg: React.FC = () => {
     const [orgName, setOrgName] = useState("")
     const [initialSponsorUser, setInitialSponsorUser] = useState("")
     const [userList, setUserList] = useState([]);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [snackMessage, setSnackMessage] = useState("");
 
     const createSponsorOrg = async () => {
         try {
@@ -16,9 +18,13 @@ const CreateSponsorOrg: React.FC = () => {
                 initial_sponsor_user: initialSponsorUser
             }).then((response) => {
                 console.log(response);
+                setSnackMessage("Org Created");
+                setOpenSnack(true);
             });
         } catch (error) {
             console.error('Error creating sponsor:', error);
+            setSnackMessage("Error creating sponsor:");
+            setOpenSnack(true);
         }
     }
 
@@ -39,7 +45,7 @@ const CreateSponsorOrg: React.FC = () => {
         };
 
         fetchData();
-    }, []);
+    }, [openSnack]);
 
     return (
         <>
@@ -55,6 +61,12 @@ const CreateSponsorOrg: React.FC = () => {
                 <SearchBar setSearchTerm={setInitialSponsorUser} options={userList} label="Select Sponsor User" />
                 <Button variant={"contained"} onClick={() => {createSponsorOrg()}}>Submit</Button>
             </Stack>
+            <Snackbar
+                open={openSnack}
+                autoHideDuration={6000}
+                onClose={() => {setOpenSnack(false)}}
+                message={snackMessage}
+            />
         </>
     )
 }
