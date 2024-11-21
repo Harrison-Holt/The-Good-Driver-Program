@@ -60,7 +60,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
   const handleSaveDiscount = () => {
     if (onSaveDiscount) {
       onSaveDiscount(item, discount);
-      setDiscountSaved(true); // Mark as saved
+      setDiscountSaved(true);
     }
   };
 
@@ -101,7 +101,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
       <Button
         variant="outlined"
         color="primary"
-        onClick={() => onViewDetails(item)} // Use `onViewDetails` here
+        onClick={() => onViewDetails(item)}
         sx={{ marginBottom: '10px' }}
       >
         View Details
@@ -111,7 +111,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
           variant="outlined"
           color="success"
           onClick={handleSaveDiscount}
-          disabled={discountSaved} // Disable button if discount is saved
+          disabled={discountSaved}
           sx={{ marginBottom: '10px' }}
         >
           {discountSaved ? 'Discount Saved' : 'Save Discount'}

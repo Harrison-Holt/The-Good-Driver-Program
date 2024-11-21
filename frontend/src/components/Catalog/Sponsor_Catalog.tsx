@@ -29,6 +29,7 @@ interface ItunesItem {
   collectionPrice?: number;
   currency?: string;
   points?: number;
+  discount?: number; 
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
@@ -140,16 +141,8 @@ const handleSaveDiscount = (item: ItunesItem, discount: number) => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
-  const calculatePoints = (price?: number) => {
-    return price ? Math.round(price * conversionRate) : 0;
-  };
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    const discount = discountValues[item.collectionId] || 0; // Get the discount value for the item
-    const originalPrice = item.collectionPrice || item.trackPrice || 0;
-    const discountedPrice = originalPrice * (1 - discount / 100); // Calculate discounted price
-    const points = calculatePoints(discountedPrice); // Calculate points based on the discounted price
-  
     const payload = {
       username,
       items: [
@@ -157,14 +150,14 @@ const handleSaveDiscount = (item: ItunesItem, discount: number) => {
           item_id: item.collectionId,
           item_name: item.trackName || item.collectionName,
           artist_name: item.artistName,
-          points,
+          points: item.points || 0, // Use the updated points
           image_url: item.artworkUrl100,
-          discount, // Include the discount value
+          discount: item.discount || 0, // Include the discount value
         },
       ],
     };
   
-    console.log('Payload being sent to backend:', payload); // Debug log
+    console.log('Payload being sent to backend:', payload);
   
     try {
       const response = await fetch(SPONSOR_CATALOG_URL, {
@@ -178,11 +171,10 @@ const handleSaveDiscount = (item: ItunesItem, discount: number) => {
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
   
-      // Update the item in the frontend catalog with the discount and updated points
       setCatalog((prev) =>
         prev.map((catalogItem) =>
           catalogItem.collectionId === item.collectionId
-            ? { ...catalogItem, points, discount }
+            ? { ...catalogItem, points: item.points, discount: item.discount }
             : catalogItem
         )
       );
