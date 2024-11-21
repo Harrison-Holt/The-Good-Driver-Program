@@ -29,6 +29,7 @@ interface ItunesItem {
   currency?: string;
   discount?: number;
   discountedPrice?: number;
+  points?: number;
 }
 
 const API_BASE_URL = 'https://itunes.apple.com/search';
@@ -110,6 +111,10 @@ const Catalog = () => {
     fetchItems();
   }, [selectedCategory, searchTerm]);
 
+  const calculatePoints = (price?: number) => {
+    return price ? Math.round(price * conversionRate) : 0;
+  };
+
   const handleAddToCatalog = async (item: ItunesItem) => {
     const localDiscountValue = discountValue ?? 0; 
     const discountedPrice =
@@ -126,7 +131,7 @@ const Catalog = () => {
           discounted_price: discountedPrice,
           discount: localDiscountValue,
           currency: item.currency,
-          points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
+          points: calculatePoints(item.collectionPrice || item.trackPrice),
           image_url: item.artworkUrl100,
         },
       ],
@@ -249,6 +254,7 @@ const Catalog = () => {
                     ? Number(item.discountedPrice).toFixed(2)
                     : 'N/A')}
                 </Typography>
+                <Typography variant="body2">Points: {item.points || 0}</Typography>
                 <Button
                   variant="contained"
                   color="secondary"
