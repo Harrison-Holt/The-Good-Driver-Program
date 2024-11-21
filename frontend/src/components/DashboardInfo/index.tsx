@@ -26,7 +26,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
 
   // Main container styles
   const containerStyles = {
-    width: '80%',
+    width: '95%',
     padding: '20px',
     backgroundColor: settings.isHighContrast ? '#000' : theme.palette.background.default,
     color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
