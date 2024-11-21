@@ -291,6 +291,15 @@ const Catalog = () => {
            <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
            <Typography variant="body2">Artist: {item.artistName}</Typography>
            <Typography variant="body2">Points: {item.points || 0}</Typography>
+           <TextField
+             label="Discount (%)"
+             type="number"
+             value={discountValues[item.collectionId] || ''}
+             onChange={(e) =>
+               handleDiscountChange(item.collectionId, parseInt(e.target.value, 10))
+             }
+             sx={{ marginBottom: '10px' }}
+           />
            <Typography variant="body2">
              Discounted Points: {item.points || 'N/A'}
            </Typography>
