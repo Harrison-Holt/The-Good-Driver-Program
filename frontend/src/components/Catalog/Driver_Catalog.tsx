@@ -217,7 +217,7 @@ const DriverCatalog = () => {
       </Grid>
 
       {selectedItem && (
-        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
+        <Dialog open={!!selectedItem} sx={{ textAlign: 'center', backgroundColor: '#fff'}} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ textAlign: 'center', backgroundColor: '#fff'}}>
