@@ -3,8 +3,8 @@ import { Box, Typography, Button, List, ListItem, ListItemText, Divider } from '
 import { useSettings } from '../../components/Settings/settings_context';
 
 interface ItunesItem {
+  collectionId: string; // Always required
   trackId?: string;
-  collectionId?: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
@@ -12,6 +12,8 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number;
+  discountedPrice?: number;
 }
 
 const Confirmation = () => {

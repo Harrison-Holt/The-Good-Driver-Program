@@ -1,17 +1,18 @@
 import React from 'react';
 import { useAppSelector } from '../../store/hooks';
-import Applications from '../Applications';
-import SearchBar from '../../components/SearchBar';
 import { Box, Typography, useTheme, Paper } from '@mui/material';
-import Catalog from '../Catalog/Catalog';
+import SponsorCatalog from '../Catalog/Sponsor_Catalog';
+import DriverCatalog from '../Catalog/Driver_Catalog';
 import Cart from '../Catalog/Cart';
+import SearchBar from '../../components/SearchBar';
+import Applications from '../Applications';
 import PointChange from '../PointChange.tsx';
-import Settings from '../../pages/Settings/settings.tsx';
+import Settings from '../../pages/Settings/settings';
 import Profile from '../Profile';
 import PointHistory from '../PointHistory';
 import DriverManagement from '../DriverManagement';
 import { useSettings } from '../../components/Settings/settings_context';
-import { selectUserName } from '../../store/userSlice';
+import { selectUserName, selectUserType } from '../../store/userSlice';
 import FAQ from '../FAQ';
 
 interface Props {
@@ -23,6 +24,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   const theme = useTheme();
   const { settings } = useSettings();
   const username = useAppSelector(selectUserName);
+  const userType = useAppSelector(selectUserType); // Get user type from Redux
 
   // Main container styles
   const containerStyles = {
@@ -36,7 +38,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     minHeight: '100vh',
     overflow: 'auto',
     transition: 'all 0.3s ease',
-    lineHeight: settings.lineHeight || 1.5, 
+    lineHeight: settings.lineHeight || 1.5,
     textAlign: settings.textAlign || 'left',
   };
 
@@ -58,37 +60,49 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   let dashJsx;
 
   switch (currentDisplay) {
-    case "search":
+    case 'search':
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Search</Typography>
+          <Typography variant="h6" sx={textStyle}>
+            Search
+          </Typography>
           <SearchBar setSearchTerm={setSearchTerm} label="search" options={[]} />
         </Paper>
       );
       break;
 
-    case "cart":
+    case 'cart':
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Your Cart</Typography>
+          <Typography variant="h6" sx={textStyle}>
+            Your Cart
+          </Typography>
           <Cart />
         </Paper>
       );
       break;
 
-    case "catalog":
+    case 'catalog':
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Catalog</Typography>
-          <Catalog />
+          <Typography variant="h6" sx={textStyle}>
+            Catalog
+          </Typography>
+          {userType === 'sponsor' ? (
+            <SponsorCatalog /> // Render Sponsor Catalog if user is a sponsor
+          ) : (
+            <DriverCatalog /> // Render Driver Catalog if user is a driver
+          )}
         </Paper>
       );
       break;
 
-    case "applications":
+    case 'applications':
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Applications</Typography>
+          <Typography variant="h6" sx={textStyle}>
+            Applications
+          </Typography>
           <Applications />
         </Paper>
       );
@@ -103,25 +117,34 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
     break;
 
-    case "pointChange":
+    case 'pointChange':
       dashJsx = (
         <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>
+            Point Change
+          </Typography>
           <PointChange />
         </Paper>
       );
     break;
 
-    case "pointHistory":
+    case 'pointHistory':
       dashJsx = (
         <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>
+            Point History
+          </Typography>
           {username && <PointHistory driverUsername={username} />}
         </Paper>
       );
       break;
 
-    case "profile":
+    case 'profile':
       dashJsx = (
         <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>
+            Profile
+          </Typography>
           <Profile />
         </Paper>
       );
@@ -138,7 +161,9 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "settings":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Settings</Typography>
+          <Typography variant="h6" sx={textStyle}>
+            Settings
+          </Typography>
           <Settings />
         </Paper>
       );
@@ -147,17 +172,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     default:
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Home</Typography>
+          <Typography variant="h6" sx={textStyle}>
+            Home
+          </Typography>
         </Paper>
       );
       break;
   }
 
-  return (
-    <Box sx={containerStyles}>
-      {dashJsx}
-    </Box>
-  );
+  return <Box sx={containerStyles}>{dashJsx}</Box>;
 };
 
 export default DashboardInfo;
