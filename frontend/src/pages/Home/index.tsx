@@ -117,6 +117,9 @@ const Home: React.FC = () => {
           <ListItemButton onClick={() => setSelectedDisplay("applications")}>Applications</ListItemButton>
         </ListItem>
         <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("driverManagement")}>Driver Management</ListItemButton>
+        </ListItem>
+        <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
         <ListItem>
@@ -132,6 +135,9 @@ const Home: React.FC = () => {
         </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("faq")}>FAQ</ListItemButton>
         </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("profile")}>Profile</ListItemButton>

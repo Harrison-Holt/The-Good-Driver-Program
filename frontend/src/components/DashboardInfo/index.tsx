@@ -9,8 +9,10 @@ import PointChange from '../PointChange.tsx';
 import Settings from '../../pages/Settings/settings.tsx';
 import Profile from '../Profile';
 import PointHistory from '../PointHistory';
+import DriverManagement from '../DriverManagement';
 import { useSettings } from '../../components/Settings/settings_context';
 import { selectUserName } from '../../store/userSlice';
+import FAQ from '../FAQ';
 
 interface Props {
   currentDisplay: string;
@@ -92,19 +94,26 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
+    case "driverManagement":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>Driver Management</Typography>
+          <DriverManagement />
+        </Paper>
+      );
+    break;
+
     case "pointChange":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Point Change</Typography>
           <PointChange />
         </Paper>
       );
-      break;
+    break;
 
     case "pointHistory":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Point History</Typography>
           {username && <PointHistory driverUsername={username} />}
         </Paper>
       );
@@ -113,8 +122,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     case "profile":
       dashJsx = (
         <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Profile</Typography>
           <Profile />
+        </Paper>
+      );
+      break;
+
+    case "faq":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <FAQ />
         </Paper>
       );
       break;

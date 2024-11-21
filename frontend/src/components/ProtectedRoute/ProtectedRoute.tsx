@@ -8,12 +8,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const session = await getSession();  // getSession returns CognitoUserSession
-        if (session.isValid()) {  // Use session.isValid() to check session validity
+        const session = await getSession();
+        if (session.isValid()) {  
           setIsAuthenticated(true);
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error: unknown) {  // Handle the error as `unknown`
+      } catch (error: unknown) { 
         console.error("Error", error); 
         setIsAuthenticated(false);
       }
