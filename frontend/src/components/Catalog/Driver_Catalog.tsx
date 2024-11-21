@@ -193,7 +193,6 @@ const DriverCatalog = () => {
                     <strong>Artist:</strong> {item.artistName}
                   </Typography>
                   <Typography variant="body2">Points: {item.points || 0}</Typography>
-                  <StarRating rating={item.rating || 0} />
                   <Button
                     variant="outlined"
                     color="primary"
@@ -221,7 +220,7 @@ const DriverCatalog = () => {
         <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', backgroundColor: '#fff'}}>
               <img
                 src={selectedItem.artworkUrl100}
                 alt={selectedItem.trackName || selectedItem.collectionName}
