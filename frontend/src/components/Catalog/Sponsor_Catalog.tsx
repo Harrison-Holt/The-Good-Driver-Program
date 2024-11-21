@@ -46,8 +46,30 @@ const Catalog = () => {
   const [conversionRate, setConversionRate] = useState(100); // Points system
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
-
   const username = useAppSelector(selectUserName);
+  const [discountValues, setDiscountValues] = useState<{ [key: string]: number }>({});
+
+  const handleDiscountChange = (itemId: string, discount: number) => {
+  setDiscountValues((prev) => ({ ...prev, [itemId]: discount }));
+
+  // Update the selected item's points and discounted price in the catalog
+  setCatalog((prevCatalog) =>
+    prevCatalog.map((item) => {
+      if (item.collectionId === itemId) {
+        const originalPrice = item.collectionPrice || item.trackPrice || 0;
+        const discountedPrice = originalPrice * (1 - discount / 100);
+        const points = Math.round(discountedPrice * conversionRate);
+
+        return {
+          ...item,
+          points,
+        };
+      }
+      return item;
+    })
+  );
+};
+
 
   // Fetch sponsor's catalog
   useEffect(() => {
@@ -249,25 +271,38 @@ const Catalog = () => {
       </Tabs>
 
       {currentTab === 0 && (
-        <Grid container spacing={4} sx={{ marginTop: '20px' }}>
-          {catalog.map((item) => (
-            <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-              <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
-                <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
-                <Typography variant="body2">Artist: {item.artistName}</Typography>
-                <Typography variant="body2">Points: {item.points || 0}</Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleDeleteItem(item.collectionId)}
-                  disabled={operationLoading}
-                  sx={{ marginTop: '10px' }}
-                >
-                  {operationLoading ? 'Deleting...' : 'Delete Item'}
-                </Button>
-              </Box>
-            </Grid>
-          ))}
+     <Grid container spacing={4} sx={{ marginTop: '20px' }}>
+     {catalog.map((item) => (
+       <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
+         <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
+           <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
+           <Typography variant="body2">Artist: {item.artistName}</Typography>
+           <Typography variant="body2">Points: {item.points || 0}</Typography>
+           <TextField
+             label="Discount (%)"
+             type="number"
+             value={discountValues[item.collectionId] || ''}
+             onChange={(e) =>
+               handleDiscountChange(item.collectionId, parseInt(e.target.value, 10))
+             }
+             sx={{ marginBottom: '10px' }}
+           />
+           <Typography variant="body2">
+             Discounted Points: {item.points || 'N/A'}
+           </Typography>
+           <Button
+             variant="contained"
+             color="secondary"
+             onClick={() => handleDeleteItem(item.collectionId)}
+             disabled={operationLoading}
+             sx={{ marginTop: '10px' }}
+           >
+             {operationLoading ? 'Deleting...' : 'Delete Item'}
+           </Button>
+         </Box>
+       </Grid>
+     ))}
+   
           <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
             <Button
               variant="contained"
