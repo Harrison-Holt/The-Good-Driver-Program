@@ -111,6 +111,10 @@ const Catalog = () => {
   const handleAddToCatalog = async (item: ItunesItem) => {
     setOperationLoading(true);
     try {
+      const discount = item.discount || 0;
+      const collectionPrice = item.collectionPrice || 0;
+      const discountedPrice = collectionPrice - (collectionPrice * discount) / 100;
+  
       const payload = {
         username,
         items: [
@@ -118,30 +122,30 @@ const Catalog = () => {
             item_id: item.collectionId,
             item_name: item.trackName || item.collectionName,
             artist_name: item.artistName,
-            price: item.collectionPrice || item.trackPrice,
-            discounted_price: item.discountedPrice || null, 
-            discount: item.discount || null,
+            price: collectionPrice,
+            discounted_price: discountedPrice.toFixed(2),
+            discount,
             currency: item.currency,
-            points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
+            points: Math.round(collectionPrice * conversionRate),
             image_url: item.artworkUrl100,
           },
         ],
       };
-    
-      console.log('Payload being sent to backend:', payload); // Log the payload
-    
+  
+      console.log('Payload being sent to backend:', payload); // Debugging: Log the payload
+  
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-    
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
-    
-      setCatalog((prev) => [...prev, item]);
+  
+      setCatalog((prev) => [...prev, { ...item, discountedPrice, discount }]);
       alert('Item added to catalog successfully.');
     } catch (error) {
       console.error('Error adding item to catalog:', error);
@@ -149,9 +153,8 @@ const Catalog = () => {
     } finally {
       setOperationLoading(false);
     }
-  }
-    
-
+  };
+  
   const handleDeleteItem = async (collectionId: string) => {
     if (!username || !collectionId) {
       console.error('Username or collectionId is missing:', { username, collectionId });
