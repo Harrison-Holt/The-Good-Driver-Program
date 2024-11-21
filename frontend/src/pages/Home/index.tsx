@@ -8,6 +8,7 @@ import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
+import { resetCart } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -40,7 +41,8 @@ const Home: React.FC = () => {
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://conner-working.d3ggpwrnl4m4is.amplifyapp.com`;
     // anthony's branch 
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
-
+    dispatch(resetCart());
+    localStorage.removeItem('cartItems'); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
