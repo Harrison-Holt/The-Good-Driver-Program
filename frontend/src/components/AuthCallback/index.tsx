@@ -8,7 +8,7 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');  // Get the code from the URL
+      const code = params.get('code'); // Get the code from the URL
 
       if (code) {
         try {
@@ -55,7 +55,7 @@ const AuthCallback: React.FC = () => {
     handleAuthCallback();
   }, [navigate]);
 
-  return <div></div>; //gives out a blank page while loading (very quick load time anyway)
+  return <div></div>; // Gives out a blank page while loading (very quick load time anyway)
 };
 
 export default AuthCallback;

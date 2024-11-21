@@ -1,42 +1,68 @@
-import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import { useSettings } from '../Settings/settings_context';
+import React, { useState } from 'react';
+import { Box, Typography, Button, TextField } from '@mui/material';
 
 interface ItunesItem {
+  collectionId: string; // Always required
   trackId?: string;
-  collectionId?: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackViewUrl?: string;
-  collectionViewUrl?: string;
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
+  discount?: number;
+  discountedPrice?: number;
+  points?: number;
 }
 
 interface CatalogItemProps {
   item: ItunesItem;
-  onViewDetails: (item: ItunesItem) => void;
-  conversionRate: number; // Add the conversion rate prop
+  onViewDetails: (item: ItunesItem) => void; // To handle "View Details"
+  conversionRate: number; // Points per dollar
+  userRole: string;
+  onAddToCatalog?: (item: ItunesItem) => void; // Handles adding to catalog
+  onSaveDiscount?: (item: ItunesItem, discount: number) => void; // Handles saving the discount
 }
 
-const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversionRate }) => {
-  const { settings } = useSettings(); // Access settings for lineHeight
+const CatalogItem: React.FC<CatalogItemProps> = ({
+  item,
+  onAddToCatalog,
+  onViewDetails,
+  conversionRate,
+  onSaveDiscount,
+}) => {
+  const [discount, setDiscount] = useState<number>(0);
+  const [discountSaved, setDiscountSaved] = useState<boolean>(false);
 
-  // Filter out items not in the sponsor's catalog
-  const removedItems = JSON.parse(localStorage.getItem('remItems') || '[]');
+  const calculateBasePoints = () => {
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    return Math.round(originalPrice * conversionRate);
+  };
 
-  for (const i in removedItems) {
-    if (removedItems[i].trackId === item.trackId) {
-      // Item removed, keep going...
-      return null; // Return null to avoid rendering
+  const calculateDiscountedPoints = () => {
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    const discountedPrice = originalPrice * (1 - discount / 100);
+    return Math.round(discountedPrice * conversionRate);
+  };
+
+  const handleAddWithDiscount = () => {
+    if (onAddToCatalog) {
+      const updatedItem = {
+        ...item,
+        discount,
+        points: calculateDiscountedPoints(),
+      };
+      onAddToCatalog(updatedItem);
     }
-  }
+  };
 
-  // Calculate the price in points using the conversion rate
-  const priceInPoints = Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate);
+  const handleSaveDiscount = () => {
+    if (onSaveDiscount) {
+      onSaveDiscount(item, discount);
+      setDiscountSaved(true);
+    }
+  };
 
   return (
     <Box
@@ -44,8 +70,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
         border: '1px solid #ccc',
         padding: '10px',
         borderRadius: '5px',
-        lineHeight: settings.lineHeight || 1.5,
-        textAlign: settings.textAlign || 'left',
+        marginBottom: '15px',
       }}
     >
       <img
@@ -53,23 +78,50 @@ const CatalogItem: React.FC<CatalogItemProps> = ({ item, onViewDetails, conversi
         alt={item.trackName || item.collectionName}
         style={{ width: '100%', marginBottom: '10px' }}
       />
-      <Typography variant="h6" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+      <Typography variant="h6" sx={{ marginBottom: '8px' }}>
         {item.trackName || item.collectionName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-        Artist: {item.artistName}
+      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+        <strong>Artist:</strong> {item.artistName}
       </Typography>
-      <Typography variant="body1" sx={{ lineHeight: settings.lineHeight || 1.5 }}>
-        Points: {priceInPoints} Points
+      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+        <strong>Base Points:</strong> {calculateBasePoints()}
+      </Typography>
+      <TextField
+        type="number"
+        label="Discount (%)"
+        value={discount}
+        onChange={(e) => setDiscount(Number(e.target.value))}
+        fullWidth
+        sx={{ marginBottom: '10px' }}
+      />
+      <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+        <strong>Discounted Points:</strong> {calculateDiscountedPoints()}
       </Typography>
       <Button
-        variant="contained"
+        variant="outlined"
         color="primary"
         onClick={() => onViewDetails(item)}
-        sx={{ lineHeight: settings.lineHeight || 1.5 }}
+        sx={{ marginBottom: '10px' }}
       >
         View Details
       </Button>
+      {onSaveDiscount && (
+        <Button
+          variant="outlined"
+          color="success"
+          onClick={handleSaveDiscount}
+          disabled={discountSaved}
+          sx={{ marginBottom: '10px' }}
+        >
+          {discountSaved ? 'Discount Saved' : 'Save Discount'}
+        </Button>
+      )}
+      {onAddToCatalog && (
+        <Button variant="outlined" color="success" onClick={handleAddWithDiscount}>
+          Add to Catalog
+        </Button>
+      )}
     </Box>
   );
 };
