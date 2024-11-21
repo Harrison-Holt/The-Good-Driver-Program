@@ -41,6 +41,7 @@ const PointChange: React.FC = () => {
             driverUsernames.push(driver.username)
           })
           setDriverList(driverUsernames)
+          console.log(driverList);
         }
       }
     }
