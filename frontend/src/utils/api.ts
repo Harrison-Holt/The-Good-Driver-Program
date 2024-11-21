@@ -6,12 +6,20 @@ interface UserInfo {
   email: string;
   points: number | null;
   point_change_notification: boolean;
+  sponsor_org_id: number | null;
 }
 
 interface PointHistoryEntry {
   change_date: string;
   points_changed: number;
   reason: string;
+}
+
+export interface DriverInfo {
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 // Function to fetch user info from API based on the username
@@ -81,38 +89,14 @@ export const updateUserName = async (username:string, firstName:string, lastName
   }
 };
 
-
-// export const updateUserName = async (username: string, firstName: string, lastName: string) => {
-//   try {
-//     const response = await axios.patch(`https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/get-user-info/${username}`, {
-//       username,
-//       firstName,
-//       lastName
-//     });
-//     return response;
-//   } catch (error) {
-//     console.error('Error updating user name:', error);
-//     throw error;
-//   }
-// };
-
-/** example of how to call one of these functions in another file:
- 
-    import { fetchUserPoints } from '../utils/api'; //change as needed
-
-    const logUserPoints = async (username: string) => {
-    try {
-        const points = await fetchUserPoints(username);
-        if (points !== null) {
-        console.log(`User ${username} has ${points} points.`);
-        } else {
-        console.log(`No points data found for user ${username}.`);
-        }
-    } catch (error) {
-        console.error('Failed to fetch user points:', error);
-    }
-    };
-
-    // Example usage
-    logUserPoints('admoral');
-*/
+export const fetchSponsorDrivers = async (sponsorId: string): Promise<DriverInfo[] | null> => {
+  try {
+    const response = await axios.get(
+      `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors/${sponsorId}`
+    );
+    return response.data; // Returns the list of drivers
+  } catch (error) {
+    console.error('Error fetching drivers:', error);
+    return null; // Return null if an error occurs
+  }
+};
