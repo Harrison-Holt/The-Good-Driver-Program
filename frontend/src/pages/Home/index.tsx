@@ -125,9 +125,9 @@ const Home: React.FC = () => {
             <Typography sx={{ ml: 1 }}>Cart</Typography>
           </ListItemButton>
         </ListItem>
-        <ListItem>
+        {(userInfo.role === "sponsor") && <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>Point Change</ListItemButton>
-        </ListItem>
+        </ListItem>}
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
         </ListItem>
