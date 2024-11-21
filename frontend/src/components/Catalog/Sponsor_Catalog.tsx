@@ -134,8 +134,11 @@ const Catalog = () => {
   };
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    const points = calculatePoints(item.collectionPrice || item.trackPrice);
-
+    const discount = discountValues[item.collectionId] || 0; // Get the discount value for the item
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    const discountedPrice = originalPrice * (1 - discount / 100); // Calculate discounted price
+    const points = calculatePoints(discountedPrice); // Calculate points based on the discounted price
+  
     const payload = {
       username,
       items: [
@@ -145,31 +148,41 @@ const Catalog = () => {
           artist_name: item.artistName,
           points,
           image_url: item.artworkUrl100,
+          discount, // Include the discount value
         },
       ],
     };
-
+  
     console.log('Payload being sent to backend:', payload); // Debug log
-
+  
     try {
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
-
-      setCatalog((prev) => [...prev, item]); // Update the frontend
+  
+      // Update the item in the frontend catalog with the discount and updated points
+      setCatalog((prev) =>
+        prev.map((catalogItem) =>
+          catalogItem.collectionId === item.collectionId
+            ? { ...catalogItem, points, discount }
+            : catalogItem
+        )
+      );
+  
       alert('Item added to catalog successfully.');
     } catch (error) {
       console.error('Error adding item to catalog:', error);
       alert('Failed to add item to catalog.');
     }
   };
+  
 
   const handleDeleteItem = async (collectionId: string) => {
     if (!username || !collectionId) {
@@ -278,15 +291,6 @@ const Catalog = () => {
            <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
            <Typography variant="body2">Artist: {item.artistName}</Typography>
            <Typography variant="body2">Points: {item.points || 0}</Typography>
-           <TextField
-             label="Discount (%)"
-             type="number"
-             value={discountValues[item.collectionId] || ''}
-             onChange={(e) =>
-               handleDiscountChange(item.collectionId, parseInt(e.target.value, 10))
-             }
-             sx={{ marginBottom: '10px' }}
-           />
            <Typography variant="body2">
              Discounted Points: {item.points || 'N/A'}
            </Typography>
