@@ -20,6 +20,9 @@ const AuthCallback: React.FC = () => {
             redirect_uri: 'https://master.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',  // MUST MATCH Cognito's callback URL
             //redirect_uri: 'https://conner-working.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',
             // for anthony's branch
+            //redirect_uri: 'https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',
+
+            //tradd branch
             //redirect_uri: 'https://tradd.d3ggpwrnl4m4is.amplifyapp.com/auth-callback',
           }), {
             headers: {

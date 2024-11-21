@@ -20,6 +20,7 @@ export interface DriverInfo {
   first_name: string;
   last_name: string;
   email: string;
+  points: number;
 }
 
 // Function to fetch user info from API based on the username
