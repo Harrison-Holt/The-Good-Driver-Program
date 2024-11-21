@@ -111,31 +111,31 @@ const Catalog = () => {
   }, [selectedCategory, searchTerm]);
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    setOperationLoading(true);
+    const localDiscountValue = discountValue ?? 0; 
+    const discountedPrice =
+      (item.collectionPrice || item.trackPrice || 0) * (1 - localDiscountValue / 100);
+  
+    const payload = {
+      username,
+      items: [
+        {
+          item_id: item.collectionId,
+          item_name: item.trackName || item.collectionName,
+          artist_name: item.artistName,
+          price: item.collectionPrice || item.trackPrice,
+          discounted_price: discountedPrice,
+          discount: localDiscountValue,
+          currency: item.currency,
+          points: Math.round((item.collectionPrice || item.trackPrice || 0) * conversionRate),
+          image_url: item.artworkUrl100,
+        },
+      ],
+    };
+  
+    console.log('Discount Value:', localDiscountValue); // Debug log
+    console.log('Payload being sent to backend:', payload); // Debug log
+  
     try {
-      const discount = item.discount || 0;
-      const collectionPrice = item.collectionPrice || 0;
-      const discountedPrice = collectionPrice - (collectionPrice * discount) / 100;
-  
-      const payload = {
-        username,
-        items: [
-          {
-            item_id: item.collectionId,
-            item_name: item.trackName || item.collectionName,
-            artist_name: item.artistName,
-            price: collectionPrice,
-            discounted_price: discountedPrice.toFixed(2),
-            discount,
-            currency: item.currency,
-            points: Math.round(collectionPrice * conversionRate),
-            image_url: item.artworkUrl100,
-          },
-        ],
-      };
-  
-      console.log('Payload being sent to backend:', payload); // Debugging: Log the payload
-  
       const response = await fetch(SPONSOR_CATALOG_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,15 +147,14 @@ const Catalog = () => {
         throw new Error(errorData.message || 'Failed to add item to catalog.');
       }
   
-      setCatalog((prev) => [...prev, { ...item, discountedPrice, discount }]);
+      setCatalog((prev) => [...prev, item]); // Update the frontend
       alert('Item added to catalog successfully.');
     } catch (error) {
       console.error('Error adding item to catalog:', error);
       alert('Failed to add item to catalog.');
-    } finally {
-      setOperationLoading(false);
     }
   };
+  
   
   const handleDeleteItem = async (collectionId: string) => {
     if (!username || !collectionId) {
