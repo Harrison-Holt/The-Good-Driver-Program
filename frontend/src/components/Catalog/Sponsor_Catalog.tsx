@@ -17,7 +17,6 @@ import CatalogItem from './CatalogItem';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 import { selectUserType } from '../../store/userSlice';
-import jsPDF from 'jspdf';
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -80,44 +79,6 @@ const Catalog = () => {
 
     fetchCatalog();
   }, [username]);
-
-
-const handleExportToPDF = async () => {
-  try {
-    const response = await fetch(`${SPONSOR_CATALOG_URL}/sales?username=${username}`, {
-      method: 'GET',
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch sales data.');
-    }
-
-    const salesData = await response.json();
-
-    const doc = new jsPDF();
-
-    doc.text('Sales Report', 10, 10);
-    doc.text('-----------------------------', 10, 20);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    salesData.forEach((sale: any, index: number) => {
-      doc.text(
-        `${index + 1}. Product: ${sale.item_name} | Sold: ${sale.quantity} | Points: ${
-          sale.points
-        }`,
-        10,
-        30 + index * 10
-      );
-    });
-
-    doc.save('sales_report.pdf');
-    alert('Sales report exported successfully.');
-  } catch (error) {
-    console.error('Error exporting sales report:', error);
-    alert('Failed to export sales report.');
-  }
-};
-
 
   // Fetch items from external API
   useEffect(() => {
@@ -259,15 +220,6 @@ const handleExportToPDF = async () => {
       <Typography variant="h4" align="center" gutterBottom>
         Sponsor Catalog Management
       </Typography>
-            <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleExportToPDF}
-        >
-          Export Sales to PDF
-        </Button>
-      </Box>
 
       {error && <Alert severity="error">{error}</Alert>}
       {loading && (
@@ -301,7 +253,7 @@ const handleExportToPDF = async () => {
               <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
                 <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
                 <Typography variant="body2">Artist: {item.artistName}</Typography>
-                <Typography variant="body2">Points: {calculatePoints(item.collectionPrice || item.trackPrice)}</Typography>
+                <Typography variant="body2">Points: {item.points || 0}</Typography>
                 <TextField
                   label="Discount (%)"
                   type="number"
@@ -359,7 +311,7 @@ const handleExportToPDF = async () => {
                 <CatalogItem
                   item={item}
                   onAddToCatalog={() => handleAddToCatalog(item)}
-                  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} 
+                  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} // Properly implement onViewDetails
                   conversionRate={conversionRate}
                   userRole="sponsor"
                 />

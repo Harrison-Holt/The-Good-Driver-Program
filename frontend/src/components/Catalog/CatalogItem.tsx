@@ -13,13 +13,13 @@ interface ItunesItem {
   currency?: string;
   discount?: number;
   discountedPrice?: number;
+  points?: number;
 }
-
 
 interface CatalogItemProps {
   item: ItunesItem;
   onViewDetails: (item: ItunesItem) => void; // To handle "View Details"
-  conversionRate: number;
+  conversionRate: number; // Points per dollar
   userRole: string;
   onAddToCatalog?: (item: ItunesItem) => void; // Handles adding to catalog
 }
@@ -28,13 +28,19 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
   item,
   onAddToCatalog,
   onViewDetails,
+  conversionRate,
 }) => {
   const [discount, setDiscount] = useState<number>(0);
 
-  const calculateDiscountedPrice = () => {
+  const calculateBasePoints = () => {
+    const originalPrice = item.collectionPrice || item.trackPrice || 0;
+    return Math.round(originalPrice * conversionRate);
+  };
+
+  const calculateDiscountedPoints = () => {
     const originalPrice = item.collectionPrice || item.trackPrice || 0;
     const discountedPrice = originalPrice * (1 - discount / 100);
-    return discountedPrice.toFixed(2);
+    return Math.round(discountedPrice * conversionRate);
   };
 
   const handleAddWithDiscount = () => {
@@ -42,7 +48,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
       const updatedItem = {
         ...item,
         discount,
-        discountedPrice: parseFloat(calculateDiscountedPrice()),
+        points: calculateDiscountedPoints(),
       };
       onAddToCatalog(updatedItem);
     }
@@ -69,7 +75,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
         <strong>Artist:</strong> {item.artistName}
       </Typography>
       <Typography variant="body1" sx={{ marginBottom: '5px' }}>
-        <strong>Price:</strong> {item.collectionPrice} {item.currency}
+        <strong>Base Points:</strong> {calculateBasePoints()}
       </Typography>
       <TextField
         type="number"
@@ -80,7 +86,7 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
         sx={{ marginBottom: '10px' }}
       />
       <Typography variant="body1" sx={{ marginBottom: '10px' }}>
-        <strong>Discounted Price:</strong> {calculateDiscountedPrice()} {item.currency}
+        <strong>Discounted Points:</strong> {calculateDiscountedPoints()}
       </Typography>
       <Button
         variant="outlined"
