@@ -22,6 +22,7 @@ interface CatalogItemProps {
   conversionRate: number; // Points per dollar
   userRole: string;
   onAddToCatalog?: (item: ItunesItem) => void; // Handles adding to catalog
+  onSaveDiscount?: (item: ItunesItem, discount: number) => void; // Handles saving the discount
 }
 
 const CatalogItem: React.FC<CatalogItemProps> = ({
@@ -29,8 +30,10 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
   onAddToCatalog,
   onViewDetails,
   conversionRate,
+  onSaveDiscount,
 }) => {
   const [discount, setDiscount] = useState<number>(0);
+  const [discountSaved, setDiscountSaved] = useState<boolean>(false);
 
   const calculateBasePoints = () => {
     const originalPrice = item.collectionPrice || item.trackPrice || 0;
@@ -51,6 +54,13 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
         points: calculateDiscountedPoints(),
       };
       onAddToCatalog(updatedItem);
+    }
+  };
+
+  const handleSaveDiscount = () => {
+    if (onSaveDiscount) {
+      onSaveDiscount(item, discount);
+      setDiscountSaved(true); // Mark as saved
     }
   };
 
@@ -96,12 +106,19 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
       >
         View Details
       </Button>
-      {onAddToCatalog && (
+      {onSaveDiscount && (
         <Button
           variant="outlined"
           color="success"
-          onClick={handleAddWithDiscount}
+          onClick={handleSaveDiscount}
+          disabled={discountSaved} // Disable button if discount is saved
+          sx={{ marginBottom: '10px' }}
         >
+          {discountSaved ? 'Discount Saved' : 'Save Discount'}
+        </Button>
+      )}
+      {onAddToCatalog && (
+        <Button variant="outlined" color="success" onClick={handleAddWithDiscount}>
           Add to Catalog
         </Button>
       )}

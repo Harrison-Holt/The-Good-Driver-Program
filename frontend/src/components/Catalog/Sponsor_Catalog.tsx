@@ -116,9 +116,9 @@ const Catalog = () => {
   };
 
   const handleAddToCatalog = async (item: ItunesItem) => {
-    const localDiscountValue = discountValue ?? 0; 
     const discountedPrice =
-      (item.collectionPrice || item.trackPrice || 0) * (1 - localDiscountValue / 100);
+      (item.collectionPrice || item.trackPrice || 0) * (1 - (item.discount || 0) / 100);
+    const points = calculatePoints(discountedPrice);
   
     const payload = {
       username,
@@ -128,14 +128,13 @@ const Catalog = () => {
           item_name: item.trackName || item.collectionName,
           artist_name: item.artistName,
           discounted_price: discountedPrice,
-          discount: localDiscountValue,
-          points: calculatePoints(item.collectionPrice || item.trackPrice),
+          discount: item.discount || 0,
+          points,
           image_url: item.artworkUrl100,
         },
       ],
     };
   
-    console.log('Discount Value:', localDiscountValue); // Debug log
     console.log('Payload being sent to backend:', payload); // Debug log
   
     try {
@@ -308,10 +307,10 @@ const Catalog = () => {
           <Grid container spacing={4} sx={{ marginTop: '20px' }}>
             {items.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-                <CatalogItem
+            <CatalogItem
                   item={item}
-                  onAddToCatalog={() => handleAddToCatalog(item)}
-                  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)} // Properly implement onViewDetails
+                  onAddToCatalog={(itemWithDiscount) => handleAddToCatalog(itemWithDiscount)}
+                  onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)}
                   conversionRate={conversionRate}
                   userRole="sponsor"
                 />
