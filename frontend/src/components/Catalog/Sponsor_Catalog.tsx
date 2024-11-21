@@ -70,6 +70,17 @@ const Catalog = () => {
   );
 };
 
+const handleSaveDiscount = (item: ItunesItem, discount: number) => {
+  setCatalog((prevCatalog) =>
+    prevCatalog.map((catalogItem) =>
+      catalogItem.collectionId === item.collectionId
+        ? { ...catalogItem, discount, points: Math.round((item.collectionPrice || item.trackPrice || 0) * (1 - discount / 100) * conversionRate) }
+        : catalogItem
+    )
+  );
+};
+
+
 
   // Fetch sponsor's catalog
   useEffect(() => {
@@ -352,6 +363,7 @@ const Catalog = () => {
                   onAddToCatalog={(itemToAdd) => handleAddToCatalog(itemToAdd)}
                   onViewDetails={(item) => console.log(`View details for ${item.trackName || item.collectionName}`)}
                   conversionRate={conversionRate}
+                  onSaveDiscount={handleSaveDiscount}
                   userRole="sponsor"
                 />
               </Grid>
