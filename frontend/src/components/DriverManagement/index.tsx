@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { selectUserName } from "../../store/userSlice";
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography, Box, CircularProgress } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow, Typography, Box, CircularProgress, TableContainer, Paper } from '@mui/material';
 import { fetchSponsorDrivers, fetchUserInfo, DriverInfo } from '../../utils/api';
 import { useAppSelector } from "../../store/hooks";
 
@@ -68,32 +68,53 @@ const DriverList: React.FC = () => {
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box
+      sx={{
+        padding: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%', // Make the box take full height
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         Driver List
       </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Username</TableCell>
-            <TableCell>First Name</TableCell>
-            <TableCell>Last Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Points</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {drivers.map((driver) => (
-            <TableRow key={driver.username}>
-              <TableCell>{driver.username}</TableCell>
-              <TableCell>{driver.first_name}</TableCell>
-              <TableCell>{driver.last_name}</TableCell>
-              <TableCell>{driver.email}</TableCell>
-              <TableCell>{driver.points}</TableCell>
+      <TableContainer
+        component={Paper}
+        sx={{
+          maxHeight: 'calc(100vh - 200px)', // Adjust the height dynamically based on viewport
+          overflow: 'auto', // Enable scrolling if content overflows
+        }}
+      >
+        <Table
+          sx={{
+            minWidth: 650, // Ensure a minimum width for the table
+            tableLayout: 'auto', // Allow column widths to adjust based on content
+          }}
+          stickyHeader // Keep the table header visible during scroll
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>Username</TableCell>
+              <TableCell>First Name</TableCell>
+              <TableCell>Last Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Points</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {drivers.map((driver) => (
+              <TableRow key={driver.username}>
+                <TableCell>{driver.username}</TableCell>
+                <TableCell>{driver.first_name}</TableCell>
+                <TableCell>{driver.last_name}</TableCell>
+                <TableCell>{driver.email}</TableCell>
+                <TableCell>{driver.points}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 };
