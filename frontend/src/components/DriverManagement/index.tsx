@@ -79,6 +79,7 @@ const DriverList: React.FC = () => {
             <TableCell>First Name</TableCell>
             <TableCell>Last Name</TableCell>
             <TableCell>Email</TableCell>
+            <TableCell>Points</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -88,6 +89,7 @@ const DriverList: React.FC = () => {
               <TableCell>{driver.first_name}</TableCell>
               <TableCell>{driver.last_name}</TableCell>
               <TableCell>{driver.email}</TableCell>
+              <TableCell>{driver.points}</TableCell>
             </TableRow>
           ))}
         </TableBody>
