@@ -4,6 +4,9 @@ import { Box } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
 import { selectUserType } from "../../store/userSlice";
 import AddSponsorUser from "../../components/AddSponsorUser";
+import DeleteUser from "../../components/DeleteUser";
+import ElevateAdmin from "../../components/ElevateAdmin";
+import AdminDriverManagement from "../../components/AdminDriverManagement";
 
 const UserManagement: React.FC = () => {
 
@@ -14,6 +17,9 @@ const UserManagement: React.FC = () => {
             <Navibar/>
             <Box>
                 {(usertype === "admin") && <CreateSponsorOrg/>}
+                {(usertype === "admin") && <DeleteUser/>}
+                {(usertype === "admin") && <ElevateAdmin/>}
+                {(usertype === "admin") && <AdminDriverManagement/>}
                 {(usertype === "sponsor") && <AddSponsorUser/>}
             </Box>
         </>

@@ -250,13 +250,13 @@ const Catalog = () => {
   console.log("\"" + usertype + "\"");
   // Check User Role
   if (usertype === "sponsor") {
-    console.log("Setting sponBtn");
+    //console.log("Setting sponBtn");
     sponBtn = (<>
       <Button variant="contained" color="primary" onClick={() => selectedItem ? handleRemFromCatalog(selectedItem) : console.log("NULL")}>
         Unlist from Catalog
       </Button>
     </>)
-    console.log("Set sponBtn");
+    //console.log("Set sponBtn");
   } else {
     console.log("\""+usertype+"\"" + ",\"sponsor\"")
   }
@@ -299,8 +299,6 @@ const Catalog = () => {
 
       <SearchBar setSearchTerm={setSearchTerm} options={categories.map(category => category.name)} label="Search for media" />
 
-     
-      {usertype !== 'driver' && (
       <Box sx={{ marginBottom: '20px' }}>
         <Typography variant="h6" gutterBottom>Select Category:</Typography>
         <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} fullWidth variant="outlined">
@@ -309,7 +307,6 @@ const Catalog = () => {
           ))}
         </Select>
       </Box>
-      )}
 
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>

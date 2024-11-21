@@ -8,6 +8,7 @@ import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch } from '../../store/hooks';
 import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
+import { resetCart } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -37,10 +38,11 @@ const Home: React.FC = () => {
     const clientId = 'ff8qau87sidn42svsuj51v4l4';
     const cognitoDomain = 'team08-domain';
     const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
-    
+    //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://conner-working.d3ggpwrnl4m4is.amplifyapp.com`;
     // anthony's branch 
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
-
+    dispatch(resetCart());
+    localStorage.removeItem('cartItems'); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -81,7 +83,10 @@ const Home: React.FC = () => {
   useEffect(() => {
     const idToken = localStorage.getItem('idToken');
     if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken);
+      const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
+    //Tradd Login Hack - Don't uncomment
+    //if (true) {
+      //const decodedUsername = 'FastBuck';  
       setUsername(decodedUsername);
       dispatch(login(decodedUsername));
       if (decodedUsername) fetchUserInfo(decodedUsername);

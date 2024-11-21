@@ -2,30 +2,26 @@ import { Button, Snackbar, Stack, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import SearchBar from "../../components/SearchBar";
 import axios from "axios";
-import { useAppSelector } from "../../store/hooks";
-import { selectUserName } from "../../store/userSlice";
 
-const AddSponsorUser: React.FC = () => {
+const ElevateAdmin: React.FC = () => {
 
-    const [newSponsorUser, setNewSponsorUser] = useState("")
+    const [elevateUser, setElevateUser] = useState("")
     const [userList, setUserList] = useState([]);
     const [openSnack, setOpenSnack] = useState(false);
     const [snackMessage, setSnackMessage] = useState("");
-    const username = useAppSelector(selectUserName);
 
-    const AddSponsorUser = async () => {
+    const ElevateUser = async () => {
         try {
-            axios.patch('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors', {
-                curr_sponsor_user: username,
-                new_sponsor_user: newSponsorUser
-            }).then((response) => {
-                console.log(response);
-                setSnackMessage("User Added");
-                setOpenSnack(true);
-            });
+            axios.post('https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/admins', {
+                    username: elevateUser
+                }).then((response) => {
+                    console.log(response);
+                    setSnackMessage("Admin Created");
+                    setOpenSnack(true);
+                })
         } catch (error) {
-            console.error('Error adding sponsor user:', error);
-            setSnackMessage("Error adding sponsor user");
+            console.error('Error creating admin user:', error);
+            setSnackMessage("Error creating admin");
             setOpenSnack(true);
         }
     }
@@ -52,9 +48,9 @@ const AddSponsorUser: React.FC = () => {
     return (
         <>
             <Stack direction={"column"} spacing={2}>
-                <Typography variant="h6">Add New Sponsor User</Typography>
-                <SearchBar setSearchTerm={setNewSponsorUser} options={userList} label="Select New Sponsor User" />
-                <Button variant={"contained"} onClick={() => {AddSponsorUser()}}>Submit</Button>
+                <Typography variant="h6">Elevate User to Admin</Typography>
+                <SearchBar setSearchTerm={setElevateUser} options={userList} label="Select User to Elevate" />
+                <Button variant={"contained"} onClick={() => {ElevateUser()}}>Submit</Button>
             </Stack>
             <Snackbar
                 open={openSnack}
@@ -66,4 +62,4 @@ const AddSponsorUser: React.FC = () => {
     )
 }
 
-export default AddSponsorUser;
+export default ElevateAdmin;
