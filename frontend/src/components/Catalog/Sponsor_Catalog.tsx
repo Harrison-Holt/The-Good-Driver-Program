@@ -11,6 +11,7 @@ import {
   TextField,
   Select,
   MenuItem,
+  InputAdornment,
 } from '@mui/material';
 import CatalogItem from './CatalogItem';
 import { useAppSelector } from '../../store/hooks';
@@ -38,7 +39,6 @@ const SPONSOR_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.
 const Catalog = () => {
   const userType = useAppSelector(selectUserType); // Get the userType from Redux
 
-  const [conversionRate] = useState(100); // Default conversion rate
   const [currentTab, setCurrentTab] = useState(0);
   const [items, setItems] = useState<ItunesItem[]>([]); // Items from external API
   const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Sponsor's catalog
@@ -46,7 +46,7 @@ const Catalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
   const [discountValue, setDiscountValue] = useState<number | null>(null);
-
+  const [conversionRate, setConversionRate] = useState(100); // Points system
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
 
@@ -229,7 +229,20 @@ const Catalog = () => {
           <CircularProgress />
         </Box>
       )}
-
+         <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
+        <TextField
+          label="1 Dollar = X Points"
+          type="number"
+          value={conversionRate}
+          onChange={(e) => setConversionRate(parseInt(e.target.value, 10))}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
+            endAdornment: <InputAdornment position="end">Points</InputAdornment>
+          }}
+          fullWidth
+        />
+      </Box>
       <Tabs value={currentTab} onChange={(_, newValue) => setCurrentTab(newValue)} centered>
         <Tab label="Manage Catalog" />
         <Tab label="Search and Add Items" />
@@ -242,7 +255,7 @@ const Catalog = () => {
               <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
                 <Typography variant="h6">{item.trackName || item.collectionName}</Typography>
                 <Typography variant="body2">Artist: {item.artistName}</Typography>
-                <Typography variant="body2">Price: ${item.trackPrice || item.collectionPrice}</Typography>
+                <Typography variant="body2">Points: {item.points || 0}</Typography>
                 <TextField
                   label="Discount (%)"
                   type="number"
@@ -254,7 +267,6 @@ const Catalog = () => {
                     ? Number(item.discountedPrice).toFixed(2)
                     : 'N/A')}
                 </Typography>
-                <Typography variant="body2">Points: {item.points || 0}</Typography>
                 <Button
                   variant="contained"
                   color="secondary"

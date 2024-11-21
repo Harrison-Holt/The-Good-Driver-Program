@@ -14,7 +14,8 @@ interface ItunesItem {
   trackPrice?: number;
   collectionPrice?: number;
   currency?: string;
-  rating?: number; // Optional rating field for the star rating
+  rating?: number;
+  points?: number; // Points for the item
 }
 
 interface APIResponseItem {
@@ -157,7 +158,7 @@ const DriverCatalog = () => {
                     <strong>Artist:</strong> {item.artistName}
                   </Typography>
                   <Typography variant="body1" sx={{ marginBottom: '5px' }}>
-                    <strong>Price:</strong> {item.collectionPrice} {item.currency}
+                  <Typography variant="body2">Points: {item.points || 0}</Typography>
                   </Typography>
                   {item.rating !== undefined && (
                     <StarRating rating={item.rating || 0} />
@@ -205,7 +206,7 @@ const DriverCatalog = () => {
                 <strong>Artist:</strong> {selectedItem.artistName}
               </Typography>
               <Typography>
-                <strong>Price:</strong> {selectedItem.collectionPrice} {selectedItem.currency}
+              <Typography variant="body2">Points: {selectedItem.points || 0}</Typography>
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ marginTop: '20px' }}>
