@@ -5,31 +5,35 @@ import { fetchSponsorDrivers, fetchUserInfo, DriverInfo } from '../../utils/api'
 import { useAppSelector } from "../../store/hooks";
 
 const DriverList: React.FC = () => {
-  const [drivers, setDrivers] = useState<DriverInfo[]>([]); // Explicitly typed state
+  const [drivers, setDrivers] = useState<DriverInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get the username from the Redux store
+  // Get the logged-in username from the Redux store
   const username = useAppSelector(selectUserName);
 
   useEffect(() => {
     const loadDrivers = async () => {
       try {
-        // Ensure username is not null
         if (!username) {
           setError('User is not logged in or username is missing.');
           setLoading(false);
           return;
         }
 
-        // Fetch user info
+        // Fetch user info to get sponsor_org_id
         const userInfo = await fetchUserInfo(username);
+        console.log('User Info:', userInfo); // Debugging: Check what userInfo contains
 
         if (userInfo && userInfo.sponsor_org_id) {
-          // Fetch drivers using sponsor_org_id
-          const driverList = await fetchSponsorDrivers(userInfo.sponsor_org_id.toString());
+          // Use sponsor_org_id to fetch drivers
+          const sponsorOrgId = userInfo.sponsor_org_id.toString();
+          console.log('Sponsor Org ID:', sponsorOrgId); // Debugging: Ensure sponsorOrgId is correct
+
+          const driverList = await fetchSponsorDrivers(sponsorOrgId);
+
           if (driverList) {
-            setDrivers(driverList); // Set the list of drivers
+            setDrivers(driverList);
           } else {
             setError('No drivers found.');
           }
@@ -45,7 +49,7 @@ const DriverList: React.FC = () => {
     };
 
     loadDrivers();
-  }, [username]); // Include `username` as a dependency for the effect
+  }, [username]);
 
   if (loading) {
     return (

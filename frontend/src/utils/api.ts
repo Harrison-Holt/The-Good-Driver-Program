@@ -89,12 +89,12 @@ export const updateUserName = async (username:string, firstName:string, lastName
   }
 };
 
-export const fetchSponsorDrivers = async (sponsorId: string): Promise<DriverInfo[] | null> => {
+export const fetchSponsorDrivers = async (sponsorOrgId: string): Promise<DriverInfo[] | null> => {
   try {
     const response = await axios.get(
-      `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors/${sponsorId}`
+      `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/sponsors/${sponsorOrgId}`
     );
-    return response.data; // Returns the list of drivers
+    return response.data; // Return the list of drivers
   } catch (error) {
     console.error('Error fetching drivers:', error);
     return null; // Return null if an error occurs
