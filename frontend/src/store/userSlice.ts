@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 //import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './store'
-type CartItem = string;
+
 // Define a type for the slice state
 interface UserState {
   loggedIn: boolean
@@ -10,8 +10,14 @@ interface UserState {
   lastName: string | null
   email: string | null
   userType: string
+  
 }
-
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
 // Define the initial state using that type
 const initialState: UserState = {
   loggedIn: false,
@@ -53,17 +59,18 @@ export const userSlice = createSlice({
     // },
   },
 })
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
-      items: [] as CartItem[], // Explicitly define the type of items
+      items: [] as CartItem[],
   },
   reducers: {
       addToCart: (state, action: PayloadAction<CartItem>) => {
           state.items.push(action.payload);
       },
       resetCart: (state) => {
-          state.items = []; // Reset the cart
+          state.items = [];
       },
   },
 });
