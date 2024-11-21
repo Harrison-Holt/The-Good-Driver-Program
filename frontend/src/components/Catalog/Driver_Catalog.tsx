@@ -42,7 +42,7 @@ interface APIResponseItem {
 }
 
 interface Review {
-    username: string;
+  username: string;
   rating: number;
   comment: string;
 }
@@ -56,10 +56,9 @@ const DriverCatalog = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
   const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
-  const username = useAppSelector(selectUserName);
+  const username = useAppSelector(selectUserName) || 'Guest'; // Default to 'Guest' if username is not available
 
-  const [newReview, setNewReview] = useState<Review>({ username:  username || 'Unkown', comment: '', rating: 5 });
-
+  const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
   // Fetch the driver's catalog
   useEffect(() => {
@@ -147,7 +146,7 @@ const DriverCatalog = () => {
 
         // Add the new review to the list
         setReviews((prev) => [...prev, newReview]);
-        setNewReview({ username: '', comment: '', rating: 5 });
+        setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
         console.error('Error submitting review:', error);
@@ -217,10 +216,18 @@ const DriverCatalog = () => {
       </Grid>
 
       {selectedItem && (
-        <Dialog open={!!selectedItem} sx={{ textAlign: 'center', backgroundColor: '#fff'}} onClose={handleDialogClose} maxWidth="md" fullWidth>
+        <Dialog
+          open={!!selectedItem}
+          onClose={handleDialogClose}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: { backgroundColor: '#fff', color: '#000' }, // Set background and text color
+          }}
+        >
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
-            <Box sx={{ textAlign: 'center', backgroundColor: '#fff'}}>
+            <Box sx={{ textAlign: 'center' }}>
               <img
                 src={selectedItem.artworkUrl100}
                 alt={selectedItem.trackName || selectedItem.collectionName}
