@@ -26,11 +26,7 @@ interface ItunesItem {
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  trackPrice?: number;
-  collectionPrice?: number;
-  currency?: string;
-  discount?: number;
-  discountedPrice?: number;
+  points?: number; // Represent the cost in points
 }
 
 const Cart: React.FC = () => {
@@ -39,7 +35,7 @@ const Cart: React.FC = () => {
   const userEmail = useAppSelector(selectEmail); // Fetch email from store
 
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
-  const [total, setTotal] = useState<number>(0);
+  const [totalPoints, setTotalPoints] = useState<number>(0);
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -48,19 +44,19 @@ const Cart: React.FC = () => {
 
   const API_ENDPOINT = 'https://z5q02l6av1.execute-api.us-east-1.amazonaws.com/dev/order_confirmation';
 
+  // Load cart items from localStorage
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setCartItems(storedCartItems);
   }, []);
 
+  // Calculate total points for cart items
   useEffect(() => {
-    const calculatedTotal = cartItems.reduce(
-      (acc, item) => acc + (item.collectionPrice || item.trackPrice || 0),
-      0
-    );
-    setTotal(calculatedTotal);
+    const calculatedTotal = cartItems.reduce((acc, item) => acc + (item.points || 0), 0);
+    setTotalPoints(calculatedTotal);
   }, [cartItems]);
 
+  // Fetch user's available points (replace with real API call if needed)
   useEffect(() => {
     const fetchUserPoints = async () => {
       setUserPoints(1000); // Example value
@@ -81,7 +77,7 @@ const Cart: React.FC = () => {
 
   const handleCheckout = () => {
     playAudioFeedback();
-    if (userPoints !== null && userPoints >= total) {
+    if (userPoints !== null && userPoints >= totalPoints) {
       setShowConfirmationDialog(true);
       setErrorMessage(null);
     } else {
@@ -95,7 +91,7 @@ const Cart: React.FC = () => {
       const orderDetails = {
         orderId: `ORD-${Date.now()}`,
         items: cartItems.map((item) => item.trackName || item.collectionName),
-        total,
+        totalPoints,
       };
 
       const response = await fetch(API_ENDPOINT, {
@@ -171,14 +167,14 @@ const Cart: React.FC = () => {
               <ListItem key={index}>
                 <ListItemText
                   primary={item.trackName || item.collectionName}
-                  secondary={`Price: ${(item.collectionPrice || item.trackPrice)?.toFixed(2)} ${item.currency || 'USD'}`}
+                  secondary={`Points: ${item.points || 0}`}
                 />
               </ListItem>
             ))}
           </List>
 
           <Divider sx={{ my: 2 }} />
-          <Typography variant="h6">Total: {total.toFixed(2)} points</Typography>
+          <Typography variant="h6">Total Points: {totalPoints}</Typography>
 
           <Typography variant="subtitle1" sx={{ mt: 2 }}>
             Email: {userEmail || 'Loading...'}
