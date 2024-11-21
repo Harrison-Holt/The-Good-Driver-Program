@@ -5,8 +5,8 @@ import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';
-import { useAppDispatch } from '../../store/hooks';
-import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { login, logout, selectUserType, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
 
 interface ItunesItem {
@@ -31,6 +31,8 @@ const Home: React.FC = () => {
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const { settings } = useSettings(); // Access settings from context
+
+  const userRole = useAppSelector(selectUserType);
 
   // Handle logout with redirect to Cognito
   const handleLogout = () => {
@@ -125,7 +127,7 @@ const Home: React.FC = () => {
             <Typography sx={{ ml: 1 }}>Cart</Typography>
           </ListItemButton>
         </ListItem>
-        {(userInfo.role === "sponsor") && <ListItem>
+        {(userRole === "sponsor") && <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>Point Change</ListItemButton>
         </ListItem>}
         <ListItem>
