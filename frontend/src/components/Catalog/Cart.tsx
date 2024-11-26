@@ -93,7 +93,13 @@ const Cart: React.FC = () => {
         items: cartItems.map((item) => item.trackName || item.collectionName),
         totalPoints,
       };
-
+  
+      console.log('Sending request to API:', API_ENDPOINT);
+      console.log('Payload:', {
+        email: userEmail,
+        orderDetails,
+      });
+  
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -104,24 +110,31 @@ const Cart: React.FC = () => {
           orderDetails,
         }),
       });
-
+  
+      console.log('Response status:', response.status);
+  
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
         throw new Error('Failed to send order confirmation email.');
       }
-
+  
+      console.log('Checkout successful! Response:', await response.json());
+  
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
-
+  
       setCheckoutSuccess(true);
       setShowConfirmationDialog(false);
       setCartItems([]);
       localStorage.removeItem('cartItems');
     } catch (error) {
-      console.error(error);
+      console.error('Error during checkout:', error);
       setErrorMessage('Error sending order confirmation email. Please try again.');
     }
   };
+  
 
   return (
     <Box
