@@ -36,6 +36,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         const response = await fetch(
           `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`,
           {
+            method: 'GET', 
             headers: {
               'Content-Type': 'application/json',
             },
