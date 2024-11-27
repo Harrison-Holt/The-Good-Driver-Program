@@ -23,6 +23,7 @@ const defaultSettings: Settings = {
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const username = useAppSelector(selectUserName);
+  console.log(`Your username is ${username}... for saving settings`); 
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
   const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success'); // Snackbar severity
@@ -30,7 +31,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   // Effect to fetch settings from the database when the user logs in
   useEffect(() => {
     const fetchSettings = async () => {
-      if (!username) return; // Skip if the user is not logged in
 
       try {
         const response = await fetch(
