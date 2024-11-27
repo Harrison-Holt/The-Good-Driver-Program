@@ -6,7 +6,7 @@ import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { login, logout, selectUserType, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
+import { login, logout, selectGuestView, selectUserName, selectUserType, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
 import { resetCart } from '../../store/userSlice';
 
@@ -25,9 +25,11 @@ interface ItunesItem {
 const Home: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
-  const [username, setUsername] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userInfo, setUserInfo] = useState<any>(null);
+
+  const guestView = useAppSelector(selectGuestView);
+  const username = useAppSelector(selectUserName);
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
@@ -85,15 +87,17 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const idToken = localStorage.getItem('idToken');
-    if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
-    //Tradd Login Hack - Don't uncomment
-    //if (true) {
-      //const decodedUsername = 'FastBuck';  
-      setUsername(decodedUsername);
-      dispatch(login(decodedUsername));
-      if (decodedUsername) fetchUserInfo(decodedUsername);
+    if (!guestView) {
+      const idToken = localStorage.getItem('idToken');
+      if (idToken) {
+        const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
+      //Tradd Login Hack - Don't uncomment
+      //if (true) {
+        //const decodedUsername = 'FastBuck';  
+        //setUsername(decodedUsername);
+        dispatch(login(decodedUsername));
+        if (decodedUsername) fetchUserInfo(decodedUsername);
+      }
     }
   }, [dispatch]);
 

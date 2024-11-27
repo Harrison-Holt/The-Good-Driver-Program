@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Typography, Stack } from '@mui/material';
 import { DriverInfo, fetchSponsorDrivers, fetchUserInfo } from '../../utils/api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { login, selectUserName, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
+import { login, selectUserName, setEmail, setFirstName, setGuestView, setLastName, setUserType } from '../../store/userSlice';
 import SearchBar from '../SearchBar';
 
 const ViewAsDriver: React.FC = () => {
@@ -48,6 +48,7 @@ const ViewAsDriver: React.FC = () => {
             dispatch(setFirstName(selectedDriver.first_name))
             dispatch(setLastName(selectedDriver.last_name))
             dispatch(setEmail(selectedDriver.email))
+            dispatch(setGuestView(true))
         }
       }
 

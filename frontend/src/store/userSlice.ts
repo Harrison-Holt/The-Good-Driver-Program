@@ -10,7 +10,7 @@ interface UserState {
   lastName: string | null
   email: string | null
   userType: string
-  
+  guestView: boolean
 }
 type CartItem = {
   id: string;
@@ -25,7 +25,8 @@ const initialState: UserState = {
   firstName: null,
   lastName: null,
   email: null,
-  userType: "driver"
+  userType: "driver",
+  guestView: false
 }
 
 export const userSlice = createSlice({
@@ -52,6 +53,9 @@ export const userSlice = createSlice({
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload
     },
+    setGuestView: (state, action: PayloadAction<boolean>) => {
+      state.guestView = action.payload
+    }
     // Leaving this line for now as an example of proper typing of action payloads
     // // Use the PayloadAction type to declare the contents of `action.payload`
     // incrementByAmount: (state, action: PayloadAction<number>) => {
@@ -74,7 +78,7 @@ const cartSlice = createSlice({
       },
   },
 });
-export const {login, logout, setUserType, setFirstName, setLastName, setEmail} = userSlice.actions
+export const {login, logout, setUserType, setFirstName, setLastName, setEmail, setGuestView} = userSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectLogin = (state: RootState) => state.currentUser.loggedIn
@@ -83,6 +87,7 @@ export const selectUserName = (state: RootState) => state.currentUser.userName
 export const selectEmail = (state: RootState) => state.currentUser.email
 export const selectFirstName = (state: RootState) => state.currentUser.firstName
 export const selectLastName = (state: RootState) => state.currentUser.lastName
+export const selectGuestView = (state: RootState) => state.currentUser.guestView
 export const { addToCart, resetCart } = cartSlice.actions;
 
 export default userSlice.reducer
