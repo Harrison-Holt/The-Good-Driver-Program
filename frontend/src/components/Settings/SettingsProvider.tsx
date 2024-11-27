@@ -34,14 +34,14 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
       try {
         const response = await fetch(
-          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`,
+          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings?username=${username}`,
           {
-            method: 'GET', 
+            method: 'GET',
             headers: {
               'Content-Type': 'application/json',
             },
           }
-        );
+        );        
 
         if (!response.ok) {
           throw new Error('Failed to fetch settings');
