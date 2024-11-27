@@ -1,6 +1,5 @@
 import React, { useState, ReactNode, useEffect } from 'react';
 import { Settings, SettingsContext } from './settings_context';
-import axios from 'axios';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 import { Snackbar, Alert } from '@mui/material';
@@ -34,26 +33,32 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       if (!username) return; // Skip if the user is not logged in
 
       try {
-        const response = await axios.get(
+        const response = await fetch(
           `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`,
           {
-              headers: {
-                  'Content-Type': 'application/json',
-              },
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
-      );      
+        );
 
-        if (response.data) {
-          console.log('Fetched settings from DB:', response.data);
+        if (!response.ok) {
+          throw new Error('Failed to fetch settings');
+        }
+
+        const data = await response.json();
+        console.log('Fetched settings from DB:', data);
+
+        if (data) {
           const dbSettings = {
-            isGreyscale: response.data.isGreyscale === 1,
-            isHighContrast: response.data.isHighContrast === 1,
-            isDarkMode: response.data.isDarkMode === 1,
-            zoomLevel: response.data.zoomLevel,
-            timezone: response.data.timezone,
-            lineHeight: response.data.lineHeight,
-            textAlign: response.data.textAlign,
-            audioFeedback: response.data.isAudioEnabled === 1,
+            isGreyscale: data.isGreyscale === 1,
+            isHighContrast: data.isHighContrast === 1,
+            isDarkMode: data.isDarkMode === 1,
+            zoomLevel: data.zoomLevel,
+            timezone: data.timezone,
+            lineHeight: data.lineHeight,
+            textAlign: data.textAlign,
+            audioFeedback: data.isAudioEnabled === 1,
           };
           setSettings(dbSettings); // Apply settings from the database
         } else {
@@ -84,9 +89,14 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         textAlign: settings.textAlign,
       });
 
-      const response = await axios.post(
+      const response = await fetch(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
         {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             username,
             timezone: settings.timezone,
             isGreyscale: settings.isGreyscale ? 1 : 0,
@@ -96,15 +106,17 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
             lineHeight: settings.lineHeight,
             isAudioEnabled: settings.audioFeedback ? 1 : 0,
             textAlign: settings.textAlign,
-        },
-        {
-            headers: {
-                'Content-Type': 'application/json',
-            },
+          }),
         }
-    );
-    
-      console.log('Settings saved successfully:', response.data);
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to save settings');
+      }
+
+      const data = await response.json();
+      console.log('Settings saved successfully:', data);
+
       setSnackbarMessage('Settings saved successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);

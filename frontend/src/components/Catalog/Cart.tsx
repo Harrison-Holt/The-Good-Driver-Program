@@ -18,7 +18,7 @@ import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
 import { selectEmail, selectUserName } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
-import { fetchUserPoints } from '../../utils/api'; // Import the fetchUserPoints function
+import { fetchUserPoints } from '../../utils/api';
 
 interface ItunesItem {
   collectionId: string; // Always required
