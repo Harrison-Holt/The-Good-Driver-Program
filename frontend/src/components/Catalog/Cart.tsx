@@ -16,9 +16,9 @@ import {
 } from '@mui/material';
 import { useSettings } from '../../components/Settings/settings_context';
 import { useAppSelector } from '../../store/hooks';
-import { selectEmail } from '../../store/userSlice';
+import { selectEmail, selectUserName } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
-//import DeleteIcon from '@mui/icons-material/Delete';
+import { fetchUserPoints } from '../../utils/api'; // Import the fetchUserPoints function
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -34,6 +34,7 @@ const Cart: React.FC = () => {
   const { settings } = useSettings(); // Access settings from context
   const theme = useTheme();
   const userEmail = useAppSelector(selectEmail); // Fetch email from store
+  const username = useAppSelector(selectUserName); // Fetch username from store
 
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [totalPoints, setTotalPoints] = useState<number>(0);
@@ -57,13 +58,30 @@ const Cart: React.FC = () => {
     setTotalPoints(calculatedTotal);
   }, [cartItems]);
 
-  // Fetch user's available points (replace with real API call if needed)
+  // Fetch user's available points
   useEffect(() => {
-    const fetchUserPoints = async () => {
-      setUserPoints(1000); // Example value
+    const getUserPoints = async () => {
+      if (!username) {
+        setErrorMessage('User not logged in. Unable to fetch points.');
+        return;
+      }
+
+      try {
+        const points = await fetchUserPoints(username);
+        if (points !== null) {
+          setUserPoints(points);
+          console.log(`User points fetched: ${points}`);
+        } else {
+          setErrorMessage('Failed to fetch user points. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error fetching user points:', error);
+        setErrorMessage('An error occurred while fetching user points.');
+      }
     };
-    fetchUserPoints();
-  }, []);
+
+    getUserPoints();
+  }, [username]);
 
   const playAudioFeedback = () => {
     if (settings.audioFeedback) {
@@ -76,18 +94,12 @@ const Cart: React.FC = () => {
     }
   };
 
-  // const handleRemoveItem = (index: number) => {
-  //   const updatedCartItems = cartItems.filter((_, i) => i !== index);
-  //   setCartItems(updatedCartItems);
-  //   localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  // };
-
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
     window.dispatchEvent(new Event('storage'));
     setErrorMessage(`This order has been cancelled`);
-  }
+  };
 
   const handleCheckout = () => {
     playAudioFeedback();
@@ -107,13 +119,7 @@ const Cart: React.FC = () => {
         items: cartItems.map((item) => item.trackName || item.collectionName),
         totalPoints,
       };
-  
-      console.log('Sending request to API:', API_ENDPOINT);
-      console.log('Payload:', {
-        email: userEmail,
-        orderDetails,
-      });
-  
+
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -124,31 +130,24 @@ const Cart: React.FC = () => {
           orderDetails,
         }),
       });
-  
-      console.log('Response status:', response.status);
-  
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
         throw new Error('Failed to send order confirmation email.');
       }
-  
-      console.log('Checkout successful! Response:', await response.json());
-  
+
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
-  
+
       setCheckoutSuccess(true);
       setShowConfirmationDialog(false);
       setCartItems([]);
       localStorage.removeItem('cartItems');
     } catch (error) {
-      console.error('Error during checkout:', error);
+      console.error(error);
       setErrorMessage('Error sending order confirmation email. Please try again.');
     }
   };
-  
 
   return (
     <Box
@@ -202,6 +201,7 @@ const Cart: React.FC = () => {
 
           <Divider sx={{ my: 2 }} />
           <Typography variant="h6">Total Points: {totalPoints}</Typography>
+          <Typography variant="h6">Available Points: {userPoints !== null ? userPoints : 'Loading...'}</Typography>
 
           <Typography variant="subtitle1" sx={{ mt: 2 }}>
             Email: {userEmail || 'Loading...'}

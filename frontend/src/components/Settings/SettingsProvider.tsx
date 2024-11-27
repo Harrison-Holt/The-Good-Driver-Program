@@ -35,8 +35,13 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
       try {
         const response = await axios.get(
-          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`
-        );
+          `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings/${username}`,
+          {
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+          }
+      );      
 
         if (response.data) {
           console.log('Fetched settings from DB:', response.data);
@@ -82,17 +87,23 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       const response = await axios.post(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
         {
-          username,
-          timezone: settings.timezone,
-          isGreyscale: settings.isGreyscale ? 1 : 0,
-          isHighContrast: settings.isHighContrast ? 1 : 0,
-          isDarkMode: settings.isDarkMode ? 1 : 0,
-          zoomLevel: settings.zoomLevel,
-          lineHeight: settings.lineHeight,
-          isAudioEnabled: settings.audioFeedback ? 1 : 0,
-          textAlign: settings.textAlign,
+            username,
+            timezone: settings.timezone,
+            isGreyscale: settings.isGreyscale ? 1 : 0,
+            isHighContrast: settings.isHighContrast ? 1 : 0,
+            isDarkMode: settings.isDarkMode ? 1 : 0,
+            zoomLevel: settings.zoomLevel,
+            lineHeight: settings.lineHeight,
+            isAudioEnabled: settings.audioFeedback ? 1 : 0,
+            textAlign: settings.textAlign,
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
         }
-      );
+    );
+    
       console.log('Settings saved successfully:', response.data);
       setSnackbarMessage('Settings saved successfully!');
       setSnackbarSeverity('success');
