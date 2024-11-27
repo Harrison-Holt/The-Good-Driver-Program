@@ -7,6 +7,7 @@ import AddSponsorUser from "../../components/AddSponsorUser";
 import DeleteUser from "../../components/DeleteUser";
 import ElevateAdmin from "../../components/ElevateAdmin";
 import AdminDriverManagement from "../../components/AdminDriverManagement";
+import ViewAsDriver from "../../components/ViewAsDriver";
 
 const UserManagement: React.FC = () => {
 
@@ -21,6 +22,7 @@ const UserManagement: React.FC = () => {
                 {(usertype === "admin") && <ElevateAdmin/>}
                 {(usertype === "admin") && <AdminDriverManagement/>}
                 {(usertype === "sponsor") && <AddSponsorUser/>}
+                {(usertype == "sponsor") && <ViewAsDriver/>}
             </Box>
         </>
     )
