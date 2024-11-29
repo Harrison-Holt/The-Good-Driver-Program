@@ -245,7 +245,7 @@ const Settings: React.FC = () => {
 <Box sx={{ marginTop: '20px' }}>
   <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>Timezone</Typography>
   <Select
-    value={settings.timezone || 'UTC'}
+    value={settings.timezone || 'ET'}
     onChange={handleTimezoneChange}
     fullWidth
     MenuProps={{

@@ -77,47 +77,39 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   }, [username]);
 
   const saveSettings = async () => {
+    const updatedSettings = {
+      ...(settings.isGreyscale !== undefined && { isGreyscale: settings.isGreyscale ? 1 : 0 }),
+      ...(settings.isHighContrast !== undefined && { isHighContrast: settings.isHighContrast ? 1 : 0 }),
+      ...(settings.isDarkMode !== undefined && { isDarkMode: settings.isDarkMode ? 1 : 0 }),
+      ...(settings.zoomLevel !== undefined && { zoomLevel: settings.zoomLevel }),
+      ...(settings.lineHeight !== undefined && { lineHeight: settings.lineHeight }),
+      ...(settings.textAlign !== undefined && { textAlign: settings.textAlign }),
+      ...(settings.audioFeedback !== undefined && { isAudioEnabled: settings.audioFeedback ? 1 : 0 }),
+      ...(settings.timezone !== undefined && { timezone: settings.timezone }),
+    };
+  
+    console.log('Settings to save (PATCH):', updatedSettings);
+  
     try {
-      console.log('Settings to save:', {
-        username,
-        timezone: settings.timezone,
-        isGreyscale: settings.isGreyscale ? 1 : 0,
-        isHighContrast: settings.isHighContrast ? 1 : 0,
-        isDarkMode: settings.isDarkMode ? 1 : 0,
-        zoomLevel: settings.zoomLevel,
-        lineHeight: settings.lineHeight,
-        isAudioEnabled: settings.audioFeedback ? 1 : 0,
-        textAlign: settings.textAlign,
-      });
-
       const response = await fetch(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
         {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            username,
-            timezone: settings.timezone,
-            isGreyscale: settings.isGreyscale ? 1 : 0,
-            isHighContrast: settings.isHighContrast ? 1 : 0,
-            isDarkMode: settings.isDarkMode ? 1 : 0,
-            zoomLevel: settings.zoomLevel,
-            lineHeight: settings.lineHeight,
-            isAudioEnabled: settings.audioFeedback ? 1 : 0,
-            textAlign: settings.textAlign,
+            username, // Include username
+            ...updatedSettings, // Spread in the modified settings
           }),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error('Failed to save settings');
       }
-
-      const data = await response.json();
-      console.log('Settings saved successfully:', data);
-
+  
+      console.log('Settings saved successfully!');
       setSnackbarMessage('Settings saved successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
