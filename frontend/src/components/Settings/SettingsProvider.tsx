@@ -23,15 +23,13 @@ const defaultSettings: Settings = {
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const username = useAppSelector(selectUserName);
-  console.log(`Your username is ${username}... for saving settings`); 
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
-  const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success'); // Snackbar severity
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   // Effect to fetch settings from the database when the user logs in
   useEffect(() => {
     const fetchSettings = async () => {
-
       try {
         const response = await fetch(
           `https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings?username=${username}`,
@@ -41,7 +39,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
               'Content-Type': 'application/json',
             },
           }
-        );        
+        );
 
         if (!response.ok) {
           throw new Error('Failed to fetch settings');
@@ -52,18 +50,16 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
         if (data) {
           const dbSettings = {
-            isGreyscale: data.isGreyscale === 1,
-            isHighContrast: data.isHighContrast === 1,
-            isDarkMode: data.isDarkMode === 1,
-            zoomLevel: data.zoomLevel,
+            isGreyscale: data.is_greyscale === 1,
+            isHighContrast: data.is_high_contrast === 1,
+            isDarkMode: data.is_dark_mode === 1,
+            zoomLevel: parseFloat(data.zoom_level),
             timezone: data.timezone,
-            lineHeight: data.lineHeight,
-            textAlign: data.textAlign,
-            audioFeedback: data.isAudioEnabled === 1,
+            lineHeight: parseFloat(data.line_height),
+            textAlign: data.text_align,
+            audioFeedback: data.is_audio_enabled === 1,
           };
           setSettings(dbSettings); // Apply settings from the database
-        } else {
-          console.log('No settings found for user, using default settings.');
         }
       } catch (error) {
         console.error('Failed to fetch settings:', error);
@@ -76,6 +72,42 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     fetchSettings();
   }, [username]);
 
+  // Effect to apply the fetched settings to the UI
+  useEffect(() => {
+    console.log('Applying settings:', settings);
+
+    // Apply Greyscale Mode
+    if (settings.isGreyscale) {
+      document.body.style.filter = 'grayscale(100%)';
+    } else {
+      document.body.style.filter = 'none';
+    }
+
+    // Apply High Contrast Mode
+    if (settings.isHighContrast) {
+      document.body.style.backgroundColor = '#000';
+      document.body.style.color = '#FFF';
+    } else {
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    }
+
+    // Apply Dark Mode
+    if (settings.isDarkMode) {
+      document.body.style.backgroundColor = '#121212';
+      document.body.style.color = '#FFF';
+    }
+
+    // Apply Zoom Level
+    document.body.style.zoom = settings.zoomLevel.toString();
+
+    // Apply Line Height
+    document.body.style.lineHeight = settings.lineHeight.toString();
+
+    // Apply Text Alignment
+    document.body.style.textAlign = settings.textAlign;
+  }, [settings]); // Re-run this effect whenever settings change
+
   const saveSettings = async () => {
     const updatedSettings = {
       ...(settings.isGreyscale !== undefined && { isGreyscale: settings.isGreyscale ? 1 : 0 }),
@@ -87,9 +119,9 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       ...(settings.audioFeedback !== undefined && { isAudioEnabled: settings.audioFeedback ? 1 : 0 }),
       ...(settings.timezone !== undefined && { timezone: settings.timezone }),
     };
-  
+
     console.log('Settings to save (PATCH):', updatedSettings);
-  
+
     try {
       const response = await fetch(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/user_settings',
@@ -100,15 +132,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
           },
           body: JSON.stringify({
             username, // Include username
-            ...updatedSettings, // Spread in the modified settings
+            ...updatedSettings,
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error('Failed to save settings');
       }
-  
+
       console.log('Settings saved successfully!');
       setSnackbarMessage('Settings saved successfully!');
       setSnackbarSeverity('success');
