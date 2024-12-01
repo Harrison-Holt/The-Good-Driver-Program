@@ -18,12 +18,15 @@ interface Props {
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
 
+
+
 const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   const theme = useTheme();
   const { settings } = useSettings();
   const username = useAppSelector(selectUserName);
   const userType = useAppSelector(selectUserType); // Get user type from Redux
 
+  
   // Main container styles
   const containerStyles = {
     width: '80%',
