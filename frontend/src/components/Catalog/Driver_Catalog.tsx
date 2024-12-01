@@ -31,16 +31,6 @@ interface ItunesItem {
   rating?: number; // Optional rating field for the star rating
 }
 
-interface APIResponseItem {
-  catalog_id: string;
-  item_name: string;
-  artist: string;
-  artwork: string;
-  price: string;
-  points: number;
-  rating?: number;
-}
-
 interface Review {
   username: string;
   rating: number;
@@ -72,8 +62,9 @@ const DriverCatalog = () => {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
-        const data: APIResponseItem[] = await response.json();
-        const mappedData: ItunesItem[] = data.map((item) => ({
+        const data = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mappedData: ItunesItem[] = data.map((item: any) => ({
           collectionId: item.catalog_id,
           trackName: item.item_name,
           collectionName: item.item_name,
@@ -129,7 +120,7 @@ const DriverCatalog = () => {
       try {
         const payload = {
           itemId: selectedItem.collectionId,
-          user_name: newReview.username,
+          user_name: username, // Use username from Redux
           rating: newReview.rating,
           comment: newReview.comment,
         };
@@ -145,7 +136,7 @@ const DriverCatalog = () => {
         }
 
         // Add the new review to the list
-        setReviews((prev) => [...prev, newReview]);
+        setReviews((prev) => [...prev, { ...newReview, username }]);
         setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
@@ -221,9 +212,6 @@ const DriverCatalog = () => {
           onClose={handleDialogClose}
           maxWidth="md"
           fullWidth
-          PaperProps={{
-            sx: { backgroundColor: '#fff', color: '#000' }, // Set background and text color
-          }}
         >
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
@@ -259,13 +247,6 @@ const DriverCatalog = () => {
             </List>
             <Box sx={{ marginTop: '20px' }}>
               <Typography variant="h6">Submit a Review</Typography>
-              <TextField
-                fullWidth
-                label="Your Name"
-                value={newReview.username}
-                onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
-                sx={{ marginBottom: '10px' }}
-              />
               <TextField
                 fullWidth
                 label="Comment"
