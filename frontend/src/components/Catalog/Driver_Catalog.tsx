@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  CircularProgress,
-  Alert,
   Grid,
   Button,
   Dialog,
@@ -14,21 +12,30 @@ import {
   ListItem,
   ListItemText,
   TextField,
+  CircularProgress,
+  Alert,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: string; // Always required
-  trackId?: string;
+  collectionId: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
   collectionPrice?: number;
-  points?: number; // Points for the item
-  rating?: number; // Optional rating field for the star rating
+  points?: number;
+  rating?: number;
+}
+
+interface Sponsor {
+  sponsorId: string;
+  sponsorName: string;
+  catalog: ItunesItem[];
 }
 
 interface Review {
@@ -37,44 +44,32 @@ interface Review {
   comment: string;
 }
 
-const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
+const SPONSORS_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_sponsors';
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const DriverCatalog = () => {
-  const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Driver's catalog
+  const username = useAppSelector(selectUserName) || 'Guest';
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
-  const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
-  const username = useAppSelector(selectUserName) || 'Guest'; // Default to 'Guest' if username is not available
-
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
-  // Fetch the driver's catalog
+  // Fetch sponsors and their catalogs
   useEffect(() => {
-    const fetchCatalog = async () => {
+    const fetchSponsors = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`${DRIVER_CATALOG_URL}?username=${username}`);
+        const response = await fetch(`${SPONSORS_API_URL}?username=${username}`);
         if (!response.ok) {
-          throw new Error(`Error fetching catalog: ${response.statusText}`);
+          throw new Error('Error fetching sponsor catalogs.');
         }
-
-        const data = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mappedData: ItunesItem[] = data.map((item: any) => ({
-          collectionId: item.catalog_id,
-          trackName: item.item_name,
-          collectionName: item.item_name,
-          artistName: item.artist,
-          artworkUrl100: item.artwork,
-          collectionPrice: parseFloat(item.price),
-          points: item.points,
-          rating: item.rating || 0,
-        }));
-        setCatalog(mappedData);
+        const data: Sponsor[] = await response.json();
+        setSponsors(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -82,7 +77,7 @@ const DriverCatalog = () => {
       }
     };
 
-    fetchCatalog();
+    fetchSponsors();
   }, [username]);
 
   const handleAddToCart = (item: ItunesItem) => {
@@ -95,11 +90,10 @@ const DriverCatalog = () => {
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
 
-    // Fetch reviews for the selected item
     try {
       const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
       if (response.ok) {
-        const data: Review[] = await response.json();
+        const data = await response.json();
         setReviews(data);
       } else {
         setReviews([]);
@@ -112,7 +106,7 @@ const DriverCatalog = () => {
 
   const handleDialogClose = () => {
     setSelectedItem(null);
-    setReviews([]); // Clear reviews when dialog closes
+    setReviews([]);
   };
 
   const handleSubmitReview = async () => {
@@ -120,7 +114,7 @@ const DriverCatalog = () => {
       try {
         const payload = {
           itemId: selectedItem.collectionId,
-          user_name: username, // Use username from Redux
+          user_name: username,
           rating: newReview.rating,
           comment: newReview.comment,
         };
@@ -135,8 +129,8 @@ const DriverCatalog = () => {
           throw new Error('Failed to submit review');
         }
 
-        // Fetch updated reviews from the backend after submitting
-        handleViewDetails(selectedItem); // Re-fetch reviews
+        // Fetch updated reviews after submitting
+        handleViewDetails(selectedItem);
         setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
@@ -144,6 +138,10 @@ const DriverCatalog = () => {
         alert('Failed to submit review.');
       }
     }
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
   };
 
   return (
@@ -159,16 +157,16 @@ const DriverCatalog = () => {
         </Box>
       )}
 
-      <Grid container spacing={4}>
-        {!loading && catalog.length === 0 && (
-          <Typography variant="body1" align="center" sx={{ width: '100%' }}>
-            No items available in the catalog.
-          </Typography>
-        )}
+      {!loading && sponsors.length > 0 && (
+        <>
+          <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Sponsor Tabs">
+            {sponsors.map((sponsor) => (
+              <Tab key={sponsor.sponsorId} label={sponsor.sponsorName} />
+            ))}
+          </Tabs>
 
-        {!loading && catalog.length > 0 && (
           <Grid container spacing={4}>
-            {catalog.map((item) => (
+            {sponsors[selectedTab]?.catalog.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
                 <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
                   <img
@@ -203,16 +201,11 @@ const DriverCatalog = () => {
               </Grid>
             ))}
           </Grid>
-        )}
-      </Grid>
+        </>
+      )}
 
       {selectedItem && (
-        <Dialog
-          open={!!selectedItem}
-          onClose={handleDialogClose}
-          maxWidth="md"
-          fullWidth
-        >
+        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ textAlign: 'center' }}>
