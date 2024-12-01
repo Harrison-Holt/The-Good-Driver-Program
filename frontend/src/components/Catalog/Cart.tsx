@@ -19,7 +19,6 @@ import { useAppSelector } from '../../store/hooks';
 import { selectEmail, selectUserName } from '../../store/userSlice';
 import audioFeedbackFile from '../../assets/audio_feedback.wav';
 import { fetchUserPoints } from '../../utils/api';
-//import DeleteIcon from '@mui/icons-material/Delete';
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -95,13 +94,6 @@ const Cart: React.FC = () => {
     }
   };
 
-  // const handleRemoveItem = (index: number) => {
-  //   const updatedCartItems = cartItems.filter((_, i) => i !== index);
-  //   setCartItems(updatedCartItems);
-  //   localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  // };
-
-  
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
@@ -122,12 +114,6 @@ const Cart: React.FC = () => {
   const confirmCheckout = async () => {
     playAudioFeedback();
     try {
-
-      var newPointTotal = 0;
-      if (userPoints !== null) {
-        newPointTotal = userPoints - totalPoints;
-      }
-
       const orderDetails = {
         orderId: `ORD-${Date.now()}`,
         items: cartItems.map((item) => item.trackName || item.collectionName),
@@ -143,7 +129,6 @@ const Cart: React.FC = () => {
           email: userEmail,
           orderDetails,
           username,
-          newPoints: newPointTotal,
         }),
       });
 
@@ -151,7 +136,12 @@ const Cart: React.FC = () => {
         throw new Error('Failed to send order confirmation email.');
       }
 
-      setUserPoints(newPointTotal);
+      // Update user points in the frontend after the backend processes the request
+      if (userPoints !== null) {
+        const updatedPoints = userPoints - totalPoints;
+        setUserPoints(updatedPoints);
+      }
+
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
@@ -236,8 +226,8 @@ const Cart: React.FC = () => {
             onClose={() => setShowConfirmationDialog(false)}
             PaperProps={{
               sx: {
-                backgroundColor: theme.palette.background.default, // Match theme
-                color: theme.palette.text.primary, // Match text color
+                backgroundColor: theme.palette.background.default,
+                color: theme.palette.text.primary,
               },
             }}
           >
