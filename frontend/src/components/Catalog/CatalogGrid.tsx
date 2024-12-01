@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import CatalogItem from './CatalogItem';
 
 interface ItunesItem {
-  collectionId: string; // Always required
+  collectionId: string;
   trackId?: string;
   trackName?: string;
   collectionName?: string;
@@ -31,13 +31,13 @@ const CatalogGrid: React.FC<CatalogGridProps> = ({
 }) => {
   return (
     <Grid container spacing={4}>
-      {items.map((item: ItunesItem) => (
+      {items.map((item) => (
         <Grid item key={item.trackId || item.collectionId} xs={12} sm={6} md={4}>
           <CatalogItem
             item={item}
             onViewDetails={onViewDetails}
             conversionRate={conversionRate}
-            userRole={userRole} // Pass userRole here
+            userRole={userRole}
           />
         </Grid>
       ))}
