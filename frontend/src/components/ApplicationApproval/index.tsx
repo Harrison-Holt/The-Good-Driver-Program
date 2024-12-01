@@ -113,8 +113,8 @@ const ApplicationApproval: React.FC = () => {
                       >
                       </ListItemText>
                       {app.app_status === "pending" ? <Box sx={{marginRight: '0px'}}>
-                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id)}} sx={buttonStyles}>Approve</ListItemButton>
-                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id)}} sx={buttonStyles}>Deny</ListItemButton>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id); setLoaded(false)}} sx={buttonStyles}>Approve</ListItemButton>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id); setLoaded(false)}} sx={buttonStyles}>Deny</ListItemButton>
                       </Box> : <></>}
                   </ListItem>
                   <Divider variant="inset" component="li"/>
