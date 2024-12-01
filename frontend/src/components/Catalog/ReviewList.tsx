@@ -123,11 +123,14 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
       if (!response.ok) {
         throw new Error('Failed to submit review');
       }
-      setReviews((prev) => [...prev, review]);
+  
+      const newReview = await response.json(); 
+      setReviews((prev) => [...prev, newReview]); 
     } catch (err: unknown) {
       setError((err as Error).message || 'An unknown error occurred');
     }
   };
+  
 
   return (
     <Box>
