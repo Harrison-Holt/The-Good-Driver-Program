@@ -123,6 +123,7 @@ const Cart: React.FC = () => {
         body: JSON.stringify({
           email: userEmail,
           orderDetails,
+          username,
         }),
       });
 
@@ -130,10 +131,12 @@ const Cart: React.FC = () => {
         throw new Error('Failed to send order confirmation email.');
       }
 
-      // Deduct points locally
-      setUserPoints((prevPoints) => (prevPoints !== null ? prevPoints - totalPoints : null));
-
-      // Save order history locally
+      // Update user points in the frontend after the backend processes the request
+      if (userPoints !== null) {
+        const updatedPoints = userPoints - totalPoints;
+        setUserPoints(updatedPoints);
+      }
+        
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
