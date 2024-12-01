@@ -50,16 +50,16 @@ const Reports = () => {
             <table style={{ borderCollapse: "separate", borderSpacing: "20px 10px", width: "100%" }}>
                 <thead>
                     <tr>
-                        <th style={{ textAlign: "left", paddingRight: "20px" }}>Username</th>
-                        <th style={{ textAlign: "left", paddingRight: "20px" }}>User Pool ID</th>
-                        <th style={{ textAlign: "left", paddingRight: "20px" }}>Timestamp</th>
+                        <th style={{ textAlign: "left", paddingRight: "40px" }}>Username</th>
+                        <th style={{ textAlign: "left", paddingRight: "40px" }}>User Pool ID</th>
+                        <th style={{ textAlign: "left", paddingRight: "40px" }}>Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
                     {logins.map((login, index) => (
                         <tr key={index}>
-                            <td style={{ paddingRight: "20px" }}>{login.username}</td>
-                            <td style={{ paddingRight: "20px" }}>{login.userPoolId}</td>
+                            <td style={{ textAlign: "left", paddingRight: "40px" }}>{login.username}</td>
+                            <td style={{ textAlign: "left", paddingRight: "40px" }}>{login.userPoolId}</td>
                             <td>{new Date(login.timestamp).toLocaleString()}</td>
                         </tr>
                     ))}
