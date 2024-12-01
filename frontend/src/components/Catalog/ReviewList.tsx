@@ -68,15 +68,15 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
 
   return (
     <List>
-      {reviews.map((review, index) => (
-        <ListItem key={index}>
-          <ListItemText
-            primary={`${review.user_name || 'Anonymous'}: ${review.comment}`}
-            secondary={`Rating: ${review.rating}`}
-          />
-        </ListItem>
-      ))}
-    </List>
+    {reviews.map((review, index) => (
+      <ListItem key={index}>
+        <ListItemText
+          primary={`${review.user_name || 'Anonymous'}: ${review.comment}`}
+          secondary={`Rating: ${review.rating}`}
+        />
+      </ListItem>
+    ))}
+  </List>
   );
 };
 
@@ -96,13 +96,19 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
           throw new Error('Failed to fetch reviews');
         }
         const data = await response.json();
-        setReviews(data);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const reviews = data.map((review: any) => ({
+          user_name: review.user_name || 'Anonymous',
+          comment: review.comment,
+          rating: review.rating,
+        }));
+        setReviews(reviews);
       } catch (err: unknown) {
         setError((err as Error).message || 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
-    };
+    };    
 
     fetchReviews();
   }, [itemId]);
