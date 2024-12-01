@@ -122,6 +122,12 @@ const Cart: React.FC = () => {
   const confirmCheckout = async () => {
     playAudioFeedback();
     try {
+
+      var newPointTotal = 0;
+      if (userPoints !== null) {
+        newPointTotal = userPoints - totalPoints;
+      }
+
       const orderDetails = {
         orderId: `ORD-${Date.now()}`,
         items: cartItems.map((item) => item.trackName || item.collectionName),
@@ -136,6 +142,8 @@ const Cart: React.FC = () => {
         body: JSON.stringify({
           email: userEmail,
           orderDetails,
+          username,
+          newPoints: newPointTotal,
         }),
       });
 
@@ -143,6 +151,7 @@ const Cart: React.FC = () => {
         throw new Error('Failed to send order confirmation email.');
       }
 
+      setUserPoints(newPointTotal);
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
