@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Typography, List, ListItem, ListItemText } from '@mui/material';
+import { useAppSelector } from '../../store/hooks';
+import { selectUserName } from '../../store/userSlice';
 
 interface Review {
   user_name: string;
@@ -12,7 +14,11 @@ interface ReviewFormProps {
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
-  const [review, setReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
+  // Get the username from Redux state
+  const user_name = useAppSelector(selectUserName) || 'Anonymous';
+
+  // Initialize review state with the username from Redux
+  const [review, setReview] = useState<Review>({ user_name, comment: '', rating: 5 });
 
   const handleSubmit = () => {
     if (!review.user_name.trim() || !review.comment.trim() || review.rating < 1 || review.rating > 5) {
@@ -20,18 +26,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
       return;
     }
     onSubmit(review);
-    setReview({ user_name: '', comment: '', rating: 5 });
+    // Reset the review form
+    setReview({ user_name, comment: '', rating: 5 });
   };
 
   return (
     <Box>
-      <TextField
-        fullWidth
-        label="Username"
-        value={review.user_name}
-        onChange={(e) => setReview({ ...review, user_name: e.target.value })}
-        sx={{ marginBottom: '10px' }}
-      />
       <TextField
         fullWidth
         label="Comment"
@@ -71,7 +71,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
       {reviews.map((review, index) => (
         <ListItem key={index}>
           <ListItemText
-            primary={`${review.user_name || 'Anonymous'}: ${review.comment}`} // Ensure fallback for undefined `user_name`
+            primary={`${review.user_name || 'Anonymous'}: ${review.comment}`} // Fallback for undefined username
             secondary={`Rating: ${review.rating}`}
           />
         </ListItem>
@@ -96,12 +96,10 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
           throw new Error('Failed to fetch reviews');
         }
         const data = await response.json();
-        console.log('Fetched reviews:', data); // Log to confirm `user_name` is present
-    
-        // Map reviews to ensure consistent structure
+        console.log('Fetched reviews:', data);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setReviews(data.map((review: any) => ({
-          user_name: review.user_name, // Map `user_name` directly
+          user_name: review.user_name,
           comment: review.comment,
           rating: review.rating,
         })));
@@ -130,9 +128,9 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
       if (!response.ok) {
         throw new Error('Failed to submit review');
       }
-  
-      const newReview = await response.json(); 
-      setReviews((prev) => [...prev, newReview]); 
+
+      const newReview = await response.json();
+      setReviews((prev) => [...prev, newReview]);
     } catch (err: unknown) {
       setError((err as Error).message || 'An unknown error occurred');
     }
