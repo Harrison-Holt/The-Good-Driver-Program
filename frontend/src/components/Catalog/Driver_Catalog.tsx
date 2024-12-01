@@ -32,11 +32,9 @@ interface ItunesItem {
   rating?: number;
 }
 
-interface Sponsor {
-  sponsorId: string;
-  sponsorName: string;
-  sponsorUsername: string; // Added sponsor_username field
-  catalog: ItunesItem[];
+interface SponsorCatalog {
+  sponsorUsername: string; // Sponsor username
+  items: ItunesItem[]; // Items for the sponsor
 }
 
 interface Review {
@@ -45,12 +43,12 @@ interface Review {
   comment: string;
 }
 
-const SPONSORS_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_sponsors';
+const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const DriverCatalog = () => {
   const username = useAppSelector(selectUserName) || 'Guest';
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [catalogs, setCatalogs] = useState<SponsorCatalog[]>([]);
   const [selectedTab, setSelectedTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,19 +56,26 @@ const DriverCatalog = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
-  // Fetch sponsors and their catalogs
+  // Fetch the catalogs grouped by sponsor_username
   useEffect(() => {
-    const fetchSponsors = async () => {
+    const fetchCatalogs = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`${SPONSORS_API_URL}?username=${username}`);
+        const response = await fetch(`${DRIVER_CATALOG_URL}?username=${username}`);
         if (!response.ok) {
-          throw new Error('Error fetching sponsor catalogs.');
+          throw new Error('Error fetching driver catalog.');
         }
-        const data: Sponsor[] = await response.json();
-        setSponsors(data);
+        const data: { sponsor_username: string; items: ItunesItem[] }[] = await response.json();
+
+        // Group catalogs by sponsor_username
+        const groupedCatalogs = data.map((entry) => ({
+          sponsorUsername: entry.sponsor_username,
+          items: entry.items,
+        }));
+
+        setCatalogs(groupedCatalogs);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -78,7 +83,7 @@ const DriverCatalog = () => {
       }
     };
 
-    fetchSponsors();
+    fetchCatalogs();
   }, [username]);
 
   const handleAddToCart = (item: ItunesItem) => {
@@ -141,7 +146,7 @@ const DriverCatalog = () => {
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
 
@@ -158,19 +163,16 @@ const DriverCatalog = () => {
         </Box>
       )}
 
-      {!loading && sponsors.length > 0 && (
+      {!loading && catalogs.length > 0 && (
         <>
           <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Sponsor Tabs">
-            {sponsors.map((sponsor) => (
-              <Tab
-                key={sponsor.sponsorId}
-                label={`${sponsor.sponsorName} (${sponsor.sponsorUsername})`} // Display sponsor_username
-              />
+            {catalogs.map((catalog) => (
+              <Tab key={catalog.sponsorUsername} label={catalog.sponsorUsername} />
             ))}
           </Tabs>
 
           <Grid container spacing={4}>
-            {sponsors[selectedTab]?.catalog.map((item) => (
+            {catalogs[selectedTab]?.items.map((item) => (
               <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
                 <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
                   <img
