@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Stack, TextField, Typography, useTheme } from "@mui/material";
+import { Box, Button, Snackbar, Stack, TextField, Typography, useTheme } from "@mui/material";
 import SearchBar from "../SearchBar";
 import axios from "axios";
 import { useAppSelector } from "../../store/hooks";
@@ -14,6 +14,7 @@ const Applications: React.FC = () => {
   const [providedReason, setProvidedReason] = useState("");
   const [submitForm, setSubmitForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [openSnack, setOpenSnack] = useState(false);
 
   const username = useAppSelector(selectUserName);
   const usertype = useAppSelector(selectUserType);
@@ -80,6 +81,7 @@ const Applications: React.FC = () => {
         )
         .then((response) => {
           console.log(response);
+          setOpenSnack(true);
           playAudioFeedback(); // Play audio feedback on successful submission
         })
         .catch((error) => {
@@ -146,6 +148,12 @@ const Applications: React.FC = () => {
             Clear
           </Button>
         </Stack>
+        <Snackbar
+            open={openSnack}
+            autoHideDuration={6000}
+            onClose={() => {setOpenSnack(false)}}
+            message={"Application Submitted"}
+        />
       </Stack>
     );
   } else {
