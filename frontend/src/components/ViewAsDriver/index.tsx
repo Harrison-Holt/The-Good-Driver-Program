@@ -26,6 +26,7 @@ const ViewAsDriver: React.FC = () => {
                 driverUsernames.push(driver.username)
               })
               setDriverList(driverUsernames)
+              console.log(driverUsernames);
               console.log(driverList);
             }
           }
