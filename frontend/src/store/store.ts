@@ -8,3 +8,5 @@ export const store = configureStore({
     conversionRate: conversionRateSlice
   },
 })
+
+export type RootState = ReturnType<typeof store.getState>
