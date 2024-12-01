@@ -43,6 +43,17 @@ const ApplicationApproval: React.FC = () => {
     margin: '0 5px',
   };
 
+  const requestFilter = (filterValue: string) => {
+    const apps = applicationList.filter((app) => {
+        if (app.app_status.toLowerCase().includes(filterValue.toLowerCase())) {
+            return app
+        } else if (app.driver_username.includes(filterValue)) {
+            return app
+        }
+    });
+    setFilteredList(apps)
+}
+
   useEffect(() => {
       const fetchAppList = async () => {
           try {
@@ -65,6 +76,7 @@ const ApplicationApproval: React.FC = () => {
       };
 
     fetchAppList();
+    requestFilter("");
   }, [loaded, username]);
 
   const handleApplicationUpdate = async (appId: number, driverId: number, newStatus: string, sponsorId: number) => {
@@ -80,17 +92,6 @@ const ApplicationApproval: React.FC = () => {
       console.error('Error updating application:', error);
     }
   };
-
-  const requestFilter = (filterValue: string) => {
-      const apps = applicationList.filter((app) => {
-          if (app.app_status.toLowerCase().includes(filterValue.toLowerCase())) {
-              return app
-          } else if (app.driver_username.includes(filterValue)) {
-              return app
-          }
-      });
-      setFilteredList(apps)
-  }
 
   return(
       <Box sx={containerStyles}>
@@ -112,8 +113,8 @@ const ApplicationApproval: React.FC = () => {
                       >
                       </ListItemText>
                       {app.app_status === "pending" ? <Box sx={{marginRight: '0px'}}>
-                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id)}} sx={buttonStyles}>Approve</ListItemButton>
-                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id)}} sx={buttonStyles}>Deny</ListItemButton>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "accepted", app.sponsor_id); setLoaded(false)}} sx={buttonStyles}>Approve</ListItemButton>
+                          <ListItemButton onClick={() => {handleApplicationUpdate(app.application_id, app.driver_id, "denied", app.sponsor_id); setLoaded(false)}} sx={buttonStyles}>Deny</ListItemButton>
                       </Box> : <></>}
                   </ListItem>
                   <Divider variant="inset" component="li"/>
