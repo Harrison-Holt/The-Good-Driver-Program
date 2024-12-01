@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Tabs,
-  Tab,
   Typography,
   Grid,
   Button,
@@ -13,9 +11,11 @@ import {
   List,
   ListItem,
   ListItemText,
+  TextField,
   CircularProgress,
   Alert,
-  Badge,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
@@ -23,12 +23,20 @@ import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
   collectionId: string;
-  trackName: string;
+  trackName?: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
+  collectionPrice?: number;
   points?: number;
-  sponsor_username: string;
+  rating?: number;
+}
+
+interface Sponsor {
+  sponsorId: string;
+  sponsorName: string;
+  sponsorUsername: string; // Added sponsor_username field
+  catalog: ItunesItem[];
 }
 
 interface Review {
@@ -37,37 +45,32 @@ interface Review {
   comment: string;
 }
 
-const DRIVER_CATALOG_URL =
-  'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
-const REVIEW_API_URL =
-  'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
+const SPONSORS_API_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_sponsors';
+const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
-const DriverCatalog: React.FC = () => {
+const DriverCatalog = () => {
   const username = useAppSelector(selectUserName) || 'Guest';
-  const [catalog, setCatalog] = useState<ItunesItem[]>([]);
-  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [activeTab, setActiveTab] = useState(0);
+  const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
-  // Fetch catalog data
+  // Fetch sponsors and their catalogs
   useEffect(() => {
-    const fetchCatalog = async () => {
+    const fetchSponsors = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(
-          `${DRIVER_CATALOG_URL}?username=${username}`
-        );
+        const response = await fetch(`${SPONSORS_API_URL}?username=${username}`);
         if (!response.ok) {
-          throw new Error(`Error fetching catalog: ${response.statusText}`);
+          throw new Error('Error fetching sponsor catalogs.');
         }
-
-        const data: ItunesItem[] = await response.json();
-        setCatalog(data);
+        const data: Sponsor[] = await response.json();
+        setSponsors(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -75,26 +78,14 @@ const DriverCatalog: React.FC = () => {
       }
     };
 
-    fetchCatalog();
+    fetchSponsors();
   }, [username]);
 
-  // Group catalog items by sponsor_username
-  const groupedCatalog = catalog.reduce(
-    (groups: { [key: string]: ItunesItem[] }, item) => {
-      const sponsor = item.sponsor_username;
-      if (!groups[sponsor]) {
-        groups[sponsor] = [];
-      }
-      groups[sponsor].push(item);
-      return groups;
-    },
-    {}
-  );
-
-  const sponsorTabs = Object.keys(groupedCatalog);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
+  const handleAddToCart = (item: ItunesItem) => {
+    const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const updatedCart = [...currentCart, item];
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    alert(`${item.trackName || item.collectionName} added to cart!`);
   };
 
   const handleViewDetails = async (item: ItunesItem) => {
@@ -103,7 +94,7 @@ const DriverCatalog: React.FC = () => {
     try {
       const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
       if (response.ok) {
-        const data: Review[] = await response.json();
+        const data = await response.json();
         setReviews(data);
       } else {
         setReviews([]);
@@ -114,13 +105,44 @@ const DriverCatalog: React.FC = () => {
     }
   };
 
-  const handleAddToCart = (item: ItunesItem) => {
-    setCartItems((prevItems) => [...prevItems, item]);
-  };
-
   const handleDialogClose = () => {
     setSelectedItem(null);
     setReviews([]);
+  };
+
+  const handleSubmitReview = async () => {
+    if (selectedItem) {
+      try {
+        const payload = {
+          itemId: selectedItem.collectionId,
+          user_name: username,
+          rating: newReview.rating,
+          comment: newReview.comment,
+        };
+
+        const response = await fetch(REVIEW_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit review');
+        }
+
+        // Fetch updated reviews after submitting
+        handleViewDetails(selectedItem);
+        setNewReview({ username, comment: '', rating: 5 });
+        alert('Review submitted successfully!');
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review.');
+      }
+    }
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
   };
 
   return (
@@ -136,82 +158,54 @@ const DriverCatalog: React.FC = () => {
         </Box>
       )}
 
-      <Box sx={{ marginBottom: '20px', textAlign: 'right' }}>
-        <Badge badgeContent={cartItems.length} color="primary">
-          <Typography variant="h6">Cart</Typography>
-        </Badge>
-      </Box>
-
-      {!loading && sponsorTabs.length > 0 && (
+      {!loading && sponsors.length > 0 && (
         <>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {sponsorTabs.map((sponsor) => (
-              <Tab label={sponsor} key={sponsor} />
+          <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Sponsor Tabs">
+            {sponsors.map((sponsor) => (
+              <Tab
+                key={sponsor.sponsorId}
+                label={`${sponsor.sponsorName} (${sponsor.sponsorUsername})`} // Display sponsor_username
+              />
             ))}
           </Tabs>
 
-          {sponsorTabs.map((sponsor, index) => (
-            <Box
-              key={sponsor}
-              sx={{ display: activeTab === index ? 'block' : 'none', marginTop: '20px' }}
-            >
-              <Grid container spacing={4}>
-                {groupedCatalog[sponsor].map((item) => (
-                  <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-                    <Box
-                      sx={{
-                        border: '1px solid #ccc',
-                        padding: '10px',
-                        borderRadius: '5px',
-                        marginBottom: '15px',
-                      }}
-                    >
-                      <img
-                        src={item.artworkUrl100}
-                        alt={item.trackName || item.collectionName}
-                        style={{ width: '100%', marginBottom: '10px' }}
-                      />
-                      <Typography variant="h6" sx={{ marginBottom: '8px' }}>
-                        {item.trackName || item.collectionName}
-                      </Typography>
-                      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
-                        <strong>Artist:</strong> {item.artistName}
-                      </Typography>
-                      <Typography variant="body2">Points: {item.points || 0}</Typography>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleViewDetails(item)}
-                        sx={{ marginTop: '10px', marginRight: '10px' }}
-                      >
-                        View Details
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => handleAddToCart(item)}
-                        sx={{ marginTop: '10px' }}
-                      >
-                        Add to Cart
-                      </Button>
-                    </Box>
-                  </Grid>
-                ))}
+          <Grid container spacing={4}>
+            {sponsors[selectedTab]?.catalog.map((item) => (
+              <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
+                <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
+                  <img
+                    src={item.artworkUrl100}
+                    alt={item.trackName || item.collectionName}
+                    style={{ width: '100%', marginBottom: '10px' }}
+                  />
+                  <Typography variant="h6" sx={{ marginBottom: '8px' }}>
+                    {item.trackName || item.collectionName}
+                  </Typography>
+                  <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+                    <strong>Artist:</strong> {item.artistName}
+                  </Typography>
+                  <Typography variant="body2">Points: {item.points || 0}</Typography>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleViewDetails(item)}
+                    sx={{ marginTop: '10px', marginRight: '10px' }}
+                  >
+                    View Details
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => handleAddToCart(item)}
+                    sx={{ marginTop: '10px' }}
+                  >
+                    Add to Cart
+                  </Button>
+                </Box>
               </Grid>
-            </Box>
-          ))}
+            ))}
+          </Grid>
         </>
-      )}
-
-      {!loading && sponsorTabs.length === 0 && (
-        <Typography variant="body1" align="center">
-          No items available in the catalog.
-        </Typography>
       )}
 
       {selectedItem && (
@@ -248,6 +242,23 @@ const DriverCatalog: React.FC = () => {
                 </ListItem>
               )}
             </List>
+            <Box sx={{ marginTop: '20px' }}>
+              <Typography variant="h6">Submit a Review</Typography>
+              <TextField
+                fullWidth
+                label="Comment"
+                value={newReview.comment}
+                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                sx={{ marginBottom: '10px' }}
+              />
+              <StarRating
+                rating={newReview.rating}
+                onChange={(rating) => setNewReview({ ...newReview, rating })}
+              />
+              <Button variant="contained" color="primary" onClick={handleSubmitReview}>
+                Submit Review
+              </Button>
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} color="primary">
