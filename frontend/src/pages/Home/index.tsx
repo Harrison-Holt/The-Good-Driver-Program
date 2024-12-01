@@ -130,6 +130,9 @@ const Home: React.FC = () => {
           </ListItem>
         )}
         <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("reports")}>Reports</ListItemButton>
+        </ListItem>
+        <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
         <ListItem>
