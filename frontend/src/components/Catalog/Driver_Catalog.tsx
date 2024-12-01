@@ -27,7 +27,7 @@ interface ItunesItem {
   artistName: string;
   artworkUrl100: string;
   points?: number;
-  sponsor_username: string; // Added for grouping
+  sponsor_username: string; // Used for grouping by sponsor
 }
 
 interface Review {
@@ -46,9 +46,9 @@ const DriverCatalog: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [activeTab, setActiveTab] = useState(0); // For tab selection
+  const [activeTab, setActiveTab] = useState(0);
 
-  // Fetch the driver's catalog
+  // Fetch catalog data
   useEffect(() => {
     const fetchCatalog = async () => {
       setLoading(true);
@@ -61,6 +61,7 @@ const DriverCatalog: React.FC = () => {
         }
 
         const data: ItunesItem[] = await response.json();
+        console.log('Catalog Data:', data);
         setCatalog(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -72,7 +73,7 @@ const DriverCatalog: React.FC = () => {
     fetchCatalog();
   }, [username]);
 
-  // Group catalog by sponsor_username
+  // Group catalog items by sponsor_username
   const groupedCatalog = catalog.reduce((groups: { [key: string]: ItunesItem[] }, item) => {
     const sponsor = item.sponsor_username;
     if (!groups[sponsor]) {
@@ -91,7 +92,6 @@ const DriverCatalog: React.FC = () => {
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
 
-    // Fetch reviews for the selected item
     try {
       const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
       if (response.ok) {
@@ -117,7 +117,6 @@ const DriverCatalog: React.FC = () => {
         Driver Catalog
       </Typography>
 
-      {/* Display errors or loading state */}
       {error && <Alert severity="error">{error}</Alert>}
       {loading && (
         <Box sx={{ textAlign: 'center', padding: '20px' }}>
@@ -125,7 +124,6 @@ const DriverCatalog: React.FC = () => {
         </Box>
       )}
 
-      {/* Sponsor Tabs */}
       {!loading && sponsorTabs.length > 0 && (
         <>
           <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
@@ -134,7 +132,6 @@ const DriverCatalog: React.FC = () => {
             ))}
           </Tabs>
 
-          {/* Display items for the active tab */}
           {sponsorTabs.map((sponsor, index) => (
             <Box
               key={sponsor}
@@ -180,14 +177,12 @@ const DriverCatalog: React.FC = () => {
         </>
       )}
 
-      {/* No data fallback */}
       {!loading && sponsorTabs.length === 0 && (
         <Typography variant="body1" align="center">
           No items available in the catalog.
         </Typography>
       )}
 
-      {/* Item Details Dialog */}
       {selectedItem && (
         <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
