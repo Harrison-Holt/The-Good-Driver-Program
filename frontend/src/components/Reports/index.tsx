@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector } from "../../store/hooks";
 import axios from 'axios';
 
