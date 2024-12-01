@@ -19,6 +19,7 @@ import CatalogItem from './CatalogItem';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 import { selectUserType } from '../../store/userSlice';
+import { setConversionRate } from '../../store/conversionRateSlice';
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -46,11 +47,29 @@ const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('music');
   const [loading, setLoading] = useState(false);
-  const [conversionRate, setConversionRate] = useState(100); // Points system
+  //const [conversionRate, setConversionRate] = useState(100); // Points system
   const [operationLoading, setOperationLoading] = useState(false); // Loading for add/delete actions
   const [error, setError] = useState<string | null>(null);
   const username = useAppSelector(selectUserName);
   const [discountValues, setDiscountValues] = useState<{ [key: string]: number }>({});
+
+  const dispatch = useDispatch();
+  const conversionRate = useSelector((state: RootState) => state.conversionRate.rate); // Access conversionRate from Redux
+
+  const handleConversionRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newRate = parseInt(e.target.value, 10);
+
+    // Update the conversion rate in Redux store
+    dispatch(setConversionRate(newRate));
+
+    // Recalculate points for all catalog items based on the new conversion rate
+    setCatalog((prevCatalog) =>
+      prevCatalog.map((item) => ({
+        ...item,
+        points: Math.round((item.collectionPrice || item.trackPrice || 0) * newRate),
+      }))
+    );
+  };
 
   const handleDiscountChange = (itemId: string, discount: number) => {
   setDiscountValues((prev) => ({ ...prev, [itemId]: discount }));
@@ -258,23 +277,12 @@ const handleSaveDiscount = (item: ItunesItem, discount: number) => {
         </Box>
       )}
      <Box sx={{ marginBottom: '20px' }}>
-  <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
-  <TextField
-    label="1 Dollar = X Points"
-    type="number"
-    value={conversionRate}
-    onChange={(e) => {
-      const newRate = parseInt(e.target.value, 10);
-      setConversionRate(newRate);
-
-      // Recalculate points for all catalog items
-      setCatalog((prevCatalog) =>
-        prevCatalog.map((item) => ({
-          ...item,
-          points: Math.round((item.collectionPrice || item.trackPrice || 0) * newRate),
-        }))
-      );
-    }}
+     <Typography variant="h5" gutterBottom>Set Conversion Rate</Typography>
+      <TextField
+        label="1 Dollar = X Points"
+        type="number"
+        value={conversionRate} 
+        onChange={handleConversionRateChange} 
     InputProps={{
       startAdornment: <InputAdornment position="start">$1 =</InputAdornment>,
       endAdornment: <InputAdornment position="end">Points</InputAdornment>,
