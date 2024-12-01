@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { RootState } from '../../store/store';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Box,
   Typography,
