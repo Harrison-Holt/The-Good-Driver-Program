@@ -20,7 +20,7 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: string; // Always required
+  collectionId: string;
   trackId?: string;
   trackName?: string;
   collectionName?: string;

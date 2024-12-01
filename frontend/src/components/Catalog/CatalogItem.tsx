@@ -28,7 +28,6 @@ interface CatalogItemProps {
 const CatalogItem: React.FC<CatalogItemProps> = ({
   item,
   onAddToCatalog,
-  onViewDetails,
   conversionRate,
   onSaveDiscount,
 }) => {
@@ -98,14 +97,6 @@ const CatalogItem: React.FC<CatalogItemProps> = ({
       <Typography variant="body1" sx={{ marginBottom: '10px' }}>
         <strong>Discounted Points:</strong> {calculateDiscountedPoints()}
       </Typography>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => onViewDetails(item)}
-        sx={{ marginBottom: '10px' }}
-      >
-        View Details
-      </Button>
       {onSaveDiscount && (
         <Button
           variant="outlined"
