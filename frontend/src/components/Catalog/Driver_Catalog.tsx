@@ -15,6 +15,7 @@ import {
   ListItemText,
   CircularProgress,
   Alert,
+  Badge,
 } from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
@@ -27,7 +28,7 @@ interface ItunesItem {
   artistName: string;
   artworkUrl100: string;
   points?: number;
-  sponsor_username: string; // Used for grouping by sponsor
+  sponsor_username: string;
 }
 
 interface Review {
@@ -36,12 +37,15 @@ interface Review {
   comment: string;
 }
 
-const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
-const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
+const DRIVER_CATALOG_URL =
+  'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
+const REVIEW_API_URL =
+  'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const DriverCatalog: React.FC = () => {
   const username = useAppSelector(selectUserName) || 'Guest';
   const [catalog, setCatalog] = useState<ItunesItem[]>([]);
+  const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
@@ -55,13 +59,14 @@ const DriverCatalog: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`${DRIVER_CATALOG_URL}?username=${username}`);
+        const response = await fetch(
+          `${DRIVER_CATALOG_URL}?username=${username}`
+        );
         if (!response.ok) {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
         const data: ItunesItem[] = await response.json();
-        console.log('Catalog Data:', data);
         setCatalog(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -74,14 +79,17 @@ const DriverCatalog: React.FC = () => {
   }, [username]);
 
   // Group catalog items by sponsor_username
-  const groupedCatalog = catalog.reduce((groups: { [key: string]: ItunesItem[] }, item) => {
-    const sponsor = item.sponsor_username;
-    if (!groups[sponsor]) {
-      groups[sponsor] = [];
-    }
-    groups[sponsor].push(item);
-    return groups;
-  }, {});
+  const groupedCatalog = catalog.reduce(
+    (groups: { [key: string]: ItunesItem[] }, item) => {
+      const sponsor = item.sponsor_username;
+      if (!groups[sponsor]) {
+        groups[sponsor] = [];
+      }
+      groups[sponsor].push(item);
+      return groups;
+    },
+    {}
+  );
 
   const sponsorTabs = Object.keys(groupedCatalog);
 
@@ -106,6 +114,10 @@ const DriverCatalog: React.FC = () => {
     }
   };
 
+  const handleAddToCart = (item: ItunesItem) => {
+    setCartItems((prevItems) => [...prevItems, item]);
+  };
+
   const handleDialogClose = () => {
     setSelectedItem(null);
     setReviews([]);
@@ -124,9 +136,20 @@ const DriverCatalog: React.FC = () => {
         </Box>
       )}
 
+      <Box sx={{ marginBottom: '20px', textAlign: 'right' }}>
+        <Badge badgeContent={cartItems.length} color="primary">
+          <Typography variant="h6">Cart</Typography>
+        </Badge>
+      </Box>
+
       {!loading && sponsorTabs.length > 0 && (
         <>
-          <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+          >
             {sponsorTabs.map((sponsor) => (
               <Tab label={sponsor} key={sponsor} />
             ))}
@@ -167,6 +190,14 @@ const DriverCatalog: React.FC = () => {
                         sx={{ marginTop: '10px', marginRight: '10px' }}
                       >
                         View Details
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleAddToCart(item)}
+                        sx={{ marginTop: '10px' }}
+                      >
+                        Add to Cart
                       </Button>
                     </Box>
                   </Grid>
