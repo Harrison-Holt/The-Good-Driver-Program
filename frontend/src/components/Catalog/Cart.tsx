@@ -101,6 +101,7 @@ const Cart: React.FC = () => {
   //   localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
   // };
 
+  
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
