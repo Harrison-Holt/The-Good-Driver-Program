@@ -112,6 +112,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
+    
     case "driverManagement":
       dashJsx = (
         <Paper sx={paperStyles}>
@@ -122,13 +123,14 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
     break;
 
     case "reports":
-      dashJsx = (
-        <Paper sx={paperStyles}>
-          <Typography variant="h6" sx={textStyle}>Reports</Typography>
-          <Reports />
-        </Paper>
-      );
-    break;
+        dashJsx = (
+          <Paper sx={paperStyles}>
+            <Typography variant="h6" sx={textStyle}>Reports</Typography>
+            <Reports />
+          </Paper>
+        );
+      break;
+    
 
     case 'pointChange':
       dashJsx = (

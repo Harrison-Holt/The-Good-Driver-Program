@@ -32,13 +32,8 @@ const Reports = () => {
                 setLoading(false);
             }
         };
-
-        if (userType === 'admin') {
-            fetchLogins();
-        } else {
-            setError('Access denied: Only admins can view this page.');
-            setLoading(false);
-        }
+        fetchLogins();
+    
     }, [userType]);
 
     if (loading) return <p>Loading...</p>;
