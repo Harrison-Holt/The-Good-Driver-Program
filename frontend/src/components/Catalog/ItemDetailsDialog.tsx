@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -7,11 +7,8 @@ import {
   Button,
   Typography,
   Box,
-  TextField,
-  List,
-  ListItem,
-  ListItemText,
 } from '@mui/material';
+import ReviewManager from './ReviewList'; // Import the ReviewManager component
 
 interface ItunesItem {
   collectionId: string; // Always required
@@ -27,95 +24,10 @@ interface ItunesItem {
   discountedPrice?: number;
 }
 
-// Define the type for a review
-interface Review {
-  user_name: string;
-  rating: number;
-  comment: string;
-}
-
-// Define the props for ReviewForm
-interface ReviewFormProps {
-  onSubmit: (review: Review) => void; // Callback for submitting a review
-}
-
-const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
-  const [review, setReview] = useState<Review>({ user_name: '', comment: '', rating: 5 });
-
-  const handleSubmit = () => {
-    if (!review.user_name || !review.comment || review.rating < 1 || review.rating > 5) {
-      alert('Please provide valid inputs for all fields.');
-      return;
-    }
-    onSubmit(review);
-    setReview({ user_name: '', comment: '', rating: 5 }); // Reset the form
-  };
-
-  return (
-    <Box>
-      <TextField
-        fullWidth
-        label="Username"
-        value={review.user_name}
-        onChange={(e) => setReview({ ...review, user_name: e.target.value })}
-        sx={{ marginBottom: '10px' }}
-      />
-      <TextField
-        fullWidth
-        label="Comment"
-        multiline
-        rows={4}
-        value={review.comment}
-        onChange={(e) => setReview({ ...review, comment: e.target.value })}
-        sx={{ marginBottom: '10px' }}
-      />
-      <TextField
-        fullWidth
-        label="Rating"
-        type="number"
-        value={review.rating}
-        onChange={(e) => setReview({ ...review, rating: Number(e.target.value) })}
-        sx={{ marginBottom: '20px' }}
-        inputProps={{ min: 1, max: 5 }}
-      />
-      <Button onClick={handleSubmit} variant="contained" color="primary">
-        Submit Review
-      </Button>
-    </Box>
-  );
-};
-
-// Define the props for ReviewList
-interface ReviewListProps {
-  reviews: Review[]; // Array of reviews
-}
-
-const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
-  if (!reviews.length) {
-    return <Typography>No reviews yet. Be the first to leave one!</Typography>;
-  }
-
-  return (
-    <List>
-      {reviews.map((review, index) => (
-        <ListItem key={index}>
-          <ListItemText
-            primary={`${review.user_name || 'Anonymous'}: ${review.comment}`}
-            secondary={`Rating: ${review.rating}`}
-          />
-        </ListItem>
-      ))}
-    </List>
-  );
-};
-
-// Define the props for ItemDetailsDialog
 interface ItemDetailsDialogProps {
   open: boolean;
   onClose: () => void;
   item: ItunesItem;
-  reviews: Review[];
-  onSubmitReview: (review: Review) => void;
   onRemoveFromCatalog: () => void;
   onBuyNow: () => void;
 }
@@ -124,8 +36,6 @@ const ItemDetailsDialog: React.FC<ItemDetailsDialogProps> = ({
   open,
   onClose,
   item,
-  reviews,
-  onSubmitReview,
   onRemoveFromCatalog,
   onBuyNow,
 }) => {
@@ -162,8 +72,8 @@ const ItemDetailsDialog: React.FC<ItemDetailsDialogProps> = ({
             <strong>Price:</strong> {item.collectionPrice} {item.currency}
           </Typography>
         </Box>
-        <ReviewList reviews={reviews} />
-        <ReviewForm onSubmit={onSubmitReview} />
+        {/* Include ReviewManager and pass the collectionId or trackId */}
+        <ReviewManager itemId={item.collectionId || item.trackId || ''} />
       </DialogContent>
       <DialogActions
         sx={{
@@ -183,4 +93,3 @@ const ItemDetailsDialog: React.FC<ItemDetailsDialogProps> = ({
 };
 
 export default ItemDetailsDialog;
-
