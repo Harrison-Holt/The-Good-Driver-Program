@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
+  Tabs,
+  Tab,
   Typography,
-  CircularProgress,
-  Alert,
   Grid,
   Button,
   Dialog,
@@ -13,32 +13,21 @@ import {
   List,
   ListItem,
   ListItemText,
-  TextField,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import StarRating from './StarRating';
 import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: string; // Always required
-  trackId?: string;
-  trackName?: string;
+  collectionId: string;
+  trackName: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  collectionPrice?: number;
-  points?: number; // Points for the item
-  rating?: number; // Optional rating field for the star rating
-}
-
-interface APIResponseItem {
-  catalog_id: string;
-  item_name: string;
-  artist: string;
-  artwork: string;
-  price: string;
-  points: number;
-  rating?: number;
+  points?: number;
+  sponsor_username: string; // Used for grouping by sponsor
 }
 
 interface Review {
@@ -50,17 +39,16 @@ interface Review {
 const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
-const DriverCatalog = () => {
-  const [catalog, setCatalog] = useState<ItunesItem[]>([]); // Driver's catalog
+const DriverCatalog: React.FC = () => {
+  const username = useAppSelector(selectUserName) || 'Guest';
+  const [catalog, setCatalog] = useState<ItunesItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null); // For item details dialog
-  const [reviews, setReviews] = useState<Review[]>([]); // Reviews for selected item
-  const username = useAppSelector(selectUserName) || 'Guest'; // Default to 'Guest' if username is not available
+  const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [activeTab, setActiveTab] = useState(0);
 
-  const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
-
-  // Fetch the driver's catalog
+  // Fetch catalog data
   useEffect(() => {
     const fetchCatalog = async () => {
       setLoading(true);
@@ -72,18 +60,9 @@ const DriverCatalog = () => {
           throw new Error(`Error fetching catalog: ${response.statusText}`);
         }
 
-        const data: APIResponseItem[] = await response.json();
-        const mappedData: ItunesItem[] = data.map((item) => ({
-          collectionId: item.catalog_id,
-          trackName: item.item_name,
-          collectionName: item.item_name,
-          artistName: item.artist,
-          artworkUrl100: item.artwork,
-          collectionPrice: parseFloat(item.price),
-          points: item.points,
-          rating: item.rating || 0,
-        }));
-        setCatalog(mappedData);
+        const data: ItunesItem[] = await response.json();
+        console.log('Catalog Data:', data);
+        setCatalog(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
@@ -94,17 +73,25 @@ const DriverCatalog = () => {
     fetchCatalog();
   }, [username]);
 
-  const handleAddToCart = (item: ItunesItem) => {
-    const currentCart = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    const updatedCart = [...currentCart, item];
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    alert(`${item.trackName || item.collectionName} added to cart!`);
+  // Group catalog items by sponsor_username
+  const groupedCatalog = catalog.reduce((groups: { [key: string]: ItunesItem[] }, item) => {
+    const sponsor = item.sponsor_username;
+    if (!groups[sponsor]) {
+      groups[sponsor] = [];
+    }
+    groups[sponsor].push(item);
+    return groups;
+  }, {});
+
+  const sponsorTabs = Object.keys(groupedCatalog);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
 
-    // Fetch reviews for the selected item
     try {
       const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
       if (response.ok) {
@@ -121,38 +108,7 @@ const DriverCatalog = () => {
 
   const handleDialogClose = () => {
     setSelectedItem(null);
-    setReviews([]); // Clear reviews when dialog closes
-  };
-
-  const handleSubmitReview = async () => {
-    if (selectedItem) {
-      try {
-        const payload = {
-          itemId: selectedItem.collectionId,
-          user_name: newReview.username,
-          rating: newReview.rating,
-          comment: newReview.comment,
-        };
-
-        const response = await fetch(REVIEW_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to submit review');
-        }
-
-        // Add the new review to the list
-        setReviews((prev) => [...prev, newReview]);
-        setNewReview({ username, comment: '', rating: 5 });
-        alert('Review submitted successfully!');
-      } catch (error) {
-        console.error('Error submitting review:', error);
-        alert('Failed to submit review.');
-      }
-    }
+    setReviews([]);
   };
 
   return (
@@ -168,63 +124,67 @@ const DriverCatalog = () => {
         </Box>
       )}
 
-      <Grid container spacing={4}>
-        {!loading && catalog.length === 0 && (
-          <Typography variant="body1" align="center" sx={{ width: '100%' }}>
-            No items available in the catalog.
-          </Typography>
-        )}
-
-        {!loading && catalog.length > 0 && (
-          <Grid container spacing={4}>
-            {catalog.map((item) => (
-              <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
-                <Box sx={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
-                  <img
-                    src={item.artworkUrl100}
-                    alt={item.trackName || item.collectionName}
-                    style={{ width: '100%', marginBottom: '10px' }}
-                  />
-                  <Typography variant="h6" sx={{ marginBottom: '8px' }}>
-                    {item.trackName || item.collectionName}
-                  </Typography>
-                  <Typography variant="body1" sx={{ marginBottom: '5px' }}>
-                    <strong>Artist:</strong> {item.artistName}
-                  </Typography>
-                  <Typography variant="body2">Points: {item.points || 0}</Typography>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => handleViewDetails(item)}
-                    sx={{ marginTop: '10px', marginRight: '10px' }}
-                  >
-                    View Details
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={() => handleAddToCart(item)}
-                    sx={{ marginTop: '10px' }}
-                  >
-                    Add to Cart
-                  </Button>
-                </Box>
-              </Grid>
+      {!loading && sponsorTabs.length > 0 && (
+        <>
+          <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+            {sponsorTabs.map((sponsor) => (
+              <Tab label={sponsor} key={sponsor} />
             ))}
-          </Grid>
-        )}
-      </Grid>
+          </Tabs>
+
+          {sponsorTabs.map((sponsor, index) => (
+            <Box
+              key={sponsor}
+              sx={{ display: activeTab === index ? 'block' : 'none', marginTop: '20px' }}
+            >
+              <Grid container spacing={4}>
+                {groupedCatalog[sponsor].map((item) => (
+                  <Grid item key={item.collectionId} xs={12} sm={6} md={4}>
+                    <Box
+                      sx={{
+                        border: '1px solid #ccc',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        marginBottom: '15px',
+                      }}
+                    >
+                      <img
+                        src={item.artworkUrl100}
+                        alt={item.trackName || item.collectionName}
+                        style={{ width: '100%', marginBottom: '10px' }}
+                      />
+                      <Typography variant="h6" sx={{ marginBottom: '8px' }}>
+                        {item.trackName || item.collectionName}
+                      </Typography>
+                      <Typography variant="body1" sx={{ marginBottom: '5px' }}>
+                        <strong>Artist:</strong> {item.artistName}
+                      </Typography>
+                      <Typography variant="body2">Points: {item.points || 0}</Typography>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleViewDetails(item)}
+                        sx={{ marginTop: '10px', marginRight: '10px' }}
+                      >
+                        View Details
+                      </Button>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          ))}
+        </>
+      )}
+
+      {!loading && sponsorTabs.length === 0 && (
+        <Typography variant="body1" align="center">
+          No items available in the catalog.
+        </Typography>
+      )}
 
       {selectedItem && (
-        <Dialog
-          open={!!selectedItem}
-          onClose={handleDialogClose}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{
-            sx: { backgroundColor: '#fff', color: '#000' }, // Set background and text color
-          }}
-        >
+        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ textAlign: 'center' }}>
@@ -257,30 +217,6 @@ const DriverCatalog = () => {
                 </ListItem>
               )}
             </List>
-            <Box sx={{ marginTop: '20px' }}>
-              <Typography variant="h6">Submit a Review</Typography>
-              <TextField
-                fullWidth
-                label="Your Name"
-                value={newReview.username}
-                onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
-                sx={{ marginBottom: '10px' }}
-              />
-              <TextField
-                fullWidth
-                label="Comment"
-                value={newReview.comment}
-                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                sx={{ marginBottom: '10px' }}
-              />
-              <StarRating
-                rating={newReview.rating}
-                onChange={(rating) => setNewReview({ ...newReview, rating })}
-              />
-              <Button variant="contained" color="primary" onClick={handleSubmitReview}>
-                Submit Review
-              </Button>
-            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} color="primary">

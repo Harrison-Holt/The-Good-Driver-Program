@@ -21,7 +21,7 @@ import audioFeedbackFile from '../../assets/audio_feedback.wav';
 import { fetchUserPoints } from '../../utils/api';
 
 interface ItunesItem {
-  collectionId: string; // Always required
+  collectionId: string;
   trackId?: string;
   trackName?: string;
   collectionName?: string;
@@ -31,10 +31,10 @@ interface ItunesItem {
 }
 
 const Cart: React.FC = () => {
-  const { settings } = useSettings(); // Access settings from context
+  const { settings } = useSettings();
   const theme = useTheme();
-  const userEmail = useAppSelector(selectEmail); // Fetch email from store
-  const username = useAppSelector(selectUserName); // Fetch username from store
+  const userEmail = useAppSelector(selectEmail);
+  const username = useAppSelector(selectUserName);
 
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [totalPoints, setTotalPoints] = useState<number>(0);
@@ -60,7 +60,7 @@ const Cart: React.FC = () => {
 
   // Fetch user's available points
   useEffect(() => {
-    const getUserPoints = async () => {
+    const loadPoints = async () => {
       if (!username) {
         setErrorMessage('User not logged in. Unable to fetch points.');
         return;
@@ -68,19 +68,14 @@ const Cart: React.FC = () => {
 
       try {
         const points = await fetchUserPoints(username);
-        if (points !== null) {
-          setUserPoints(points);
-          console.log(`User points fetched: ${points}`);
-        } else {
-          setErrorMessage('Failed to fetch user points. Please try again.');
-        }
+        setUserPoints(points !== null ? points : 0);
       } catch (error) {
         console.error('Error fetching user points:', error);
-        setErrorMessage('An error occurred while fetching user points.');
+        setUserPoints(0);
       }
     };
 
-    getUserPoints();
+    loadPoints();
   }, [username]);
 
   const playAudioFeedback = () => {
@@ -97,7 +92,6 @@ const Cart: React.FC = () => {
   const handleCancel = () => {
     setCartItems([]);
     localStorage.removeItem('cartItems');
-    window.dispatchEvent(new Event('storage'));
     setErrorMessage(`This order has been cancelled`);
   };
 
@@ -120,6 +114,7 @@ const Cart: React.FC = () => {
         totalPoints,
       };
 
+      // Mock API call for order confirmation
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -141,7 +136,7 @@ const Cart: React.FC = () => {
         const updatedPoints = userPoints - totalPoints;
         setUserPoints(updatedPoints);
       }
-
+        
       const currentHist = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const updatedHist = [...currentHist, orderDetails];
       localStorage.setItem('orderHistory', JSON.stringify(updatedHist));
@@ -152,7 +147,7 @@ const Cart: React.FC = () => {
       localStorage.removeItem('cartItems');
     } catch (error) {
       console.error(error);
-      setErrorMessage('Error sending order confirmation email. Please try again.');
+      setErrorMessage('An error occurred while processing your order. Please try again.');
     }
   };
 
@@ -169,30 +164,16 @@ const Cart: React.FC = () => {
         textAlign: settings.textAlign || 'left',
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ lineHeight: settings.lineHeight || 1.5 }}>
+      <Typography variant="h4" gutterBottom>
         Your Cart
       </Typography>
 
-      {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
-      {checkoutSuccess && (
-        <Alert severity="success" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
-          Checkout successful! Thank you for your purchase.
-        </Alert>
-      )}
-
-      {insufficientPoints && (
-        <Alert severity="error" sx={{ mb: 2, lineHeight: settings.lineHeight || 1.5 }}>
-          You do not have enough points to complete the purchase.
-        </Alert>
-      )}
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+      {checkoutSuccess && <Alert severity="success">Checkout successful! Thank you for your purchase.</Alert>}
+      {insufficientPoints && <Alert severity="error">You do not have enough points to complete the purchase.</Alert>}
 
       {cartItems.length === 0 ? (
-        <Typography sx={{ lineHeight: settings.lineHeight || 1.5 }}>No items in the cart.</Typography>
+        <Typography>No items in the cart.</Typography>
       ) : (
         <>
           <List>
@@ -210,14 +191,10 @@ const Cart: React.FC = () => {
           <Typography variant="h6">Total Points: {totalPoints}</Typography>
           <Typography variant="h6">Available Points: {userPoints !== null ? userPoints : 'Loading...'}</Typography>
 
-          <Typography variant="subtitle1" sx={{ mt: 2 }}>
-            Email: {userEmail || 'Loading...'}
-          </Typography>
-
-          <Button variant="contained" color="secondary" onClick={handleCancel} sx={{ mt: 2 }}>
+          <Button variant="contained" color="secondary" onClick={handleCancel}>
             Cancel Order
           </Button>
-          <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
             Proceed to Checkout
           </Button>
 
