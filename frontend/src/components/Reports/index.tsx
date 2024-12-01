@@ -47,19 +47,19 @@ const Reports = () => {
     return (
         <div>
             <h1>Login Reports</h1>
-            <table>
+            <table style={{ borderCollapse: "separate", borderSpacing: "20px 10px", width: "100%" }}>
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>User Pool ID</th>
-                        <th>Timestamp</th>
+                        <th style={{ textAlign: "left", paddingRight: "20px" }}>Username</th>
+                        <th style={{ textAlign: "left", paddingRight: "20px" }}>User Pool ID</th>
+                        <th style={{ textAlign: "left", paddingRight: "20px" }}>Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
                     {logins.map((login, index) => (
                         <tr key={index}>
-                            <td>{login.username}</td>
-                            <td>{login.userPoolId}</td>
+                            <td style={{ paddingRight: "20px" }}>{login.username}</td>
+                            <td style={{ paddingRight: "20px" }}>{login.userPoolId}</td>
                             <td>{new Date(login.timestamp).toLocaleString()}</td>
                         </tr>
                     ))}
