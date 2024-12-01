@@ -20,7 +20,7 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: string;
+  collectionId: string; // Always required
   trackId?: string;
   trackName?: string;
   collectionName?: string;
@@ -135,8 +135,8 @@ const DriverCatalog = () => {
           throw new Error('Failed to submit review');
         }
 
-        // Add the new review to the list
-        setReviews((prev) => [...prev, { ...newReview, username }]);
+        // Fetch updated reviews from the backend after submitting
+        handleViewDetails(selectedItem); // Re-fetch reviews
         setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
