@@ -40,18 +40,13 @@ const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.c
 const REVIEW_API_URL = 'https://dtnha4rfd4.execute-api.us-east-1.amazonaws.com/dev/reviews';
 
 const DriverCatalog: React.FC = () => {
+  const username = useAppSelector(selectUserName) || 'Guest';
   const [catalog, setCatalog] = useState<ItunesItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [activeTab, setActiveTab] = useState(0); // For tab selection
-
-  const username = useAppSelector(selectUserName) || 'Guest';
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
 
   // Fetch the driver's catalog
   useEffect(() => {
@@ -89,6 +84,10 @@ const DriverCatalog: React.FC = () => {
 
   const sponsorTabs = Object.keys(groupedCatalog);
 
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   const handleViewDetails = async (item: ItunesItem) => {
     setSelectedItem(item);
 
@@ -118,6 +117,7 @@ const DriverCatalog: React.FC = () => {
         Driver Catalog
       </Typography>
 
+      {/* Display errors or loading state */}
       {error && <Alert severity="error">{error}</Alert>}
       {loading && (
         <Box sx={{ textAlign: 'center', padding: '20px' }}>
@@ -125,6 +125,7 @@ const DriverCatalog: React.FC = () => {
         </Box>
       )}
 
+      {/* Sponsor Tabs */}
       {!loading && sponsorTabs.length > 0 && (
         <>
           <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
@@ -133,6 +134,7 @@ const DriverCatalog: React.FC = () => {
             ))}
           </Tabs>
 
+          {/* Display items for the active tab */}
           {sponsorTabs.map((sponsor, index) => (
             <Box
               key={sponsor}
@@ -178,6 +180,14 @@ const DriverCatalog: React.FC = () => {
         </>
       )}
 
+      {/* No data fallback */}
+      {!loading && sponsorTabs.length === 0 && (
+        <Typography variant="body1" align="center">
+          No items available in the catalog.
+        </Typography>
+      )}
+
+      {/* Item Details Dialog */}
       {selectedItem && (
         <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
