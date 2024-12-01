@@ -14,6 +14,7 @@ import DriverManagement from '../DriverManagement';
 import { useSettings } from '../../components/Settings/settings_context';
 import { selectUserName, selectUserType } from '../../store/userSlice';
 import FAQ from '../FAQ';
+import Reports from '../Reports';
 
 interface Props {
   currentDisplay: string;
@@ -111,6 +112,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
+    
     case "driverManagement":
       dashJsx = (
         <Paper sx={paperStyles}>
@@ -119,6 +121,16 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
         </Paper>
       );
     break;
+
+    case "reports":
+        dashJsx = (
+          <Paper sx={paperStyles}>
+            <Typography variant="h6" sx={textStyle}>Reports</Typography>
+            <Reports />
+          </Paper>
+        );
+      break;
+    
 
     case 'pointChange':
       dashJsx = (

@@ -129,6 +129,11 @@ const Home: React.FC = () => {
             <ListItemButton onClick={() => setSelectedDisplay("driverManagement")}>Driver Management</ListItemButton>
           </ListItem>
         )}
+        {(userInfo?.role === 'admin' || userInfo?.role === 'sponsor') && (
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("reports")}>Reports</ListItemButton>
+        </ListItem>
+        )}
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
