@@ -68,15 +68,15 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
 
   return (
     <List>
-    {reviews.map((review, index) => (
-      <ListItem key={index}>
-        <ListItemText
-          primary={`${review.user_name || 'Anonymous'}: ${review.comment}`}
-          secondary={`Rating: ${review.rating}`}
-        />
-      </ListItem>
-    ))}
-  </List>
+      {reviews.map((review, index) => (
+        <ListItem key={index}>
+          <ListItemText
+            primary={`${review.user_name || 'Anonymous'}: ${review.comment}`} // Ensure fallback for undefined `user_name`
+            secondary={`Rating: ${review.rating}`}
+          />
+        </ListItem>
+      ))}
+    </List>
   );
 };
 
@@ -96,18 +96,29 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
           throw new Error('Failed to fetch reviews');
         }
         const data = await response.json();
-        console.log('Fetched reviews:', data); 
-        setReviews(data); 
+        console.log('Fetched reviews:', data); // Log to confirm `user_name` is present
+    
+        // Map reviews to ensure consistent structure
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setReviews(data.map((review: any) => ({
+          user_name: review.user_name, // Map `user_name` directly
+          comment: review.comment,
+          rating: review.rating,
+        })));
       } catch (err: unknown) {
         setError((err as Error).message || 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
     };
-       
 
     fetchReviews();
   }, [itemId]);
+
+  // Add useEffect to log the reviews state
+  useEffect(() => {
+    console.log('Current reviews state:', reviews);
+  }, [reviews]);
 
   const handleReviewSubmit = async (review: Review) => {
     try {
@@ -126,7 +137,6 @@ const ReviewManager: React.FC<{ itemId: string }> = ({ itemId }) => {
       setError((err as Error).message || 'An unknown error occurred');
     }
   };
-  
 
   return (
     <Box>
