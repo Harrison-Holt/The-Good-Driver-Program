@@ -5,9 +5,10 @@ import Navibar from '../../components/Navibar';
 import DashboardInfo from '../../components/DashboardInfo';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getUsernameFromToken } from '../../utils/tokenUtils';
-import { useAppDispatch } from '../../store/hooks';
-import { login, logout, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { login, logout, selectGuestView, selectUserName, selectUserType, setEmail, setFirstName, setLastName, setUserType } from '../../store/userSlice';
 import { useSettings } from '../../components/Settings/settings_context';
+import { resetCart } from '../../store/userSlice';
 
 interface ItunesItem {
   trackId?: string;
@@ -24,23 +25,30 @@ interface ItunesItem {
 const Home: React.FC = () => {
   const [cartItems, setCartItems] = useState<ItunesItem[]>([]);
   const [selectedDisplay, setSelectedDisplay] = useState("home");
-  const [username, setUsername] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userInfo, setUserInfo] = useState<any>(null);
+
+  const guestView = useAppSelector(selectGuestView);
+  const username = useAppSelector(selectUserName);
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const { settings } = useSettings(); // Access settings from context
 
+  const userRole = useAppSelector(selectUserType);
+
   // Handle logout with redirect to Cognito
   const handleLogout = () => {
     const clientId = 'ff8qau87sidn42svsuj51v4l4';
     const cognitoDomain = 'team08-domain';
+
     const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://master.d3ggpwrnl4m4is.amplifyapp.com`;
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://conner-working.d3ggpwrnl4m4is.amplifyapp.com`;
+    
     // anthony's branch 
     //const logoutUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/logout?client_id=${clientId}&logout_uri=https://anthony-test-branch.d3ggpwrnl4m4is.amplifyapp.com`;
-
+    dispatch(resetCart());
+    localStorage.removeItem('cartItems'); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -79,12 +87,17 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const idToken = localStorage.getItem('idToken');
-    if (idToken) {
-      const decodedUsername = getUsernameFromToken(idToken);
-      setUsername(decodedUsername);
-      dispatch(login(decodedUsername));
-      if (decodedUsername) fetchUserInfo(decodedUsername);
+    if (!guestView) {
+      const idToken = localStorage.getItem('idToken');
+      if (idToken) {
+        const decodedUsername = getUsernameFromToken(idToken); // Decode the username from the token
+      //Tradd Login Hack - Don't uncomment
+      //if (true) {
+        //const decodedUsername = 'FastBuck';  
+        //setUsername(decodedUsername);
+        dispatch(login(decodedUsername));
+        if (decodedUsername) fetchUserInfo(decodedUsername);
+      }
     }
   }, [dispatch]);
 
@@ -111,6 +124,11 @@ const Home: React.FC = () => {
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("applications")}>Applications</ListItemButton>
         </ListItem>
+        {(userInfo?.role === 'admin' || userInfo?.role === 'sponsor') && (
+          <ListItem>
+            <ListItemButton onClick={() => setSelectedDisplay("driverManagement")}>Driver Management</ListItemButton>
+          </ListItem>
+        )}
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("catalog")}>Catalog</ListItemButton>
         </ListItem>
@@ -122,11 +140,14 @@ const Home: React.FC = () => {
             <Typography sx={{ ml: 1 }}>Cart</Typography>
           </ListItemButton>
         </ListItem>
-        <ListItem>
+        {(userRole === "sponsor") && <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointChange")}>Point Change</ListItemButton>
-        </ListItem>
+        </ListItem>}
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("pointHistory")}>Point History</ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => setSelectedDisplay("faq")}>FAQ</ListItemButton>
         </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setSelectedDisplay("profile")}>Profile</ListItemButton>

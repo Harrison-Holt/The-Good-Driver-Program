@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import AuthCallback from './components/AuthCallback';
 import Settings from './pages/Settings/settings';
 import PointChange from './components/PointChange.tsx';
+import FAQ from './components/FAQ';
 
 import { useSettings } from './components/Settings/settings_context';
 import { SettingsProvider } from './components/Settings/SettingsProvider.tsx';
@@ -32,7 +33,8 @@ const router = createBrowserRouter([
   { path: '/auth-callback', element: <AuthCallback /> },
   { path: '/settings', element: <Settings /> },
   { path: '/point_change', element: <PointChange /> },
-  { path: '/user-management', element: <UserManagement />}
+  { path: '/user-management', element: <UserManagement />},
+  { path: '/faq', element: <FAQ />}
 ]);
 
 // Main App component with applied global theme and settings

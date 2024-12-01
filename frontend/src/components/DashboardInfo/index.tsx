@@ -10,8 +10,10 @@ import PointChange from '../PointChange.tsx';
 import Settings from '../../pages/Settings/settings';
 import Profile from '../Profile';
 import PointHistory from '../PointHistory';
+import DriverManagement from '../DriverManagement';
 import { useSettings } from '../../components/Settings/settings_context';
 import { selectUserName, selectUserType } from '../../store/userSlice';
+import FAQ from '../FAQ';
 
 interface Props {
   currentDisplay: string;
@@ -29,7 +31,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
   
   // Main container styles
   const containerStyles = {
-    width: '80%',
+    width: '95%',
     padding: '20px',
     backgroundColor: settings.isHighContrast ? '#000' : theme.palette.background.default,
     color: settings.isHighContrast ? '#FFF' : theme.palette.text.primary,
@@ -109,6 +111,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
+    case "driverManagement":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <Typography variant="h6" sx={textStyle}>Driver Management</Typography>
+          <DriverManagement />
+        </Paper>
+      );
+    break;
+
     case 'pointChange':
       dashJsx = (
         <Paper sx={paperStyles}>
@@ -118,7 +129,7 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
           <PointChange />
         </Paper>
       );
-      break;
+    break;
 
     case 'pointHistory':
       dashJsx = (
@@ -142,7 +153,15 @@ const DashboardInfo: React.FC<Props> = ({ currentDisplay, setSearchTerm }) => {
       );
       break;
 
-    case 'settings':
+    case "faq":
+      dashJsx = (
+        <Paper sx={paperStyles}>
+          <FAQ />
+        </Paper>
+      );
+      break;
+
+    case "settings":
       dashJsx = (
         <Paper sx={paperStyles}>
           <Typography variant="h6" sx={textStyle}>

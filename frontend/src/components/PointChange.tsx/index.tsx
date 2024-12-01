@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, TextField, Typography, Alert } from '@mui/material';
-import { fetchUserInfo } from '../../utils/api'; // Import your fetchUserInfo function
+import { fetchSponsorDrivers, fetchUserInfo } from '../../utils/api'; 
 import audioFeedbackFile from '../../assets/audio_feedback.wav'; // Import audio file
+import { useAppSelector } from '../../store/hooks';
+import { selectUserName } from '../../store/userSlice';
+import SearchBar from '../SearchBar';
 
 const PointChange: React.FC = () => {
   const [driverUsername, setDriverUsername] = useState<string>('');
+  const [driverList, setDriverList] = useState<string[]>([]);
   const [points, setPoints] = useState<number>(0);
   const [reason, setReason] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const username = useAppSelector(selectUserName);
+
   const playAudioFeedback = () => {
     if (!audioFeedbackFile) return; // Ensure the audio file is loaded
     const audio = new Audio(audioFeedbackFile);
     audio.play().catch((err) => console.error('Audio playback failed:', err));
-  };
-
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDriverUsername(event.target.value);
   };
 
   const handlePointChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +29,24 @@ const PointChange: React.FC = () => {
   const handleReasonChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReason(event.target.value);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (username) {
+        let userInfo = await fetchUserInfo(username);
+        if (userInfo?.sponsor_org_id) {
+          const driverInfo = await fetchSponsorDrivers(userInfo.sponsor_org_id.toString())
+          var driverUsernames: string[] = [];
+          driverInfo?.map((driver) => {
+            driverUsernames.push(driver.username)
+          })
+          setDriverList(driverUsernames)
+          console.log(driverList);
+        }
+      }
+    }
+    fetchData();
+  }, [])
 
   const handleSubmit = async () => {
     setSuccessMessage(null);
@@ -39,14 +59,12 @@ const PointChange: React.FC = () => {
     }
 
     try {
-      // Fetch the user info for validation (optional)
       const userInfo = await fetchUserInfo(driverUsername);
       if (!userInfo) {
         setErrorMessage(`User with username ${driverUsername} not found.`);
         return;
       }
 
-      // API call to update points
       const response = await fetch(
         'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/team08-points-connection',
         {
@@ -91,13 +109,14 @@ const PointChange: React.FC = () => {
       <Typography variant="h6">Update Driver Points</Typography>
       {successMessage && <Alert severity="success">{successMessage}</Alert>}
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-      <TextField
+      {/* <TextField
         label="Driver Username"
         variant="outlined"
         value={driverUsername}
         onChange={handleUsernameChange}
         fullWidth
-      />
+      /> */}
+      <SearchBar setSearchTerm={setDriverUsername} label={"Driver Username"} options={driverList}/>
       <TextField
         type="number"
         label="Points"
