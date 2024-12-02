@@ -75,7 +75,7 @@ const Profile: React.FC = () => {
     };
     console.log(oHist);
 
-    const generatePDF = () => {
+    const generatePDF1 = () => {
         const doc = new jsPDF();
         const title = userType === 'sponsor'
           ? 'Point Change History for All Drivers'
@@ -93,14 +93,24 @@ const Profile: React.FC = () => {
           body: tableData,
           startY: 20,
         });
+    
+        doc.save(`Point_History_${username}.pdf`);
+      };
+
+      const generatePDF2 = () => {
+        const doc = new jsPDF();
+        const title = userType === 'sponsor'
+          ? 'Order History for All Drivers'
+          : `Order History for ${username}`;
+        doc.text(title, 10, 10);
 
         doc.autoTable({
             head: [['Order ID', 'Item(s)']],
             body: [oIDs,oItems],
-            startY: 40,
+            startY: 20,
         });
     
-        doc.save(`Point_History_${username}.pdf`);
+        doc.save(`Order_History_${username}.pdf`);
       };
 
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,8 +176,11 @@ const Profile: React.FC = () => {
             </div>
 
             <div>
-                <Button variant="contained" color="primary" onClick={generatePDF}>
-                    Generate Report 
+                <Button variant="contained" color="primary" onClick={generatePDF1}>
+                    Generate Points Report 
+                </Button>
+                <Button variant="contained" color="primary" onClick={generatePDF2}>
+                    Generate Order Report 
                 </Button>
             </div>
 
