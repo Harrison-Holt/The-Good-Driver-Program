@@ -67,7 +67,7 @@ const DriverCatalog = () => {
         }
 
         const jsonResponse = await response.json();
-        const data = JSON.parse(jsonResponse.body); // Parse the stringified body field
+        const data = typeof jsonResponse.body === 'string' ? JSON.parse(jsonResponse.body) : jsonResponse.body;
 
         // Group items by sponsor_username
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
