@@ -230,65 +230,78 @@ const DriverCatalog = () => {
       )}
 
       {selectedItem && (
-        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth   PaperProps={{
-          sx: { backgroundColor: 'white', color: 'black' }, 
-        }}>
-          <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
-          <DialogContent>
-            <Box sx={{ textAlign: 'center' }}>
-              <img
-                src={selectedItem.artworkUrl100}
-                alt={selectedItem.trackName || selectedItem.collectionName}
-                style={{ width: '200px', marginBottom: '20px' }}
-              />
-              <Typography>
-                <strong>Artist:</strong> {selectedItem.artistName}
-              </Typography>
-              <Typography variant="body2">Points: {selectedItem.points || 0}</Typography>
-            </Box>
-            <Typography variant="h6" sx={{ marginTop: '20px' }}>
-              Reviews
-            </Typography>
-            <List>
-              {reviews.length > 0 ? (
-                reviews.map((review, index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={<StarRating rating={review.rating} />}
-                      secondary={`${review.username}: ${review.comment}`}
-                    />
-                  </ListItem>
-                ))
-              ) : (
-                <ListItem>
-                  <ListItemText primary="No reviews yet." />
-                </ListItem>
-              )}
-            </List>
-            <Box sx={{ marginTop: '20px' }}>
-              <Typography variant="h6">Submit a Review</Typography>
-              <TextField
-                fullWidth
-                label="Comment"
-                value={newReview.comment}
-                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                sx={{ marginBottom: '10px' }}
-              />
-              <StarRating
-                rating={newReview.rating}
-                onChange={(rating) => setNewReview({ ...newReview, rating })}
-              />
-              <Button variant="contained" color="primary" onClick={handleSubmitReview}>
-                Submit Review
-              </Button>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+   <Dialog
+   open={!!selectedItem}
+   onClose={handleDialogClose}
+   maxWidth="md"
+   fullWidth
+   PaperProps={{
+     sx: { backgroundColor: 'white', color: 'black' }, // Explicitly set the background and text color
+   }}
+ >
+   <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
+   <DialogContent>
+     <Box sx={{ textAlign: 'center' }}>
+       <img
+         src={selectedItem.artworkUrl100}
+         alt={selectedItem.trackName || selectedItem.collectionName}
+         style={{ width: '200px', marginBottom: '20px' }}
+       />
+       <Typography>
+         <strong>Artist:</strong> {selectedItem.artistName}
+       </Typography>
+       <Typography variant="body2">Points: {selectedItem.points || 0}</Typography>
+     </Box>
+     <Typography variant="h6" sx={{ marginTop: '20px' }}>
+       Reviews
+     </Typography>
+     <List>
+       {reviews.length > 0 ? (
+         reviews.map((review, index) => (
+           <ListItem key={index}>
+             <ListItemText
+               primary={<StarRating rating={review.rating} />}
+               secondary={`${review.username}: ${review.comment}`}
+             />
+           </ListItem>
+         ))
+       ) : (
+         <ListItem>
+           <ListItemText primary="No reviews yet." />
+         </ListItem>
+       )}
+     </List>
+     <Box sx={{ marginTop: '20px' }}>
+       <Typography variant="h6">Submit a Review</Typography>
+       <TextField
+         fullWidth
+         label="Your Username"
+         value={newReview.username}
+         onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
+         sx={{ marginBottom: '10px' }}
+       />
+       <TextField
+         fullWidth
+         label="Comment"
+         value={newReview.comment}
+         onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+         sx={{ marginBottom: '10px' }}
+       />
+       <StarRating
+         rating={newReview.rating}
+         onChange={(rating) => setNewReview({ ...newReview, rating })}
+       />
+       <Button variant="contained" color="primary" onClick={handleSubmitReview} sx={{ marginTop: '10px' }}>
+         Submit Review
+       </Button>
+     </Box>
+   </DialogContent>
+   <DialogActions>
+     <Button onClick={handleDialogClose} color="primary">
+       Close
+     </Button>
+   </DialogActions>
+ </Dialog> 
       )}
     </Box>
   );
