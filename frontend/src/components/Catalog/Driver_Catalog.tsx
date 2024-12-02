@@ -22,23 +22,25 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: number;
+  collectionId: string;
   trackName?: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
+  collectionPrice?: number;
   points?: number;
-}
-
-interface SponsorCatalog {
-  sponsorUsername: string;
-  items: ItunesItem[];
+  rating?: number;
 }
 
 interface Review {
   username: string;
   rating: number;
   comment: string;
+}
+
+interface SponsorCatalog {
+  sponsorUsername: string;
+  items: ItunesItem[];
 }
 
 const DRIVER_CATALOG_URL = 'https://0w2ntl28if.execute-api.us-east-1.amazonaws.com/dec-db/driver_catalog';
@@ -54,7 +56,7 @@ const DriverCatalog = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
-  // Fetch and group the catalogs by sponsor_username
+  // Fetch and group catalog items by sponsor_username
   useEffect(() => {
     const fetchCatalogs = async () => {
       setLoading(true);
@@ -66,17 +68,15 @@ const DriverCatalog = () => {
           throw new Error('Error fetching driver catalog.');
         }
 
-        const jsonResponse = await response.json();
-        const data = typeof jsonResponse.body === 'string' ? JSON.parse(jsonResponse.body) : jsonResponse.body;
+        const data = await response.json();
 
-        // Group items by sponsor_username
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const groupedCatalogs: SponsorCatalog[] = data.reduce((result: SponsorCatalog[], item: any) => {
-          const sponsor = result.find((group) => group.sponsorUsername === item.sponsor_username);
+        const groupedCatalogs: SponsorCatalog[] = data.reduce((acc: SponsorCatalog[], item: any) => {
+          const sponsor = acc.find((group) => group.sponsorUsername === item.sponsor_username);
+
           const catalogItem: ItunesItem = {
             collectionId: item.catalog_id,
             trackName: item.item_name,
-            collectionName: item.item_name,
             artistName: item.artist,
             artworkUrl100: item.artwork,
             points: item.points,
@@ -85,10 +85,13 @@ const DriverCatalog = () => {
           if (sponsor) {
             sponsor.items.push(catalogItem);
           } else {
-            result.push({ sponsorUsername: item.sponsor_username, items: [catalogItem] });
+            acc.push({
+              sponsorUsername: item.sponsor_username,
+              items: [catalogItem],
+            });
           }
 
-          return result;
+          return acc;
         }, []);
 
         setCatalogs(groupedCatalogs);
@@ -115,7 +118,7 @@ const DriverCatalog = () => {
     try {
       const response = await fetch(`${REVIEW_API_URL}?itemId=${item.collectionId}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: Review[] = await response.json();
         setReviews(data);
       } else {
         setReviews([]);
@@ -124,11 +127,6 @@ const DriverCatalog = () => {
       console.error('Failed to fetch reviews:', error);
       setReviews([]);
     }
-  };
-
-  const handleDialogClose = () => {
-    setSelectedItem(null);
-    setReviews([]);
   };
 
   const handleSubmitReview = async () => {
@@ -148,9 +146,10 @@ const DriverCatalog = () => {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to submit review');
+          throw new Error('Failed to submit review.');
         }
 
+        // Refresh reviews after submitting
         handleViewDetails(selectedItem);
         setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
@@ -159,6 +158,11 @@ const DriverCatalog = () => {
         alert('Failed to submit review.');
       }
     }
+  };
+
+  const handleDialogClose = () => {
+    setSelectedItem(null);
+    setReviews([]);
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
