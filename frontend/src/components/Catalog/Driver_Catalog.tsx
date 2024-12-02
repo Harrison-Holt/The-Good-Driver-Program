@@ -155,7 +155,7 @@ const DriverCatalog = () => {
 
         // Refresh reviews after submitting
         handleViewDetails(selectedItem);
-        setNewReview({ username, comment: '', rating: 5 });
+        setNewReview({ user_name, comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
         console.error('Error submitting review:', error);
