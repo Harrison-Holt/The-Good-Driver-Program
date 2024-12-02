@@ -230,7 +230,9 @@ const DriverCatalog = () => {
       )}
 
       {selectedItem && (
-        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth>
+        <Dialog open={!!selectedItem} onClose={handleDialogClose} maxWidth="md" fullWidth   PaperProps={{
+          sx: { backgroundColor: 'white', color: 'black' }, 
+        }}>
           <DialogTitle>{selectedItem.trackName || selectedItem.collectionName}</DialogTitle>
           <DialogContent>
             <Box sx={{ textAlign: 'center' }}>
