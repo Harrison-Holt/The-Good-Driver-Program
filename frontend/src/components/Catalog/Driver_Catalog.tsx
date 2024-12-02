@@ -33,7 +33,7 @@ interface ItunesItem {
 }
 
 interface Review {
-  username: string;
+  user_name: string;
   rating: number;
   comment: string;
 }
@@ -55,7 +55,7 @@ const DriverCatalog = () => {
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({
-    username: '',
+    user_name: '',
     comment: '',
     rating: 5,
   });
@@ -138,7 +138,7 @@ const DriverCatalog = () => {
       try {
         const payload = {
           itemId: selectedItem.collectionId,
-          user_name: newReview.username,
+          user_name: newReview.user_name,
           rating: newReview.rating,
           comment: newReview.comment,
         };
@@ -155,7 +155,7 @@ const DriverCatalog = () => {
 
         // Refresh reviews after submitting
         handleViewDetails(selectedItem);
-        setNewReview({ user_name, comment: '', rating: 5 });
+        setNewReview({ user_name: '', comment: '', rating: 5 });
         alert('Review submitted successfully!');
       } catch (error) {
         console.error('Error submitting review:', error);
@@ -265,7 +265,7 @@ const DriverCatalog = () => {
            <ListItem key={index}>
              <ListItemText
                primary={<StarRating rating={review.rating} />}
-               secondary={`${review.username}: ${review.comment}`}
+               secondary={`${review.user_name}: ${review.comment}`}
              />
            </ListItem>
          ))
@@ -280,8 +280,8 @@ const DriverCatalog = () => {
        <TextField
          fullWidth
          label="Your Username"
-         value={newReview.username}
-         onChange={(e) => setNewReview({ ...newReview, username: e.target.value })}
+         value={newReview.user_name}
+         onChange={(e) => setNewReview({ ...newReview, user_name: e.target.value })}
          sx={{ marginBottom: '10px' }}
        />
        <TextField
