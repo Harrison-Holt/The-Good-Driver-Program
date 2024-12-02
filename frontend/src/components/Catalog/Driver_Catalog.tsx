@@ -22,19 +22,17 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUserName } from '../../store/userSlice';
 
 interface ItunesItem {
-  collectionId: string;
+  collectionId: number;
   trackName?: string;
   collectionName?: string;
   artistName: string;
   artworkUrl100: string;
-  collectionPrice?: number;
   points?: number;
-  rating?: number;
 }
 
 interface SponsorCatalog {
-  sponsorUsername: string; // Sponsor username
-  items: ItunesItem[]; // Items for the sponsor
+  sponsorUsername: string;
+  items: ItunesItem[];
 }
 
 interface Review {
@@ -56,7 +54,7 @@ const DriverCatalog = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
 
-  // Fetch the catalogs grouped by sponsor_username
+  // Fetch and group the catalogs by sponsor_username
   useEffect(() => {
     const fetchCatalogs = async () => {
       setLoading(true);
@@ -67,13 +65,31 @@ const DriverCatalog = () => {
         if (!response.ok) {
           throw new Error('Error fetching driver catalog.');
         }
-        const data: { sponsor_username: string; items: ItunesItem[] }[] = await response.json();
 
-        // Group catalogs by sponsor_username
-        const groupedCatalogs = data.map((entry) => ({
-          sponsorUsername: entry.sponsor_username,
-          items: entry.items,
-        }));
+        const jsonResponse = await response.json();
+        const data = JSON.parse(jsonResponse.body); // Parse the stringified body field
+
+        // Group items by sponsor_username
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const groupedCatalogs: SponsorCatalog[] = data.reduce((result: SponsorCatalog[], item: any) => {
+          const sponsor = result.find((group) => group.sponsorUsername === item.sponsor_username);
+          const catalogItem: ItunesItem = {
+            collectionId: item.catalog_id,
+            trackName: item.item_name,
+            collectionName: item.item_name,
+            artistName: item.artist,
+            artworkUrl100: item.artwork,
+            points: item.points,
+          };
+
+          if (sponsor) {
+            sponsor.items.push(catalogItem);
+          } else {
+            result.push({ sponsorUsername: item.sponsor_username, items: [catalogItem] });
+          }
+
+          return result;
+        }, []);
 
         setCatalogs(groupedCatalogs);
       } catch (err) {
@@ -135,7 +151,6 @@ const DriverCatalog = () => {
           throw new Error('Failed to submit review');
         }
 
-        // Fetch updated reviews after submitting
         handleViewDetails(selectedItem);
         setNewReview({ username, comment: '', rating: 5 });
         alert('Review submitted successfully!');
@@ -146,7 +161,7 @@ const DriverCatalog = () => {
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
 
@@ -166,8 +181,8 @@ const DriverCatalog = () => {
       {!loading && catalogs.length > 0 && (
         <>
           <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Sponsor Tabs">
-            {catalogs.map((catalog) => (
-              <Tab key={catalog.sponsorUsername} label={catalog.sponsorUsername} />
+            {catalogs.map((catalog, index) => (
+              <Tab key={index} label={catalog.sponsorUsername} />
             ))}
           </Tabs>
 
