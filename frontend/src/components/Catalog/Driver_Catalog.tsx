@@ -138,7 +138,7 @@ const DriverCatalog = () => {
       try {
         const payload = {
           itemId: selectedItem.collectionId,
-          user_name: username,
+          user_name: newReview.username,
           rating: newReview.rating,
           comment: newReview.comment,
         };
