@@ -54,8 +54,12 @@ const DriverCatalog = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItunesItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [newReview, setNewReview] = useState<Review>({ username, comment: '', rating: 5 });
-
+  const [newReview, setNewReview] = useState<Review>({
+    username: '',
+    comment: '',
+    rating: 5,
+  });
+  
   // Fetch and group catalog items by sponsor_username
   useEffect(() => {
     const fetchCatalogs = async () => {
